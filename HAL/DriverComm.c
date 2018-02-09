@@ -51,9 +51,34 @@ void InitSCI(void)
     UCA1CTL1 |= UCSWRST;           // **Put state machine in reset**
     UCA1CTL1 |= UCSSEL_1;          // ACLK
 
-    UCA1BR0 = 0x82;                // 16MHz 19200 (see User's Guide)
-    UCA1BR1 = 0x06;                // 16MHz 19200//9600=1666(0x682)  57600=277(x115) 115200=138(8a)
-									   //19200=833(x341) 38400=416(x1a0)
+    switch(g_ucPara101[IECP_OBJ_COM0])	
+		{  	
+		case 0://9600		
+		UCA1BR0 = 0x82;		
+		UCA1BR1 = 0x06;		
+		break;	
+		case 1://19200		
+		UCA1BR0 = 0x41;		
+		UCA1BR1 = 0x03;		
+		break;		
+		case 2://38400		
+		UCA1BR0 = 0xa0;		
+		UCA1BR1 = 0x01;		
+		break;			   	
+		case 3://57600   		
+		UCA1BR0 = 0x15;		
+		UCA1BR1 = 0x01;		
+		break; 	
+		case 4://115200						
+		UCA1BR0 = 0x8a;                // 9600=1666(0x682)  57600=277(x115) 115200=138(8a)    		
+		UCA1BR1 = 0x00;                //19200=833(x341) 38400=416(x1a0)									   		
+		break;
+		default://9600		
+		UCA1BR0 = 0x82;		
+		UCA1BR1 = 0x06;
+		g_ucPara101[IECP_OBJ_COM0]=0;
+		g_ucParaChang |= BIT1;
+		}
     UCA1CTL1 &= ~UCSWRST;          // **Initializ1 RX 中断+UCTXIE
     UCA1IE |= (UCRXIE + UCTXIE);              // 使能 USCI_A0 RX 中断
     

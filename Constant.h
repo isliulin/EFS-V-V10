@@ -88,7 +88,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define IECP_AUT_MODE        5//Ö÷¶¯ÉÏ´«Ä£Ê½£¬0=Ö÷Õ¾·¢ËÍ³õÊ¼»¯ºó·½¿ÉÖ÷¶¯ÉÏ´«ºÍ×ÜÕÙ
                               //1=ÊÕµ½Ö÷Õ¾ÈÎºÎÃüÁîºó·½¿ÉÖ÷¶¯ÉÏ´«£¬ÈÎºÎÊ±ºò¶¼ÏìÓ¦×ÜÕÙÃüÁî¡£
                               //2=Ö÷¶¯ÉÏ´«²»ÊÜÈÎºÎÔ¼Êø
-#define IECP_OBJ_COM0        6 //´®¿Ú0Ö¸¶¨µÄ¶ÔÏó£¬0=RF,1=GPRS,2=DBG,3=EX,4=ODU1,5=ODU2
+#define IECP_OBJ_COM0        6 //µ÷ÊÔ´®¿Ú²¨ÌØÂÊ£¬0=9600£,19200£,38400£,57600£,115200
 #define IECP_OBJ_COM1        7
 #define IECP_OBJ_COM2        8
 #define IECP_OBJ_COM3        9
