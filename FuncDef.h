@@ -208,7 +208,7 @@ extern "C"
         void InitComm(void);
         void InitCommProgram(void);
         int CommRcvData(unsigned char *pBuf,int MaxLen,int uartId);
-        int CommSendData(unsigned char *pBuf,int BufLen,int uartId);
+        int CommSendData(unsigned char *pBuf,int BufLen,unsigned char uartId);
 
 		unsigned int YcIdToYxId(unsigned int RYxNo);
         unsigned int CrcCount(unsigned int *p, unsigned int Length);
@@ -235,7 +235,7 @@ extern "C"
 
 		extern unsigned int YcIdToYxId(unsigned int RYxNo);
         extern int CommRcvData(unsigned char *pBuf,int MaxLen,int uartId);
-        extern int CommSendData(unsigned char *pBuf,int BufLen,int uartId);
+        extern int CommSendData(unsigned char *pBuf,int BufLen,unsigned char uartId);
         extern unsigned int CrcCount(unsigned int *p, unsigned int Length);
        extern unsigned char AddChar(unsigned char *p, unsigned int length);
 	   unsigned int AddInt(unsigned int *p, unsigned int length);

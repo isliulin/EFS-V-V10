@@ -293,7 +293,12 @@ void CBJ101S::SetBaseCfg(void)
           RecFrameAA(&pReceiveFrame->FrameAA);
           continue;
         }  //张弢 0404 短信接收
-        
+         if(pReceiveFrame->FrameEB.Start1 == 0xEB)   //加密报文解析
+        {
+            BYTE FrameLen = MAKEWORD(pReceiveFrame->FrameEB.LengthL,pReceiveFrame->FrameEB.LengthH);
+            RecFrameEB(FrameLen);//RecFrameEB();
+            continue;
+        }         
      }
   }
 

@@ -492,7 +492,7 @@ extern unsigned int g_test;
     unsigned char g_uc101BuffDataHead;   //GPRS通信接收缓冲区数据头    
     unsigned char g_uc101BuffTail;   //GPRS通信接收缓冲区数据尾
     
-    unsigned int bFrameReceived[COMM_PORT_NUM];   //缓冲区接收新数据标志
+    unsigned char bFrameReceived[COMM_PORT_NUM];   //缓冲区接收新数据标志
     //unsigned int g_ucBuffHead[2];   //通信接收缓冲区数据头
     //unsigned int g_ucBuffTail[2];   //通信接收缓冲区数据尾
     
@@ -583,7 +583,7 @@ extern unsigned int g_test;
     //extern unsigned char g_unLEDTX_Buff[MAX_TXBUFF_101_LEN];         //数据发送数组
     
 
-    extern unsigned int bFrameReceived[COMM_PORT_NUM];   //缓冲区接收新数据标志
+    extern unsigned char bFrameReceived[COMM_PORT_NUM];   //缓冲区接收新数据标志
 
     //extern unsigned int g_ucBuffHead[2];         //通信接收缓冲区数据头
     //extern unsigned int g_ucBuffTail[2];         //通信接收缓冲区数据尾
@@ -750,10 +750,10 @@ extern unsigned int g_test;
 
         unsigned char comm_rec_flag;
 
-        unsigned char phone_perm[4];	//          5        4         3        2       1      0
+        //unsigned char phone_perm[4];	//          5        4         3        2       1      0
 						                    //      故障复归  发生故障 主动上报 有效8脉冲 掉电  状态异常
 						//手机的权限控制字
-        unsigned char SMS_array[28];      /////////等待发送的故障，六种情况，4个手机号，共24个；					
+        unsigned char SMS_array;      /////////等待发送的故障，六种情况，4个手机号，共24个；					
     
         unsigned char send_phase;
         unsigned int yc[8];	// 8脉冲遥测值
@@ -874,8 +874,8 @@ extern unsigned int g_test;
         extern unsigned char pulse_counter;               ////////对采集的脉冲数进行统计，用作数据存储定位
        
         extern unsigned char comm_rec_flag;
-        extern unsigned char phone_perm[4];	//          5        4         3        2       1      0						                    //      故障复归  发生故障 主动上报 有效8脉冲 掉电  状态异						//手机的权限控制字
-        extern unsigned char SMS_array[28];
+        //extern unsigned char phone_perm[4];	//          5        4         3        2       1      0						                    //      故障复归  发生故障 主动上报 有效8脉冲 掉电  状态异						//手机的权限控制字
+        extern unsigned char SMS_array;
      
         extern unsigned char send_phase;
         extern unsigned int yc[8];	// 8脉冲遥测值

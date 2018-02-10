@@ -1439,13 +1439,13 @@ void SMS_CHINESE(unsigned char SMS_Sequence, unsigned char ucSMSType)
 
         g_unGPRSTX_Buff[19 + g_unGPRSTX_Buff[10]]= 96; //115-20+1
         //if((eight_select&0x7f)>0)                    ////////////第一次发生8脉冲	
-        if(((SMS_array[0]==10)&&((eight_select&0x02)==0x02))||((SMS_array[0]==11)&&((eight_select&0x04)==0x04))||((SMS_array[0]==12)&&((eight_select&0x08)==0x08)))	
+        if(((SMS_array==10)&&((eight_select&0x02)==0x02))||((SMS_array==11)&&((eight_select&0x04)==0x04))||((SMS_array==12)&&((eight_select&0x08)==0x08)))	
         {
-            if((SMS_array[0]==10)&&((eight_select&0x02)==0x02))
+            if((SMS_array==10)&&((eight_select&0x02)==0x02))
                		eight_select&=~BIT1;
-            else if((SMS_array[0]==11)&&((eight_select&0x04)==0x04))
+            else if((SMS_array==11)&&((eight_select&0x04)==0x04))
                		eight_select&=~BIT2;
-            else if((SMS_array[0]==12)&&((eight_select&0x08)==0x08))
+            else if((SMS_array==12)&&((eight_select&0x08)==0x08))
                		eight_select&=~BIT3;
             for(i = 0;i < 6;i++)
             {

@@ -90,7 +90,7 @@ void app(void)@"APPLICATION"
  		CreatNewSMS(ABN_CHECK);
 		}       
 	WDG_CLR;
-        Comm_LED_101(); //液晶通信
+        //Comm_LED_101(); //液晶通信
         WDG_CLR;
         //if(g_ucGPRSState==GPRSState_IDLE)
 	 Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS

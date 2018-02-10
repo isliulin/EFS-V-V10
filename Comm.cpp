@@ -206,11 +206,11 @@ int CommRcvData(unsigned char *pBuf,int MaxLen,int uartId)
   return rtDaLen;
 }
 
-int CommSendData(unsigned char *pBuf,int BufLen,int uartId)
+int CommSendData(unsigned char *pBuf,int BufLen,unsigned char uartId)
 {
-    if(uartId >= COMM_PORT_NUM)//不允许发送到无效串口 
+    if((uartId) >= COMM_PORT_NUM)//不允许发送到无效串口 
       return 0;
-
+//uartId=uartId-1;
   //  if((uartId == g_CmIdGPRS) && !g_GprsPowerSt)//for test 模拟GPRS关闭状态，关闭时子站应该不发数据
        // return 0;
               
