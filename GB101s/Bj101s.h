@@ -131,6 +131,17 @@ class CBJ101S : public CPrtcSms//CPSecondary
         BYTE  m_BeatFlag;
 	 BYTE  m_LuboRe10Flag;	
         WORD time_delay_set;//主站发的延时获得的时间
+
+ 	  BYTE m_bEncObject;
+        BYTE m_bSymmetricKeyFlag;
+        //BYTE m_bHostRandom[8];   //主站随机数，用于加密数据
+        //BYTE m_bHostMac[4];      //主站MAC 值
+        
+        BYTE m_bCerToolID[8];    //证书管理工具ID
+        BYTE m_bHostCertifyFlag;  //主站认证标志位，认证以后置0x55
+        BYTE m_bToolCertifyFlag;  //运维工具证标志位，认证以后置0x55
+        BYTE m_bEncDataFlag;     //数据加密标志位
+        WORD m_wUpdataFaultFlag;
                 
         DWORD m_retxdnum;
         //WORD  m_ReOpenGprsNum;
@@ -247,6 +258,62 @@ class CBJ101S : public CPrtcSms//CPSecondary
 		BOOL SenddelayeAck(void);
 		BOOL SendDCos(void) ;
 		BOOL SendDSoe(void) ;
+
+		WORD GetDataFromeEncChip(BYTE *pRecData);
+        BOOL GetChipID(BYTE *pChipID);
+        BOOL GetChipKeyVer(BYTE *Key);
+        BOOL GetChipRandom(BYTE *pRandom);
+        BOOL GetChipRandomSign(BYTE*pHostRandom,BYTE *pRecSign);
+        BOOL VerifySign(BYTE KeyIndex,BYTE*Sign);
+        WORD EncryptData(BYTE *pClearData,WORD DataLen,BYTE *pEncData);
+        WORD DecryptData(BYTE *EncData,WORD EncDataLen,BYTE *ClearData);
+        BOOL VerifyDataSign(BYTE asKey,BYTE* pData,WORD Datalen,BYTE* pSign,WORD SignLen);
+        BOOL UpdataCer(BYTE CerID, BYTE* CerTxt, WORD CerTxtLen);
+        BOOL LoadCer(BYTE* CerTxt, WORD CerTxtLen);
+        BOOL ReadCerLen(BYTE *CerLen);
+        BOOL ReadTestCer(BYTE *CerLen,BYTE *CerTxt);
+        WORD ReadRealCer(BYTE *CerTxt);
+        BOOL UpdataPrivateKey(BYTE asKID,BYTE NewKeyVer,BYTE* keySignData,WORD dataLen);
+        BOOL RecovPrivateKey(BYTE asKID,BYTE* keySignData,WORD dataLen);
+        BOOL VerifyToolCer(BYTE *pCerTxt,WORD CerLen);
+        BOOL VerifyToolSignData(BYTE *pSignTxt,BYTE SignLen);
+        BOOL ReadPubKey(BYTE *pPubKey);
+        WORD EncryptToolData(BYTE *pOriginalData, WORD  OriginalDataLen,BYTE *pEncData);
+        WORD DecryptToolData(BYTE *pEncData, WORD  EncDataLen,BYTE *pClearData);
+        BOOL RecovToolKey(BYTE *pKeyData, BYTE KeyDataLen);
+        WORD SignData(BYTE *pOriginalData,WORD OriginalDataLen,BYTE *pSrReqData);
+        BOOL SendFrameEBHead(WORD FrameType,BYTE AppType);
+        BOOL SendFrameEBAppData(BYTE AppDataBytes,BYTE *pAppData);
+        BOOL SendFrameEBEixampleData(BYTE EixampleDataBytes,BYTE *pEixampleData);
+        BOOL SendEncData(BYTE EncDataLen,BYTE *pEncData);
+        BOOL SendAppData(BYTE EixampleDataBytes,BYTE *pEixampleData);
+        BOOL SendFrameEBTail(void);
+        BOOL SendEncFrameAck(WORD Ack,WORD FrameType,BYTE AppType);
+        BOOL RecCipherTxt(BYTE *EncData,WORD EncDataLen,BYTE *pClearData);
+        BOOL SendGatewayVerify(void);
+        BOOL SendGatewayVerifyAck(void);
+        BOOL SendHostVerify(void);
+        BOOL SendHostVerifyAck(void);
+        BOOL SendEncChipID(BYTE type);
+        BOOL SendChipKeyVer(BYTE type);
+        BOOL SendUpdataKeyAck(void);
+        BOOL SendRecovKeyAck(void);
+        BOOL SendCerUpdataAck(void);  //远程证书更新
+        BOOL SendCerDownloadAck(void);  //证书下载
+        BOOL SendCer(BYTE Type);  //读取芯片证书
+        BOOL SendToolVerifyAck(void);
+        BOOL VerifyToolSign(void);
+        BOOL SendUnitID(void);
+        BOOL SendEncPubKey(void);
+        BOOL SendSignCerTxt(void);
+        BOOL SendLoadCerAck(void);
+        BOOL SendReWriteCerAck(void);
+        BOOL SendToolRecovKey(void);
+        BOOL RecClearTxt(void);
+        BOOL RecFrameEB(WORD ProcBytes);
+        WORD SearchEncFrame(void);
+        BOOL RcvEncData(void);
+
 		
 		void write_10linkaddr(int  data);
 		BOOL SendresetAck(void);

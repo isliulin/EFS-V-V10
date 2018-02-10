@@ -611,7 +611,21 @@ extern "C"
         extern void Comm_232(void);
 
 #endif        
-        
+//======================================================================
+//                  DriverEncrypt.c--¼ÓÃÜÐ¾Æ¬Çý¶¯Ä£¿é                
+//======================================================================  
+#ifdef _PRTC_COMM
+	int RecBytesFromEsam(unsigned char *pRecDataTemp);
+	int SendCmdToEncChip(const char *sCmd,BYTE *EncDate,WORD DataLen);
+	unsigned long StrToHex(char const *SrcStr,BYTE len);
+	void SendBytesToEncChip(unsigned char *pdata,unsigned char num);
+#else
+	extern int RecBytesFromEsam(unsigned char *pRecDataTemp);
+	extern int SendCmdToEncChip(const char *sCmd,BYTE *EncDate,WORD DataLen);
+	extern unsigned long StrToHex(char const *SrcStr,BYTE len);
+	extern void SendBytesToEncChip(unsigned char *pdata,unsigned char num);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
