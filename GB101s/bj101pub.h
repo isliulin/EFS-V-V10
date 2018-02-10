@@ -217,7 +217,7 @@
 #define UPDATA_KEY_DATA             3
 #define SIGN_KEY_DATA               183
 #define S_KEY_ID                    247
-
+#define MAX_ENC_FRAME_LEN                    384
 typedef union 
 {
     VFrame10 Frame10;

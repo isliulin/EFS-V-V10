@@ -533,6 +533,15 @@ extern unsigned int g_test;
     unsigned int g_unOffset;    //ÎïÀíµØÖ·×ª»»Æ«ÒÆÁ¿*/
     char  ComtrderCfg1[350];
     char  ComtrderCfg_adj[50];
+
+        unsigned char g_EncComNo;        //ÄÄ¸ö´®¿ÚÔÚÅÜ¼ÓÃÜÊı¾İ1==GPRS 2 ==DeBug£¬ ÆäÓàÎŞĞ§
+		//WORD g_validity[64];
+        unsigned char g_bEncCerTxt[1024];  //¼ÓÃÜCERÖ¤Êé
+        unsigned char g_bHostRandom[8];  //Ö÷Õ¾Ëæ»úÊı
+        unsigned char m_bUnitRandom[8];   //ÖÕ¶Ë×ÔÉíËæ»úÊı£¬ÓÃÓÚÓëÔËÎ¬¹¤¾ßÍ¨ĞÅ
+        int g_wEncCerWPtr;                 //CerÖ¤Êé¼ÇÂ¼Î»Ö	
+        char g_bUnitID[25];//ÖÕ¶ËID,24×Ö½ÚµÚÒ»¸ö×ÖÊÇ½Ú³¤¶È   
+        unsigned char g_bAppType;//¼ÓÃÜ±¨ÎÄÓ¦ÓÃÀàĞÍ        
 #else
     extern struct  sTX_BUFF g_sTxBuff[COMM_PORT_NUM];
     extern struct  sRX_BUFF g_sRxBuff[COMM_PORT_NUM];
@@ -616,7 +625,13 @@ extern unsigned int g_test;
     extern unsigned int g_unRELTimeFlg_101;
     
     extern unsigned int g_unOffset;    //ÎïÀíµØÖ·×ª»»Æ«ÒÆÁ¿ */
-  
+        extern unsigned char g_EncComNo;
+	extern unsigned char g_bEncCerTxt[1024];
+        extern unsigned char g_bHostRandom[8];  //Ö÷Õ¾Ëæ»úÊı
+        extern unsigned char m_bUnitRandom[8];
+        extern int g_wEncCerWPtr;   
+        extern char g_bUnitID[25];//ÖÕ¶ËID,24×Ö½ÚµÚÒ»¸ö×ÖÊÇ½Ú³¤¶È   
+        extern unsigned char g_bAppType;//¼ÓÃÜ±¨ÎÄÓ¦ÓÃÀàĞÍ 
 #endif
     
 //=======================DriverTimer.c--¶¨Ê±Æ÷Çı¶¯Ä£¿é===============================================
