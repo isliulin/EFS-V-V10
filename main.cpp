@@ -288,7 +288,7 @@ void InitSys(void)
     InitCommObj();
     __bis_SR_register(GIE);       //使能全局中断
     delayms(500);
-    ReadLEDVer();  // 读取液晶版本号
+    //ReadLEDVer();  // 读取液晶版本号
    g_unSms_s = 0;
    g_gRmtInfo[YX_BREAK]=0;//复位后，断线检测遥信也复位	
    g_gRmtInfo[YX_EFS_ABNORMAL]=0;

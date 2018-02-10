@@ -531,7 +531,7 @@ extern unsigned int g_test;
     unsigned int g_unRELTimeFlg_101;
     
     unsigned int g_unOffset;    //物理地址转换偏移量*/
-    char  ComtrderCfg1[350];
+    char  ComtrderCfg1[310];
     char  ComtrderCfg_adj[50];
 
         unsigned char g_EncComNo;        //哪个串口在跑加密数据1==GPRS 2 ==DeBug， 其余无效
@@ -617,7 +617,7 @@ extern unsigned int g_test;
     extern unsigned char eight_pulse_counter;
     extern unsigned int unFrameNum; //临时存储待发送短信条数
     extern unsigned char g_uc101Flg;
-    extern char  ComtrderCfg1[350];
+    extern char  ComtrderCfg1[310];
     extern char  ComtrderCfg_adj[50];
    /* extern unsigned char g_ucRELConfirm;   //通信用遥控确认标志
     extern unsigned char g_ucRELUNM;       //通信用遥控继电器的顺序号
