@@ -484,7 +484,7 @@ typedef double         FP64;            //双精度浮点数
 #define RPCFG_CON_LATCH                     11     // 1=启用开关闭合超时闭锁?#define RPCFG_SEND_RHPLUSE         12     //0=不启动燃弧脉冲，1=发送燃弧脉冲 
 #define RPCFG_BREAK_STOP8PUL     13     //0=断线后不停止8脉冲，1=断线后停止8脉冲 
 #define RPCFG_CURRENT_PRIMARY   14     //0=电流为2次值，1=电流为1次值，2次值*CT变比
-
+#define RPCFG_ENCRYPT			  15// 1=加密
 //================================  定时器变量  ==========================
 
 #define TIMER_NUM            19  //定时器个数 1s为单位

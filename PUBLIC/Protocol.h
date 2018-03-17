@@ -453,7 +453,7 @@ class CProtocol
         virtual void CloseTcp(BYTE byReason = 0){return;};
 		virtual void Run(void){return;}; 
 	virtual BOOL SendFrameHead(BYTE Style, BYTE Reason){return TRUE;};
-	virtual BOOL SendFrameTail(BYTE PRM, BYTE dwCode, BYTE Num){return TRUE;};
+	virtual BOOL SendFrameTail(BYTE PRM, BYTE dwCode, BYTE Num,BYTE EncType){return TRUE;};
 	virtual void write_infoadd(int  data){return;};
                
         void NeatenCommBuf(VCommBuf *pCommIO);
