@@ -1843,7 +1843,7 @@ void SaveRecData(void)
 //张弢 录波 需要写文件目录  
   temp[1]=g_sRecData.m_gRecCNum;
   gRecorder_filecfg.FileName=temp[1];//设为文件名
-  gRecorder_filecfg.CFG_Leng=strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.TOTAL_Leng=64;//gRecorder_filecfg.CFG_Leng+6400;//
   gRecorder_filecfg.CFG_Samp=4000;	//采样频率 
 #ifdef SD_101S
@@ -1967,7 +1967,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	temp[1]=g_sRecData.m_gACTRecCNum;
 	gRecorder_filecfg.FileName=temp[1]+MAX_REC_NUM+1;//设为文件名
 	}  
-  gRecorder_filecfg.CFG_Leng=strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 
 #ifdef SD_101S
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 
@@ -2074,7 +2074,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	temp[1]=g_sRecData.m_gACTRecCNum;
 	gRecorder_filecfg.FileName=temp[1]+MAX_REC_NUM+1;//设为文件名
 	}  
-  gRecorder_filecfg.CFG_Leng=strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 
 #ifdef SD_101S
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 

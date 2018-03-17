@@ -740,7 +740,7 @@ typedef double         FP64;            //双精度浮点数
 #define EEPADD_CFG              0x1700 //保存CFG文件，目前CFG文件最多占用700个字节，没有写入FLASH的原因是:每次发送该文件时，都需要对CFG文件的某几个地方做修改，方便操作
 #define EEPADD_DEGBF101            0x1A00 // DEG口 读写报文时，备份当前进行的命令。读写文件时，若被其它的进程包括总召、对时、主动上报等命令打断时，可以继续传输
 #define EEPADD_GPRSBF101           0x1B00 // GPRS口 读写报文时，备份当前进行的命令。读写文件时，若被其它的进程包括总召、对时、主动上报等命令打断时，可以继续传输
-
+//#define EEPADD_CFG                      0x1E00 
 #define EEPADD_SOESTARTADR       0x2000 //最大偏移量
 #define EEPADD_SOEENDADR       0x4000
 //============================   GPIO对应LED定义  ===============================
