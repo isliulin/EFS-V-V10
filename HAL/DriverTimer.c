@@ -24,7 +24,6 @@
   #include "..\DataStruct.h"
 #endif
 
-unsigned char rep17,rep33,rep49;
 
 //==============================================================================
 //  函数名称   : InitTimer
@@ -254,8 +253,7 @@ void CHECK8PLUS(void)
       pulse_success=0x55;
     
 	eight_ctl_flag=5;              
-     	KC1_ON;             ///新电路板 
-     	
+     	KC1_ON;             ///新电路板      
 	sign_RSSI_delay=5;                     //////////////发出有效8脉冲后，置延时，若在延时时间内有子站询问，则认为是故障    
 	//if(moniguzhang!=1) //=1为模拟故障 不发送短信
 	newsms_8pluse = ON;
@@ -327,7 +325,16 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
 	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_CMODFK];	  
         }
         if(pulse_phase_flag != 2 ) //B相不录播
-        {
+        {/*
+          g_sRecData.m_gFaultRecSOE[REC_TYPE] = pulse_phase_flag;
+          unTemp = (g_sRtcManager.m_gRealTimer[RTC_SEC]*1000 + g_sRtcManager.m_gRealTimer[RTC_MICROSEC]); 
+          g_sRecData.m_gFaultRecSOE[REC_MSL] = unTemp;
+          g_sRecData.m_gFaultRecSOE[REC_MSH] = (unTemp>>8);
+          g_sRecData.m_gFaultRecSOE[REC_MINU] = g_sRtcManager.m_gRealTimer[RTC_MINUT];
+          g_sRecData.m_gFaultRecSOE[REC_HOUR] = g_sRtcManager.m_gRealTimer[RTC_HOUR];
+          g_sRecData.m_gFaultRecSOE[REC_DAY] = g_sRtcManager.m_gRealTimer[RTC_DATE];
+          g_sRecData.m_gFaultRecSOE[REC_MONTH] = g_sRtcManager.m_gRealTimer[RTC_MONTH];
+          g_sRecData.m_gFaultRecSOE[REC_YEAR] = (g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000);*/
         }
       }	
       else if((eight_pulse_flag%4)==3)  ///////低脉冲 1S
@@ -578,12 +585,12 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
   //unsigned int unTemp = 0;
   if((eight_pulse_counter==0)&&(efslatch_flag==0))
   {	 	   
-    if((eight_pulse_flag>0)&&(eight_pulse_flag<rep33))
+    if((eight_pulse_flag>0)&&(eight_pulse_flag<33))
     {
       eight_pulse_flag+=1;
       if(g_gOverLoadFlg == ON)
       {
-        eight_pulse_flag = rep17;  //检测到过流直接退出 
+        eight_pulse_flag = 17;  //检测到过流直接退出 
       }
       if((eight_pulse_flag%2)==0)  ///////高脉冲
       {
@@ -674,15 +681,15 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
       pulse_phase_flag = 1;
       */
       
- if(eight_pulse_flag==rep17)
+ if(eight_pulse_flag==17)
   	CHECK8PLUS();  
 
-    if(eight_pulse_flag == rep17 && pulse_phase_flag==1)
+    if(eight_pulse_flag == 17 && pulse_phase_flag==1)
       pulse_phase_flag = 3;
-    else if(eight_pulse_flag == rep17 && pulse_phase_flag==3)
+    else if(eight_pulse_flag == 17 && pulse_phase_flag==3)
       pulse_phase_flag = 1;
   }  
-  if(eight_pulse_flag>=rep33)      ////////数据发送完毕
+  if(eight_pulse_flag>=33)      ////////数据发送完毕
   {
     CHECK8PLUS();
 	//g_gRmtInfo[YX_EFS_ABNORMAL] =0;
@@ -851,22 +858,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
 void ContronlRelay(void)
 {
    // unsigned int unTemp = 0;
-    switch(g_gRunPara[RP_PLUSE_NUM])
-    	{
-    	case 8:
-		rep17=17;rep33=33;rep49=49;
-		break;
-    	case 7:
-		rep17=15;rep33=29;rep49=43;	
-		break;
-    	case 6:
-		rep17=13;rep33=25;rep49=37;	
-		break;
-    	default:
-		g_gRunPara[RP_PLUSE_NUM]=8;	
-		break;		
-    	}
-	
+    	
     if((g_gProcCnt[PC_JAG_ACT] == 4)||(g_gProcCnt[PC_EFS_MODEL]==0))          //动作2次 只有AC相有接触器，超前相动作，另一相动作
         JAGACT4();
     else if(g_gProcCnt[PC_JAG_ACT] == 3)  //动作1次 只有AC相有接触器，超前相动作
@@ -884,11 +876,11 @@ __interrupt void TIMER0_A0_ISR(void)
 {
    // unsigned int i,j;
       static unsigned char M125SecCount = 0;  // 1.25毫秒计时 // 张弢测试中断嵌套
-	static unsigned char pjno=0;
+      static unsigned char pjno=0;
 	static unsigned char McSecCount=0;
- //#ifdef SD_101S     
-      static unsigned char M05SecCount = 0;  // 0.5毫秒计时 // 张弢测试中断嵌套
- //#endif     
+ #ifdef SD_101S     
+      static unsigned int M05SecCount = 0;  // 0.5毫秒计时 // 张弢测试中断嵌套
+ #endif     
   //static unsigned char ucTime = 0;
     
    // WDTCTL = WDTPW + WDTCNTCL;
@@ -896,11 +888,11 @@ __interrupt void TIMER0_A0_ISR(void)
     ADC12IFG = 0x3FF;   //以免中断异常
     M125SecCount++;// 张弢测试中断嵌套 
     
-    g_unAdcData[0] = ADC12MEM0; //UA为了保证ADC12启动的同步，且保证启动后ADC12MEM的数据已经取出来，建立此缓冲区
-    g_unAdcData[1] = ADC12MEM1;//UB
-    g_unAdcData[2] = ADC12MEM2;//UC
-    g_unAdcData[3] = ADC12MEM3;//U0
-    g_unAdcData[4] = ADC12MEM4;//I0
+    g_unAdcData[0] = ADC12MEM0; //为了保证ADC12启动的同步，且保证启动后ADC12MEM的数据已经取出来，建立此缓冲区
+    g_unAdcData[1] = ADC12MEM1;
+    g_unAdcData[2] = ADC12MEM2;
+    g_unAdcData[3] = ADC12MEM3;
+    g_unAdcData[4] = ADC12MEM4;
     g_unAdcData[5] = ADC12MEM5;//UPt	
     //g_unAdcData[5] = g_unAdcData[3];//Uo to Upt
     g_unAdcData[6] = ADC12MEM6;//UCap	
@@ -927,14 +919,15 @@ __interrupt void TIMER0_A0_ISR(void)
         //ProtLogic();//张弢 程序放入CalcuRmtMeas(void) 5ms执行1次
 //#ifndef SD_101S        
         RecActData();
-	McSecCount++;	
+	  McSecCount++;
 //#endif
     	}
 #ifndef SD_101S	
     RecData();
 #endif	
-    if((McSecCount&0x1f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
-    	{	
+    //if((M125SecCount&0x1f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
+	if((McSecCount&0x1f)==0)
+	{	
 	 g_unRmCaluFlag = ON; 
     	}
     if((M05SecCount&0x7f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
@@ -1426,7 +1419,6 @@ _EINT();//开总中断// 张弢测试中断嵌套
 	     		 
             if(SecCount >= 1000)   //秒计时
             {
-            g_STimeout = ON; 
             g_NolinkWifi++;
             	if(gRes_rec.res_timeout > 0)
             		{

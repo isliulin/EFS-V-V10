@@ -539,9 +539,9 @@ unsigned long CalcuDft(unsigned char AdcChannel)
 //==============================================================================
 void CalcuRmtMeas(void)
 {
-    unsigned int i;
+    unsigned int i;//,temp;
     unsigned int TempRm = 0;
-
+	//static unsigned char pjno=0;//uaPJNo,ubPJNo,ucPJNo;
     unsigned long tDft,a,b,c;
     unsigned int unTemp[3];
     if(g_unRmCaluFlag == OFF)   //如果遥测运算标志仍然为OFF，则说明1.25ms的AD中断没有进去过，g_gProcMeas没有更新，不需要运算
@@ -588,24 +588,42 @@ void CalcuRmtMeas(void)
     for(i = 0; i < 8/*RMT_MEAS_NUM-1*/ ; i++)//添加了UAB,UBC,UCA三线电压，i的上限=PM_UCA
     {
         TempRm = AverFilter(g_gRmAcFilt[i]);        //对遥测量的交流量进行滤波        
-        g_gRmtMeas[i] = TempRm;
-/*        if((i <= 3)&&(i>=1))
+       
+        if((i <= 3)&&(i>=1))
         {
-            // if(g_gRmtMeas[i]> 25 && g_gRmtMeas[i]< 80)
-            //       g_gRmtMeas[i] -= 20;
-            unsigned long x;
-            if( g_gRmtMeas[i] <2700)
-            	{
-			x=(unsigned long)g_gRmtMeas[i] *1049;
-                        x=x>>10;                        
-			if (x>75)
-                        {
-                          x=x-75;
-			  g_gRmtMeas[i] =(unsigned int)x;//((g_gRmtMeas[i] *1049)>>10)-75;
-                        }
-            	}
-        }     */  
+        //g_gRmtMeasOr[i]=TempRm;
+#ifdef TWOP_CALB//双点校准
+		int utemp;
+		//unsigned int tempxq;
+		//if(g_gRmtMeasPJNo>23)g_gRmtMeasPJNo=0;
+		if(TempRm >=(g_gAdjObj[ADJ_REF_UAY2+6*i-6]))
+                       {utemp  = (TempRm - g_gAdjObj[ADJ_REF_UAY2+6*i-6]);
+                        utemp  = (unsigned long)utemp *g_gAdjObj[ADJ_REF_UA_A+6*i-6]>>12;
+			//g_gRmtMeasPJ[i-1][g_unFilterIndex]
+			g_gRmtMeas[i]= utemp + g_gAdjObj[ADJ_REF_UAX2+6*i-6];}
+		else	
+			{
+			utemp = (unsigned long) (g_gAdjObj[ADJ_REF_UAY2+6*i-6]-TempRm)*g_gAdjObj[ADJ_REF_UA_A+6*i-6]>>12;	
+			utemp = g_gAdjObj[ADJ_REF_UAX2+6*i-6]-utemp;								
+			if(utemp>0)
+				//g_gRmtMeasPJ[i-1][g_unFilterIndex]
+				g_gRmtMeas[i]=utemp;
+			}
+		//tempxq=AverFilter(g_gRmtMeasPJ[i-1]);
+		//g_gRmtMeas[i]=tempxq;//tempxq+(tempxq>>8)+(tempxq>>7);	        
+		//g_gRmtMeasOr[i]=g_gRmtMeas[i];//TempRm;
+
+#else
+		if(g_gRmtMeas[i]> 25 && g_gRmtMeas[i]< 80)
+                   g_gRmtMeas[i] -= 20;
+#endif
+        }    
+	else
+		{
+		g_gRmtMeas[i] = TempRm;
+		}			
     }
+	 
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
     g_unFilterIndex++;
@@ -614,165 +632,50 @@ void CalcuRmtMeas(void)
         g_unFilterIndex = 0;
     }
     if(g_gRmtMeas[RM_U0] >= g_gProcCntJug[PC_HIGH_Z])  //零序过压
-        {
-        g_gVErrTimer[0]++;
-	if(g_gVErrTimer[0]>5)
-		{
-        	g_gRmtInfo[YX_U0_HIGH]=1;
-		 g_gVErrTimer[0]=5;
-		}
-    	  }
+        g_gRmtInfo[YX_U0_HIGH]=1; 
     else
-    	{    	
-	if(g_gVErrTimer[0]==0)
-      		g_gRmtInfo[YX_U0_HIGH]=0; 
-	else
-		g_gVErrTimer[0]--;
-    	}
-
+        g_gRmtInfo[YX_U0_HIGH]=0; 
+    unTemp[0] = ComputeMax(g_gRmtMeas[RM_UA], g_gRmtMeas[RM_UB], g_gRmtMeas[RM_UC]);      //求出最大相电压
+    if(unTemp[0] >= g_gProcCntJug[PC_HIGH_P]) 
+        g_gRmtInfo[YX_U_HIGH]=1;
+    else
+        g_gRmtInfo[YX_U_HIGH]=0;
     unTemp[1] = ComputeMax(g_gRmtMeas[RM_UAB], g_gRmtMeas[RM_UBC], g_gRmtMeas[RM_UCA]);  //求出最大线电压
     if(unTemp[1] >= g_gProcCntJug[PC_I0_START]) 
         g_gRmtInfo[YX_UAB_HIGH] =1;
     else
         g_gRmtInfo[YX_UAB_HIGH] =0;
-	
-    unTemp[0] = ComputeMax(g_gRmtMeas[RM_UA], g_gRmtMeas[RM_UB], g_gRmtMeas[RM_UC]);      //求出最大相电压
-    if(unTemp[0] >= g_gProcCntJug[PC_HIGH_P]) 
-    	{
-    	g_gVErrTimer[2]++;
-	if(g_gVErrTimer[2]>5)
-		{
-        	g_gRmtInfo[YX_U_HIGH]=1;
-		g_gVErrTimer[2]=5;
-		}
-    	}
-    else
-    	{
-    	if(g_gVErrTimer[2]==0)
-        	g_gRmtInfo[YX_U_HIGH]=0;
-	else
-		g_gVErrTimer[2]--;
-	}
-	
     unTemp[2] = ComputeMin(g_gRmtMeas[RM_UA], g_gRmtMeas[RM_UB], g_gRmtMeas[RM_UC]);
     if(unTemp[2] <= g_gProcCntJug[PC_LOW_P]) 
-    	{
-    	g_gVErrTimer[3]++;
-    	if(g_gVErrTimer[3]>5)
-    		{
-       	 g_gRmtInfo[YX_U_LOW] =1 ;
-		 g_gVErrTimer[3]=5;
-    		}
-    	}
+        g_gRmtInfo[YX_U_LOW] =1 ;
     else
-    	{
-    	if(g_gVErrTimer[3]==0)
-        	g_gRmtInfo[YX_U_LOW] =0 ;
-	else
-		g_gVErrTimer[3]--;
-        }
+        g_gRmtInfo[YX_U_LOW] =0 ;
 
-    if(g_gRmtMeas[RM_UA]<= g_gProcCntJug[PC_LOW_P]) 
-    	{
-    	g_gVErrTimer[4]++;
-	if(g_gVErrTimer[4]>5)
-		{
-        	g_gRmtInfo[YX_UA_LOW] =1 ;
-		g_gVErrTimer[4]=5;
-		}
-    	}
-    else
-    	{
-    	if(g_gVErrTimer[4]==0)
-    		g_gRmtInfo[YX_UA_LOW] =0 ;	
-	else
-		g_gVErrTimer[4]--;
-    	}
-	
     if(g_gRmtMeas[RM_UB]<= g_gProcCntJug[PC_LOW_P]) 
-    	{
-    	g_gVErrTimer[5]++;
-	if(g_gVErrTimer[5]>5)
-		{
-        	g_gRmtInfo[YX_UB_LOW] =1 ;
-		g_gVErrTimer[5]=5;
-		}
-    	}
+        g_gRmtInfo[YX_UB_LOW] =1 ;
     else
-    	{
-    	if(g_gVErrTimer[5]==0)
-    		g_gRmtInfo[YX_UB_LOW] =0 ;	
-	else
-		g_gVErrTimer[5]--;
-    	}
-	
+        g_gRmtInfo[YX_UB_LOW] =0 ;
     if(g_gRmtMeas[RM_UC]<= g_gProcCntJug[PC_LOW_P]) 
-    	{
-    	g_gVErrTimer[6]++;
-	if(g_gVErrTimer[6]>5)
-		{
-        	g_gRmtInfo[YX_UC_LOW] =1 ;
-		g_gVErrTimer[6]=5;
-		}
-    	}
+        g_gRmtInfo[YX_UC_LOW] =1 ;
     else
-    	{
-    	if(g_gVErrTimer[6]==0)
-    		g_gRmtInfo[YX_UC_LOW] =0 ;	
-	else
-		g_gVErrTimer[6]--;
-    	}	
-	
-    if(g_gRmtMeas[RM_UA] > g_gProcCntJug[PC_HIGH_P])
-    	{
-    	g_gVErrTimer[7]++;
-	if(g_gVErrTimer[7]>5)
-		{
-        	g_gRmtInfo[YX_UA_HIGH]=1;
-		g_gVErrTimer[7]=5;
-		}
-    	}
+        g_gRmtInfo[YX_UC_LOW] =0 ;	
+    if(g_gRmtMeas[RM_UA]<= g_gProcCntJug[PC_LOW_P]) 
+        g_gRmtInfo[YX_UA_LOW] =1 ;
     else
-    	{
-	if(g_gVErrTimer[7]==0)
-        	g_gRmtInfo[YX_UA_HIGH]=0;	
-	else
-		g_gVErrTimer[7]--;
-    	}
-	
-    if(g_gRmtMeas[RM_UB] > g_gProcCntJug[PC_HIGH_P])
-    	{
-    	g_gVErrTimer[8]++;
-	if(g_gVErrTimer[8]>5)
-		{
-        	g_gRmtInfo[YX_UB_HIGH]=1;
-		g_gVErrTimer[8]=5;
-		}
-    	}
+        g_gRmtInfo[YX_UA_LOW] =0 ;	
+
+    if(g_gRmtMeas[RM_UA] >= g_gProcCntJug[PC_HIGH_P]) 
+        g_gRmtInfo[YX_UA_HIGH]=1;
     else
-    	{
-	if(g_gVErrTimer[8]==0)
-        	g_gRmtInfo[YX_UB_HIGH]=0;	
-	else
-		g_gVErrTimer[8]--;
-    	}
-	
-    if(g_gRmtMeas[RM_UC] > g_gProcCntJug[PC_HIGH_P])
-    	{
-    	g_gVErrTimer[9]++;
-	if(g_gVErrTimer[9]>5)
-		{
-        	g_gRmtInfo[YX_UC_HIGH]=1;
-		g_gVErrTimer[9]=5;
-		}
-    	}
+        g_gRmtInfo[YX_UA_HIGH]=0;	
+    if(g_gRmtMeas[RM_UB] >= g_gProcCntJug[PC_HIGH_P]) 
+        g_gRmtInfo[YX_UB_HIGH]=1;
     else
-    	{
-	if(g_gVErrTimer[9]==0)
-        	g_gRmtInfo[YX_UC_HIGH]=0;	
-	else
-		g_gVErrTimer[9]--;
-    	}	
+        g_gRmtInfo[YX_UB_HIGH]=0;
+    if(g_gRmtMeas[RM_UC] >= g_gProcCntJug[PC_HIGH_P]) 
+        g_gRmtInfo[YX_UC_HIGH]=1;
+    else
+        g_gRmtInfo[YX_UC_HIGH]=0;	
 }
 //==============================================================================
 //  函数名称   : YCthCross
@@ -1054,10 +957,6 @@ void RecActData(void)
 	 else
 	  	g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3] =g_unAdcData[CHAN_U0]-g_gAdjAD[CHAN_U0];
 	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4] =g_unAdcData[CHAN_I0]-g_gAdjAD[CHAN_I0];
-
-g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0] =g_gRmtMeas[RM_UA];
-g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3] =g_gRmtMeas[RM_U0];
-	  
 	  if((g_gKON>0)&&(g_gKON<4))//张弢开关已经闭合//录波增加继电器开关量
 	  	{
 	  	g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4] |= (1<<14);//录波增加继电器开关量

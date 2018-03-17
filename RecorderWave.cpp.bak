@@ -699,7 +699,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
    if(gRes_rec.res_timeout >=4)
    	wSendDATNum=wSendDATNumOld;
    wSendDATNumOld =wSendDATNum;	
-    FileName = MAKEWORD(gRecorder_flag.pRXBuff[leng],gRecorder_flag.pRXBuff[leng + 1]);
+    FileName = MAKEWORD(gRecorder_flag.pRXBuff[leng],gRecorder_flag.pRXBuff[leng + 1])-1;
     Sample_num=gRecorder_Readfilecfg.CFG_EndSamp;	//张弢 录波的条数
 	//Sample_num=300;
     if( wSendDATNum >= Sample_num )//最后一段
@@ -815,7 +815,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
             for(BYTE n = 0; n < k; n++)
             {
                 *pTxBuf++ = ch[n];
-                  if(gRes_rec.res_timeout <4)GLubodat_Sum += ch[n];
+                 GLubodat_Sum += ch[n];
             }
             *pTxPos = pTxBuf - pTxPos-1;//LL
             gRecorder_flag.LIST_flag = ON;     
@@ -1453,7 +1453,7 @@ void Code_Lubo(unsigned char *pRxBuf,unsigned char *pTXBuff)
   }
   else if(pTXBuff[7+g_ucPara101[IECP_LINKADDR_NUM]] == FILETRANS_COT)//召唤文件的传送原因
   {
-    FileName = MAKEWORD(gRecorder_flag.pRXBuff[leng],gRecorder_flag.pRXBuff[leng + 1]);
+    FileName = MAKEWORD(gRecorder_flag.pRXBuff[leng],gRecorder_flag.pRXBuff[leng + 1])-1;
     if(FileName<(MAX_REC_NUM+1))
     	{
     	FADDR_RECORDER =FADDR_RECORDER_DATA-256+ (unsigned long)(FileName+1)*0x2000;
@@ -1503,12 +1503,11 @@ void Code_Lubo(unsigned char *pRxBuf,unsigned char *pTXBuff)
             pTxBuf = FileDatadat(pTxBuf,leng,wSecLenPtr,segment_leng);           
          }       
       }
-	  /*//山东录波协议*/ 
+	  /*//山东录波协议 
       else if(pTXBuff[leng + 3]==2)  //请求文件传输，SCQ=2
       	{
-      	pTXBuff[5+g_ucPara101[IECP_LINKADDR_NUM]] =SECTIONPREPAR_TYPE;////121 0x79//山东录波协议 
       	pTxBuf = SectionPrepareFile(pTxBuf,leng,&gRecorder_Readfilecfg);//节确认
-      	}        
+      	}  */      
     }
     else if(pTXBuff[5+g_ucPara101[IECP_LINKADDR_NUM]]== APPROVALFILE_TYPE)//124 0x7C//认可文件、节的流程处理
     {

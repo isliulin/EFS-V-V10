@@ -104,8 +104,7 @@ struct sSAMPLE_DATA
 //¶¯×÷Â¼²¨
     unsigned int m_gActRecCNum; 	    //µ±Ç°Â¼²¨Î»ÖÃ
     unsigned int m_gActRecANum; 	    //×î¶à´æ10Ìõ    
-    unsigned char m_ucActRecStart;     
-	//¶¯×÷Â¼²¨¿ªÊ¼±êÖ¾  ON¿ªÊ¼ OFF½áÊøÂ¼²¨  NO ´æ´¢Êı¾İ  CLOSE ´æ´¢½áÊø£¬²»ÔÙÂ¼²¨ 
+    unsigned char m_ucActRecStart;     //¶¯×÷Â¼²¨¿ªÊ¼±êÖ¾  ON¿ªÊ¼ OFF½áÊøÂ¼²¨´æ´¢Êı¾İ  CLOSE ´æ´¢½áÊø£¬²»ÔÙÂ¼²¨ 
     unsigned long m_gActRecLen;         //²»¶¨³¤Â¼²¨£¬Ã¿ÌõÂ¼²¨´æµÄµãÊı£¬Ã¿µã5¸öÄ£ÄâÁ¿£¬Ã¿¸öÄ£ÄâÁ¿2×Ö½Ú	
     unsigned long m_gActRecAdr;           //¶¯×÷Â¼²¨¶à´Î´æ´¢£¬FLASHÖĞµÄµØÖ·
     unsigned char m_ucActRecSavingFlag;//Â¼²¨Êı¾İÍùFlash±£´æ¹ı³ÌÖĞ ?    									//YES´æ´¢»º´æÖĞÇ°320µã 
@@ -211,8 +210,6 @@ struct sSAMPLE_DATA
 
 	unsigned int  g_SendLuboNum;
 	unsigned int  g_SendLuboPage;
-	unsigned int g_FRecorder_Current_COUNT;//flash±£´æµ½µÚ¼¸ÌõÁË
-	unsigned int g_Recorder_Total_COUNT;//×ÜµÄÌõÊı	
      WORD wCfgTotalNum =0;//×Ü³¤¶È
 #ifdef YN_101S     
      WORD section_current=0;//µ±Ç°½Ú*/
@@ -304,8 +301,6 @@ extern unsigned int g_test;
 	extern unsigned int  g_SendLuboPage;
     extern WORD wCfgTotalNum ;//×Ü³¤¶È
     extern WORD section_current;//µ±Ç°½Ú*/
-    extern unsigned int g_FRecorder_Current_COUNT;//flash±£´æµ½µÚ¼¸ÌõÁË
-	extern unsigned int g_Recorder_Total_COUNT;//×ÜµÄÌõÊı    
 #endif
 
 //=======================================  ²ÎÊıÅäÖÃÄ£¿é  ===================================
@@ -491,7 +486,7 @@ extern unsigned int g_test;
     unsigned char g_unSms_Count=0;     //¶ÌĞÅ·¢ËÍºó¼ÆÊ±£¬Èô15ÃëºóÎŞ»Ø¸´£¬ÖØ·¢
     unsigned char g_unFailSms=0;//¶ÌĞÅ·¢ËÍÊ§°Ü´ÎÊı
    // unsigned char g_unGPRSTX_Buff[MAX_TXBUFF_101_LEN];          //GPRSÊı¾İ·¢ËÍÊı×é 
-    //unsigned char g_unRX_Buff[1][MAX_RXBUFF_LEN];            //Êı¾İ½ÓÊÕÊı×é
+    unsigned char g_unRX_Buff[1][MAX_RXBUFF_LEN];            //Êı¾İ½ÓÊÕÊı×é
     //unsigned char g_unLEDTX_Buff[MAX_TXBUFF_101_LEN];         //Êı¾İ·¢ËÍÊı×é
     unsigned char g_uc101BuffHead;   //GPRSÍ¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÍ·
     unsigned char g_uc101BuffDataHead;   //GPRSÍ¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÍ·    
@@ -544,7 +539,7 @@ extern unsigned int g_test;
         unsigned char g_bEncCerTxt[1024];  //¼ÓÃÜCERÖ¤Êé
         unsigned char g_bHostRandom[8];  //Ö÷Õ¾Ëæ»úÊı
         unsigned char m_bUnitRandom[8];   //ÖÕ¶Ë×ÔÉíËæ»úÊı£¬ÓÃÓÚÓëÔËÎ¬¹¤¾ßÍ¨ĞÅ
-        int g_wEncCerWPtr;                 //CerÖ¤Êé¼ÇÂ¼Î»?
+        int g_wEncCerWPtr;                 //CerÖ¤Êé¼ÇÂ¼Î»Ö	
         char g_bUnitID[25];//ÖÕ¶ËID,24×Ö½ÚµÚÒ»¸ö×ÖÊÇ½Ú³¤¶È   
         unsigned char g_bAppType;//¼ÓÃÜ±¨ÎÄÓ¦ÓÃÀàĞÍ        
 #else
@@ -584,7 +579,7 @@ extern unsigned int g_test;
     extern unsigned char g_unFailSms;//¶ÌĞÅ·¢ËÍÊ§°Ü´ÎÊı
     //extern unsigned char g_unGPRSTX_Buff[MAX_TXBUFF_101_LEN];          //GPRSÊı¾İ·¢ËÍÊı×é
     
-    //extern unsigned char g_unRX_Buff[1][MAX_RXBUFF_LEN];
+    extern unsigned char g_unRX_Buff[1][MAX_RXBUFF_LEN];
     //extern unsigned char g_unLEDTX_Buff[MAX_TXBUFF_101_LEN];         //Êı¾İ·¢ËÍÊı×é
     
 
@@ -656,7 +651,6 @@ extern unsigned int g_test;
         unsigned char g_SendFault;
         unsigned int TA1OffsetNum = 250;
         unsigned char Powerdown_counter;
-	  unsigned char g_STimeout;//Ãë¼ÆÊ± 		
 #else
         extern struct sTIMER_MANAGER g_sTimer[TIMER_NUM];
         extern unsigned int g_DateCount;
@@ -665,7 +659,7 @@ extern unsigned int g_test;
         extern unsigned char g_SmsSendStatus;
 	
         extern unsigned char g_SendFault;
-        extern unsigned char g_STimeout;//Ãë¼ÆÊ±
+        
         extern unsigned char Powerdown_counter;
 #endif
 //=================================== Ê±ÖÓÄ£¿é ==========================================

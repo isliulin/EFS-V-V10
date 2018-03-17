@@ -236,13 +236,9 @@ void ProtStart(void)
             }          	     	     
        	 }     
       } 
-     if((g_sRecData.m_ucActRecStart == CLOSE)&&(g_sRecData.m_ucRecSavingFlag == OFF)) //////故障已经开始
+      if(fault_begin==0x55)//////故障已经开始
       {
-		if(fault_begin==0x55)
-			{
-			if(g_sRecData.m_ucFaultRecStart ==OFF)
-				g_sRecData.m_ucFaultRecStart = ON;//启动故障录波
-			}
+		if(g_sRecData.m_ucFaultRecStart ==OFF) g_sRecData.m_ucFaultRecStart = ON;//启动故障录波
       	}
     
 }

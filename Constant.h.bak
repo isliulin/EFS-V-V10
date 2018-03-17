@@ -14,7 +14,7 @@
 #define SD_101S      //¶¨Òå=µ¤»ªê»²©101¹æÔ¼£»²»¶¨Òå=±ê×¼101¹æÔ¼
 
 #define CONDIN_3      //½Ó´¥Æ÷Êä³ö3Â·¿ªºÏÐÅºÅ  È¡ÏûÐÅºÅÔ´Òì³£Ò£ÐÅ(¸¨Öú¿ª¹ØÌø¿ª)
-//#define TWOP_CALB      //Two-point calibration methodÁ½µãÐ£×¼))
+#define TWOP_CALB      //Two-point calibration methodÁ½µãÐ£×¼))
 
 #define         TYPE_EQU                0x1111  //Éè±¸´úÂë
 
@@ -76,8 +76,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 
 #define  GETBIT(p,i)   ((p[(i>>4)] & BIT[(i&0x0F)]) && 1)
 #define  SETBIT(p,i,v) p[(i>>4)] = (v) ? (p[(i>>4)]|BIT[(i&0x0F)]) : (p[(i>>4)]&~BIT[(i&0x0F)])
-//==============================¼ÓÃÜÏà¹Ø²ÎÊý======================================
-#define MAX_ENC_FRAME_LEN                    384
+
 //==============================IEC 101Ïà¹Ø²ÎÊý======================================
 #define GPRS_SMS      //       0//1  =GPRS;0=SMS
 
@@ -89,7 +88,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define IECP_AUT_MODE        5//Ö÷¶¯ÉÏ´«Ä£Ê½£¬0=Ö÷Õ¾·¢ËÍ³õÊ¼»¯ºó·½¿ÉÖ÷¶¯ÉÏ´«ºÍ×ÜÕÙ
                               //1=ÊÕµ½Ö÷Õ¾ÈÎºÎÃüÁîºó·½¿ÉÖ÷¶¯ÉÏ´«£¬ÈÎºÎÊ±ºò¶¼ÏìÓ¦×ÜÕÙÃüÁî¡£
                               //2=Ö÷¶¯ÉÏ´«²»ÊÜÈÎºÎÔ¼Êø
-#define IECP_OBJ_COM0        6 //µ÷ÊÔ´®¿Ú²¨ÌØÂÊ£¬0=9600£,19200£,38400£,57600£,115200
+#define IECP_OBJ_COM0        6 //´®¿Ú0Ö¸¶¨µÄ¶ÔÏó£¬0=RF,1=GPRS,2=DBG,3=EX,4=ODU1,5=ODU2
 #define IECP_OBJ_COM1        7
 #define IECP_OBJ_COM2        8
 #define IECP_OBJ_COM3        9
@@ -347,8 +346,8 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 
 
 //============================  Ð£Õý²ÎÊý        =======================================
-#define ADJ_PARA_NUM                            7//13   //Ð£Õý²ÎÊý°üÀ¨Ã¿¸öÍ¨µÀµÄ»ù×¼Ô´Ð£ÕýºÍÄ¿±êÖµÐ£Õý£¬½«À´ÓÐ¹¦ÂÊ¼ÆËãµÄ»°»¹ÓÐÏàÎ»Ð£Õý
-
+#define ADJ_PARA_NUM                            26//13   //Ð£Õý²ÎÊý°üÀ¨Ã¿¸öÍ¨µÀµÄ»ù×¼Ô´Ð£ÕýºÍÄ¿±êÖµÐ£Õý£¬½«À´ÓÐ¹¦ÂÊ¼ÆËãµÄ»°»¹ÓÐÏàÎ»Ð£Õý
+#define ADJAC_PARA_NUM                            8
 
 
 #define ADJ_REF_CHNUA                         0       //Í¨µÀ5»ù×¼Ô´Ð£ÕýÖµ 
@@ -376,8 +375,8 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define ADJ_REF_UC_A                       22     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
 #define ADJ_REF_UC_B                       23     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
 
-#define ADJ_CRC                               6
-
+#define ADJ_CRC                               25
+#define ADJAC_CRC                               7
 //============================  ÔËÐÐ²ÎÊý        =======================================
 
 #define RP_CFG_KEY               0      //ÅäÖÃ¿ØÖÆ×Ö1
@@ -680,7 +679,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define EEPADD_SOE_E2ROMADR            0x0100//0x0080//ÕÅ| Í·4×Ö½Ú£¬Î²4×Ö½Ú ³¤¶È2×Ö½Ú
 #define EEPADD_SOESEND_E2ROMADR   0x0110
 #define EEPADD_CNNAME 			 0x0140//ÕÅ| ºº×ÖÕ¾Ãû42×Ö½Ú
-#define EEPADD_ADJOBJ                   0x0180//ÕÅ| Ä¿±êÐ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊý10×Ö½Ú ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A
+#define EEPADD_ADJOBJ                   0x0170//ÕÅ| Ä¿±êÐ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊý10×Ö½Ú ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A
 #define EEPADD_VER_CPU                0x01a0          //³ÌÐò°æ±¾ºÅ 2×Ö½Ú
 //EEPROMÖÐIEC²ÎÊý±£´æ
 #define EEPADD_IECYXADDR        0x01b0 //Ò£ÐÅµØÖ·  32×Ö½Ú
@@ -697,7 +696,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define EEPADDBK_PHONE                0x0440
 #define EEPADDBK_SOE_E2ROMADR         0x0500//0x0080//ÕÅ| Í·4×Ö½Ú£¬Î²4×Ö½Ú ³¤¶È2×Ö½Ú 
 #define EEPADDBK_CNNAME 		  0x540//ÕÅ| ºº×ÖÕ¾Ãû42×Ö½Ú
-#define EEPADDBK_ADJOBJ               0x0580//ÕÅ| Ä¿±êÐ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊý10×Ö½Ú ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A
+#define EEPADDBK_ADJOBJ               0x0570//ÕÅ| Ä¿±êÐ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊý10×Ö½Ú ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A
 #define EEPADDBK_IECYXADDR        0x05b0
 #define EEPADDBK_IECPARA            0x0600
 #define EEPADDBK_IECYCADDR        0x0640

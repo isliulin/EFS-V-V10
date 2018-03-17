@@ -166,9 +166,9 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
     if(g_gChangFlag[CHNG_ADJ] == ON)    //定值发生修改
     {
         g_gChangFlag[CHNG_ADJ] = OFF;
-        g_gAdjPara[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjPara, ADJ_CRC);      //计算CRC
-        CAT_SpiWriteWords(EEPADD_BIAS_V, ADJ_PARA_NUM, (unsigned int *)g_gAdjPara);     //保存到EEPROM中
-        CAT_SpiWriteWords(EEPADDBK_BIAS_V, ADJ_PARA_NUM, (unsigned int *)g_gAdjPara);   //保存到EEPROM的备份区中
+        g_gAdjPara[ADJAC_CRC] = CrcCount((unsigned int *)g_gAdjPara, ADJAC_CRC);      //计算CRC
+        CAT_SpiWriteWords(EEPADD_BIAS_V, ADJAC_PARA_NUM, (unsigned int *)g_gAdjPara);     //保存到EEPROM中
+        CAT_SpiWriteWords(EEPADDBK_BIAS_V, ADJAC_PARA_NUM, (unsigned int *)g_gAdjPara);   //保存到EEPROM的备份区中
         //重启系统
            WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
            _DINT();       //关闭全局中断
@@ -401,7 +401,6 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
         g_ucPara101[IECP_CRC] = AddChar(g_ucPara101, IECP_CRC);      //计算CS
         CAT_SpiWriteBytes(EEPADD_IECPARA , IEC_PARA_NUM, g_ucPara101);     //保存到EEPROM中
         CAT_SpiWriteBytes(EEPADDBK_IECPARA, IEC_PARA_NUM, g_ucPara101);    //保存到EEPROM的备份区中
-        InitSCI();
     }
     //遥信地址点表
     if((g_ucParaChang & BIT2) == BIT2)
@@ -428,13 +427,13 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
         if(g_ucYXAddr[0] == 0)
         {
             RstIEC101YxAddr();  //遥信点表初始化
-            //DelALLSOE();
+            DelALLSOE();
         }
         
         g_ucYXAddr[IEC_YX_NUM] = AddChar(g_ucYXAddr, IEC_YX_NUM);      //计算CRC
         CAT_SpiWriteBytes(EEPADD_IECYXADDR , IEC_YX_NUM + 1, g_ucYXAddr);     //保存到EEPROM中
         CAT_SpiWriteBytes(EEPADDBK_IECYXADDR, IEC_YX_NUM + 1, g_ucYXAddr);    //保存到EEPROM的备份区中
-        //DelALLSOE();
+        DelALLSOE();
         //根据遥信点表计算出需要上传的遥信个数
         for(i = 0; i < IEC_YX_NUM; i++)
         {
@@ -742,29 +741,29 @@ void CheckProtCnt(void)
 void CheckAdjPara(void)
 {
     unsigned int i;
-    CAT_SpiReadWords(EEPADD_BIAS_V, ADJ_PARA_NUM, (unsigned int*)g_gAdjPara);  //读出
-    if (g_gAdjPara[ADJ_CRC] == CrcCount((unsigned int *)g_gAdjPara, ADJ_CRC))       //CRC校验
+    CAT_SpiReadWords(EEPADD_BIAS_V, ADJAC_PARA_NUM, (unsigned int*)g_gAdjPara);  //读出
+    if (g_gAdjPara[ADJAC_CRC] == CrcCount((unsigned int *)g_gAdjPara, ADJAC_CRC))       //CRC校验
     {
        // SetRIStatus(TST_ADJ, 0);
     }
     else
     {
-        CAT_SpiReadWords(EEPADDBK_BIAS_V, ADJ_PARA_NUM, (unsigned int*)g_gAdjPara);    //读出
-        if (g_gAdjPara[ADJ_CRC] == CrcCount((unsigned int *)g_gAdjPara, ADJ_CRC))       //CRC校验
+        CAT_SpiReadWords(EEPADDBK_BIAS_V, ADJAC_PARA_NUM, (unsigned int*)g_gAdjPara);    //读出
+        if (g_gAdjPara[ADJAC_CRC] == CrcCount((unsigned int *)g_gAdjPara, ADJAC_CRC))       //CRC校验
         {
             //SetRIStatus(TST_ADJ, 0);
-            CAT_SpiWriteWords(EEPADD_BIAS_V, ADJ_PARA_NUM, (unsigned int*)g_gAdjPara); //备份区覆盖过去
+            CAT_SpiWriteWords(EEPADD_BIAS_V, ADJAC_PARA_NUM, (unsigned int*)g_gAdjPara); //备份区覆盖过去
         }
         else
         {             //为了保证控制器能正常运行，即使校正系数错误，也需要把校正系数用默认值1代替
             
-            for(i = 0; i < ADJ_CRC; i++)     //如果adj无效，则对adj赋初值
+            for(i = 0; i < ADJAC_CRC; i++)     //如果adj无效，则对adj赋初值
             {
                 g_gAdjPara[i] = 2048;
             }
         }
     }
-    for(i = 0; i < ADJ_CRC; i++)     //计算ad值得偏移
+    for(i = 0; i < ADJAC_CRC; i++)     //计算ad值得偏移
    {
       g_gAdjAD[i] = (unsigned int)((long)(g_gAdjPara[i]) * g_gProcCnt[PC_UA_ADJ + i] >> 12);
     }
@@ -772,22 +771,65 @@ void CheckAdjPara(void)
 	      //g_gAdjObj[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC);      //计算CRC
        CAT_SpiReadWords(EEPADD_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);     //保存到EEPROM中
        if (g_gAdjObj[ADJ_CRC] == CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC))       //CRC校验
-      {       
+      { 
+ 	if(	(g_gAdjObj[ADJ_REF_UAX1]>5000)||(g_gAdjObj[ADJ_REF_UAX2]<5000)||(g_gAdjObj[ADJ_REF_UAY1]>5000)||(g_gAdjObj[ADJ_REF_UAY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UA_A]>7096)||(g_gAdjObj[ADJ_REF_UA_B]>1000)||
+			(g_gAdjObj[ADJ_REF_UBX1]>5000)||(g_gAdjObj[ADJ_REF_UBX2]<5000)||(g_gAdjObj[ADJ_REF_UBY1]>5000)||(g_gAdjObj[ADJ_REF_UBY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UB_A]>7096)||(g_gAdjObj[ADJ_REF_UB_B]>1000)||
+			(g_gAdjObj[ADJ_REF_UCX1]>5000)||(g_gAdjObj[ADJ_REF_UCX2]<5000)||(g_gAdjObj[ADJ_REF_UCY1]>5000)||(g_gAdjObj[ADJ_REF_UCY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UC_A]>7096)||(g_gAdjObj[ADJ_REF_UC_B]>1000))	
+		{
+			g_gAdjObj[0]=60;g_gAdjObj[1]=60;g_gAdjObj[2]=60;g_gAdjObj[3]=60;g_gAdjObj[4]=2;	
+			g_gAdjObj[ADJ_REF_UAX1]=0;g_gAdjObj[ADJ_REF_UAX2]=6000;g_gAdjObj[ADJ_REF_UAY1]=0;g_gAdjObj[ADJ_REF_UAY2]=6000;
+			g_gAdjObj[ADJ_REF_UA_A]=4096;g_gAdjObj[ADJ_REF_UA_B]=0;
+			g_gAdjObj[ADJ_REF_UBX1]=0;g_gAdjObj[ADJ_REF_UBX2]=6000;g_gAdjObj[ADJ_REF_UBY1]=0;g_gAdjObj[ADJ_REF_UBY2]=6000;
+			g_gAdjObj[ADJ_REF_UB_A]=4096;g_gAdjObj[ADJ_REF_UB_B]=0;
+			g_gAdjObj[ADJ_REF_UCX1]=0;g_gAdjObj[ADJ_REF_UCX2]=6000;g_gAdjObj[ADJ_REF_UCY1]=0;g_gAdjObj[ADJ_REF_UCY2]=6000;
+			g_gAdjObj[ADJ_REF_UC_A]=4096;g_gAdjObj[ADJ_REF_UC_B]=0;			
+			g_gAdjObj[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC);      //计算CRC
+             		CAT_SpiWriteWords(EEPADD_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);     //保存到EEPROM中
+             		CAT_SpiWriteWords(EEPADDBK_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);//保存到EEPROM的备份区中
+		}			     
       }
       else
       {	  
       		CAT_SpiReadWords(EEPADDBK_ADJOBJ , ADJ_PARA_NUM, (unsigned int *)g_gAdjObj);   //保存到EEPROM的备份区中
       		if (g_gAdjObj[ADJ_CRC] == CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC))       //CRC校验
       		{
+  		if(	(g_gAdjObj[ADJ_REF_UAX1]>5000)||(g_gAdjObj[ADJ_REF_UAX2]<5000)||(g_gAdjObj[ADJ_REF_UAY1]>5000)||(g_gAdjObj[ADJ_REF_UAY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UA_A]>7096)||(g_gAdjObj[ADJ_REF_UA_B]>1000)||
+			(g_gAdjObj[ADJ_REF_UBX1]>5000)||(g_gAdjObj[ADJ_REF_UBX2]<5000)||(g_gAdjObj[ADJ_REF_UBY1]>5000)||(g_gAdjObj[ADJ_REF_UBY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UB_A]>7096)||(g_gAdjObj[ADJ_REF_UB_B]>1000)||
+			(g_gAdjObj[ADJ_REF_UCX1]>5000)||(g_gAdjObj[ADJ_REF_UCX2]<5000)||(g_gAdjObj[ADJ_REF_UCY1]>5000)||(g_gAdjObj[ADJ_REF_UCY2]<5000)||
+			(g_gAdjObj[ADJ_REF_UC_A]>7096)||(g_gAdjObj[ADJ_REF_UC_B]>1000))	
+		{
+			g_gAdjObj[0]=60;g_gAdjObj[1]=60;g_gAdjObj[2]=60;g_gAdjObj[3]=60;g_gAdjObj[4]=2;	
+			g_gAdjObj[ADJ_REF_UAX1]=0;g_gAdjObj[ADJ_REF_UAX2]=6000;g_gAdjObj[ADJ_REF_UAY1]=0;g_gAdjObj[ADJ_REF_UAY2]=6000;
+			g_gAdjObj[ADJ_REF_UA_A]=4096;g_gAdjObj[ADJ_REF_UA_B]=0;
+			g_gAdjObj[ADJ_REF_UBX1]=0;g_gAdjObj[ADJ_REF_UBX2]=6000;g_gAdjObj[ADJ_REF_UBY1]=0;g_gAdjObj[ADJ_REF_UBY2]=6000;
+			g_gAdjObj[ADJ_REF_UB_A]=4096;g_gAdjObj[ADJ_REF_UB_B]=0;
+			g_gAdjObj[ADJ_REF_UCX1]=0;g_gAdjObj[ADJ_REF_UCX2]=6000;g_gAdjObj[ADJ_REF_UCY1]=0;g_gAdjObj[ADJ_REF_UCY2]=6000;
+			g_gAdjObj[ADJ_REF_UC_A]=4096;g_gAdjObj[ADJ_REF_UC_B]=0;			
+			g_gAdjObj[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC);      //计算CRC
+             		CAT_SpiWriteWords(EEPADD_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);     //保存到EEPROM中
+             		CAT_SpiWriteWords(EEPADDBK_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);//保存到EEPROM的备份区中
+		}	     		
       			CAT_SpiWriteWords(EEPADD_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);     //保存到EEPROM中
       		}
 		else
 		{
-			g_gAdjObj[0]=0;g_gAdjObj[1]=0;g_gAdjObj[2]=0;g_gAdjObj[3]=0;g_gAdjObj[4]=0;	
+			g_gAdjObj[0]=60;g_gAdjObj[1]=60;g_gAdjObj[2]=60;g_gAdjObj[3]=60;g_gAdjObj[4]=2;	
+			g_gAdjObj[ADJ_REF_UAX1]=0;g_gAdjObj[ADJ_REF_UAX2]=6000;g_gAdjObj[ADJ_REF_UAY1]=0;g_gAdjObj[ADJ_REF_UAY2]=6000;
+			g_gAdjObj[ADJ_REF_UA_A]=4096;g_gAdjObj[ADJ_REF_UA_B]=0;
+			g_gAdjObj[ADJ_REF_UBX1]=0;g_gAdjObj[ADJ_REF_UBX2]=6000;g_gAdjObj[ADJ_REF_UBY1]=0;g_gAdjObj[ADJ_REF_UBY2]=6000;
+			g_gAdjObj[ADJ_REF_UB_A]=4096;g_gAdjObj[ADJ_REF_UB_B]=0;
+			g_gAdjObj[ADJ_REF_UCX1]=0;g_gAdjObj[ADJ_REF_UCX2]=6000;g_gAdjObj[ADJ_REF_UCY1]=0;g_gAdjObj[ADJ_REF_UCY2]=6000;
+			g_gAdjObj[ADJ_REF_UC_A]=4096;g_gAdjObj[ADJ_REF_UC_B]=0;			
 			g_gAdjObj[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC);      //计算CRC
              		CAT_SpiWriteWords(EEPADD_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);     //保存到EEPROM中
              		CAT_SpiWriteWords(EEPADDBK_ADJOBJ,ADJ_PARA_NUM,(unsigned int *)g_gAdjObj);//保存到EEPROM的备份区中
 		}
+		
       }      
 	  //张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A
     
