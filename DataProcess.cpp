@@ -246,6 +246,7 @@ void InitDataProc(void)
     if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_DEL_LUBO])
     	{
     	temp[0]=0;temp[1]=0;temp[2]=0;temp[3]=0;temp[4]=0;temp[5]=0;
+		DelALLSOE();
     	}
     CAT_SpiWriteWords(EEPADD_LUBONUM, 6, temp); 
       g_sRecData.m_gRecANum=temp[0];//录波总条数1~32
@@ -966,7 +967,7 @@ void RecData(void)
     {
     return; //如果故障没有恢复。则不再进行新的录波
     }
-    if(g_sRecData.m_ucActRecStart != CLOSE)
+    if(g_sRecData.m_ucActRecStart  != CLOSE)
     {
     return; //如果录波数据还没有保存结束则不再进行新的录波
     }
@@ -1294,7 +1295,7 @@ void SaveSoeData(void)
    CAT_SpiWriteBytes(g_unSSoeSaveE2ROMPtr,11,g_gSCosBuff[0]); 
    g_unSSoeSaveE2ROMPtr+=16;
    soe_num++;  
-   
+   if(soe_num>512)soe_num=512;
    if(g_unSSoeSaveE2ROMPtr>=  EEPADD_SOEENDADR) //写满FLASH，归0重写
    	{
    	g_unSSoeSaveE2ROMPtr = EEPADD_SOESTARTADR;
@@ -1953,7 +1954,7 @@ else if(g_sRecData.m_LuboType == LuboType_ACT)
 if((g_sRecData.m_ucActRecStart == OFF))
 {
 	save_page_num =0;
-	
+	g_sRecData.m_ucActRecStart = NO;
 //张弢 录波 需要写入CFG文件  
 //张弢 录波 需要写文件目录  
   if(g_sRecData.m_LuboType == LuboType_XH)

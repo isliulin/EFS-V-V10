@@ -131,6 +131,7 @@ struct sSAMPLE_DATA
     //unsigned char g_gFaF[256];//
     unsigned char g_gKON;//¼ÌµçÆ÷×´Ì¬
     unsigned char g_gKONBK;//¼ÌµçÆ÷×´Ì¬
+    unsigned char g_gVErrTimer[10];	      //µçÑ¹³¬¹ıãĞÖµÈ·ÈÏÊ±¼ä¼ÆÊ±	    
     unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//Ò£²âÁ¿£¬
     unsigned int g_gRmtMeasPJ[3][32];
     unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM*/]; //±¸·İÒ£²âÁ¿
@@ -149,6 +150,7 @@ struct sSAMPLE_DATA
     unsigned char g_SendBeat = 0;
     unsigned char g_SendBeatFailureNum = 0;
     unsigned int g_NolinkReset = 0;	
+    unsigned int g_NolinkWifi = 0;		
     unsigned char g_GPRSSendLink = 0;// 1·ÖÖÓÖØÁ·Ò»´Î101
     unsigned char g_RenZLink = 0;	//ÖØÇì ÈÏÖ¤±êÖ¾	
     unsigned int g_gRmtInfo[RMT_INFO_NUM];//Ò£ĞÅÁ¿ Ò»¸öÒ£ĞÅĞÅÏ¢Õ¼1¸öbitÎ»
@@ -228,9 +230,7 @@ extern unsigned int g_test;
     extern unsigned char g_gKONBK;//¼ÌµçÆ÷×´Ì¬
     extern unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//Ò£²âÁ¿£¬±£´æĞèÒªÉÏ´«µ½ºóÌ¨µÄÒ£²âÊı¾İ  
     extern unsigned int g_gRmtMeasPJ[3][32];
-    //extern unsigned char  g_gRmtMeasPJNo;	
     extern unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM */]; //±¸·İÒ£²âÁ¿
-    extern unsigned int g_gRmtMeasOr[4];
     extern unsigned int g_gYCYueXian;//ÕÅ| Ò£²âÔ½ÏŞ	
     extern unsigned int g_gYCchangData[20];
     extern unsigned int g_gChangeYCNum; //Í»±äÒ£²âÊıÁ¿
@@ -279,7 +279,8 @@ extern unsigned int g_test;
     extern unsigned long g_gBeatNum;
     extern unsigned char g_SendBeat;
     extern unsigned char g_SendBeatFailureNum;
-    extern unsigned int g_NolinkReset;	    
+    extern unsigned int g_NolinkReset;	
+    extern unsigned int g_NolinkWifi;	
     //extern char g_AdChgSdYc;
    // extern char g_FltChgSdYc;
    // extern char g_PtLoseFlag;
@@ -361,8 +362,8 @@ extern unsigned int g_test;
         unsigned int g_gAdjObj[ADJ_PARA_NUM];//ÕÅ| Ä¿±êĞ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊı ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A    
         unsigned char g_gModfk[24];
 	unsigned char kat,kbt,kct,Numk;	
-  	int g_gAdjPara[ADJAC_PARA_NUM];//Ğ£Õı²ÎÊı£¬±£´æ¸÷¸öÍ¨µÀµÄĞ£Õı²ÎÊı   
-  	unsigned int g_gAdjAD[ADJAC_PARA_NUM];//¸ù¾İĞ£Õı²ÎÊı£¬¼ÆËã³öµÄADÖµµÄÆ«ÒÆÁ¿
+  	int g_gAdjPara[ADJ_PARA_NUM];//Ğ£Õı²ÎÊı£¬±£´æ¸÷¸öÍ¨µÀµÄĞ£Õı²ÎÊı   
+  	unsigned int g_gAdjAD[ADJ_PARA_NUM];//¸ù¾İĞ£Õı²ÎÊı£¬¼ÆËã³öµÄADÖµµÄÆ«ÒÆÁ¿
   	//unsigned int g_gRunInfo[RUN_INFO_NUM];//ÔËĞĞĞÅÏ¢£¬±£´æ×°ÖÃÔËĞĞµÄ²¿·ÖĞÅÏ¢£¬±ÈÈçºÏ·ÖÕ¢´ÎÊı  	
   	unsigned char g_gChangFlag[PARA_NUM];	//²ÎÊı±ä»¯±êÖ¾£¬Èç¹û·¢Éú²ÎÊı¸ü¸Ä£¬ÔòÖÃÎ»£¬°Ñ²ÎÊı±£´æµ½eepromÖĞ
         unsigned int g_gYXConformTime[2];       //Ò£ĞÅÈ·ÈÏÊ±¼ä£¬0£ºĞÅºÅÔ´¶ÏÏß 1£º
@@ -411,12 +412,12 @@ extern unsigned int g_test;
         extern BYTE g_gIPPort[13];//  2¸öIP¼°¶Ë¿Ú
         extern BYTE g_gAPN[20];
         extern BYTE g_gSMSR;//GPRSÄ£¿é½ÓÊÕ¶ÌĞÅ  0=²»½ÓÊÕ 1=½ÓÊÕ         
-	extern int g_gAdjPara[ADJAC_PARA_NUM];//Ğ£Õı²ÎÊı£¬±£´æ¸÷¸öÍ¨µÀµÄĞ£Õı²ÎÊı
-	extern unsigned int g_gAdjAD[ADJAC_PARA_NUM];//¸ù¾İĞ£Õı²ÎÊı£¬¼ÆËã³öµÄADÖµµÄÆ«ÒÆÁ¿
+	extern int g_gAdjPara[ADJ_PARA_NUM];//Ğ£Õı²ÎÊı£¬±£´æ¸÷¸öÍ¨µÀµÄĞ£Õı²ÎÊı
+	extern unsigned int g_gAdjAD[ADJ_PARA_NUM];//¸ù¾İĞ£Õı²ÎÊı£¬¼ÆËã³öµÄADÖµµÄÆ«ÒÆÁ¿
 	extern unsigned int g_gAdjObj[ADJ_PARA_NUM];//ÕÅ| Ä¿±êĞ£×¼£¬ÉÏÎ»»úÏÂÔØ²ÎÊı ³õÊ¼ÖµÎªµçÑ¹60V,µçÁ÷2A
 	extern unsigned char g_gModfk[24];
 	extern unsigned char kat,kbt,kct,Numk;	
-        //extern int g_gAdjParaBuf[ADJ_PARA_NUM];
+        extern int g_gAdjParaBuf[ADJ_PARA_NUM];
 	
 	extern unsigned char g_gChangFlag[PARA_NUM];	//²ÎÊı±ä»¯±êÖ¾£¬Èç¹û·¢Éú²ÎÊı¸ü¸Ä£¬ÔòÖÃÎ»£¬°Ñ²ÎÊı±£´æµ½eepromÖĞ
 	extern unsigned int g_gYXConformTime[2];       //Ò£ĞÅÈ·ÈÏÊ±¼ä£¬0£ºĞÅºÅÔ´¶ÏÏß 1£º
@@ -491,7 +492,7 @@ extern unsigned int g_test;
     unsigned char g_uc101BuffDataHead;   //GPRSÍ¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÍ·    
     unsigned char g_uc101BuffTail;   //GPRSÍ¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÎ²
     
-    unsigned int bFrameReceived[COMM_PORT_NUM];   //»º³åÇø½ÓÊÕĞÂÊı¾İ±êÖ¾
+    unsigned char bFrameReceived[COMM_PORT_NUM];   //»º³åÇø½ÓÊÕĞÂÊı¾İ±êÖ¾
     //unsigned int g_ucBuffHead[2];   //Í¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÍ·
     //unsigned int g_ucBuffTail[2];   //Í¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÎ²
     
@@ -530,8 +531,17 @@ extern unsigned int g_test;
     unsigned int g_unRELTimeFlg_101;
     
     unsigned int g_unOffset;    //ÎïÀíµØÖ·×ª»»Æ«ÒÆÁ¿*/
-    char  ComtrderCfg1[350];
+    char  ComtrderCfg1[310];
     char  ComtrderCfg_adj[50];
+
+        unsigned char g_EncComNo;        //ÄÄ¸ö´®¿ÚÔÚÅÜ¼ÓÃÜÊı¾İ1==GPRS 2 ==DeBug£¬ ÆäÓàÎŞĞ§
+		//WORD g_validity[64];
+        unsigned char g_bEncCerTxt[1024];  //¼ÓÃÜCERÖ¤Êé
+        unsigned char g_bHostRandom[8];  //Ö÷Õ¾Ëæ»úÊı
+        unsigned char m_bUnitRandom[8];   //ÖÕ¶Ë×ÔÉíËæ»úÊı£¬ÓÃÓÚÓëÔËÎ¬¹¤¾ßÍ¨ĞÅ
+        int g_wEncCerWPtr;                 //CerÖ¤Êé¼ÇÂ¼Î»Ö	
+        char g_bUnitID[25];//ÖÕ¶ËID,24×Ö½ÚµÚÒ»¸ö×ÖÊÇ½Ú³¤¶È   
+        unsigned char g_bAppType;//¼ÓÃÜ±¨ÎÄÓ¦ÓÃÀàĞÍ        
 #else
     extern struct  sTX_BUFF g_sTxBuff[COMM_PORT_NUM];
     extern struct  sRX_BUFF g_sRxBuff[COMM_PORT_NUM];
@@ -573,7 +583,7 @@ extern unsigned int g_test;
     //extern unsigned char g_unLEDTX_Buff[MAX_TXBUFF_101_LEN];         //Êı¾İ·¢ËÍÊı×é
     
 
-    extern unsigned int bFrameReceived[COMM_PORT_NUM];   //»º³åÇø½ÓÊÕĞÂÊı¾İ±êÖ¾
+    extern unsigned char bFrameReceived[COMM_PORT_NUM];   //»º³åÇø½ÓÊÕĞÂÊı¾İ±êÖ¾
 
     //extern unsigned int g_ucBuffHead[2];         //Í¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÍ·
     //extern unsigned int g_ucBuffTail[2];         //Í¨ĞÅ½ÓÊÕ»º³åÇøÊı¾İÎ²
@@ -607,7 +617,7 @@ extern unsigned int g_test;
     extern unsigned char eight_pulse_counter;
     extern unsigned int unFrameNum; //ÁÙÊ±´æ´¢´ı·¢ËÍ¶ÌĞÅÌõÊı
     extern unsigned char g_uc101Flg;
-    extern char  ComtrderCfg1[350];
+    extern char  ComtrderCfg1[310];
     extern char  ComtrderCfg_adj[50];
    /* extern unsigned char g_ucRELConfirm;   //Í¨ĞÅÓÃÒ£¿ØÈ·ÈÏ±êÖ¾
     extern unsigned char g_ucRELUNM;       //Í¨ĞÅÓÃÒ£¿Ø¼ÌµçÆ÷µÄË³ĞòºÅ
@@ -615,7 +625,13 @@ extern unsigned int g_test;
     extern unsigned int g_unRELTimeFlg_101;
     
     extern unsigned int g_unOffset;    //ÎïÀíµØÖ·×ª»»Æ«ÒÆÁ¿ */
-  
+        extern unsigned char g_EncComNo;
+	extern unsigned char g_bEncCerTxt[1024];
+        extern unsigned char g_bHostRandom[8];  //Ö÷Õ¾Ëæ»úÊı
+        extern unsigned char m_bUnitRandom[8];
+        extern int g_wEncCerWPtr;   
+        extern char g_bUnitID[25];//ÖÕ¶ËID,24×Ö½ÚµÚÒ»¸ö×ÖÊÇ½Ú³¤¶È   
+        extern unsigned char g_bAppType;//¼ÓÃÜ±¨ÎÄÓ¦ÓÃÀàĞÍ 
 #endif
     
 //=======================DriverTimer.c--¶¨Ê±Æ÷Çı¶¯Ä£¿é===============================================
@@ -734,10 +750,10 @@ extern unsigned int g_test;
 
         unsigned char comm_rec_flag;
 
-        unsigned char phone_perm[4];	//          5        4         3        2       1      0
+        //unsigned char phone_perm[4];	//          5        4         3        2       1      0
 						                    //      ¹ÊÕÏ¸´¹é  ·¢Éú¹ÊÕÏ Ö÷¶¯ÉÏ±¨ ÓĞĞ§8Âö³å µôµç  ×´Ì¬Òì³£
 						//ÊÖ»úµÄÈ¨ÏŞ¿ØÖÆ×Ö
-        unsigned char SMS_array[28];      /////////µÈ´ı·¢ËÍµÄ¹ÊÕÏ£¬ÁùÖÖÇé¿ö£¬4¸öÊÖ»úºÅ£¬¹²24¸ö£»					
+        unsigned char SMS_array;      /////////µÈ´ı·¢ËÍµÄ¹ÊÕÏ£¬ÁùÖÖÇé¿ö£¬4¸öÊÖ»úºÅ£¬¹²24¸ö£»					
     
         unsigned char send_phase;
         unsigned int yc[8];	// 8Âö³åÒ£²âÖµ
@@ -858,8 +874,8 @@ extern unsigned int g_test;
         extern unsigned char pulse_counter;               ////////¶Ô²É¼¯µÄÂö³åÊı½øĞĞÍ³¼Æ£¬ÓÃ×÷Êı¾İ´æ´¢¶¨Î»
        
         extern unsigned char comm_rec_flag;
-        extern unsigned char phone_perm[4];	//          5        4         3        2       1      0						                    //      ¹ÊÕÏ¸´¹é  ·¢Éú¹ÊÕÏ Ö÷¶¯ÉÏ±¨ ÓĞĞ§8Âö³å µôµç  ×´Ì¬Òì						//ÊÖ»úµÄÈ¨ÏŞ¿ØÖÆ×Ö
-        extern unsigned char SMS_array[28];
+        //extern unsigned char phone_perm[4];	//          5        4         3        2       1      0						                    //      ¹ÊÕÏ¸´¹é  ·¢Éú¹ÊÕÏ Ö÷¶¯ÉÏ±¨ ÓĞĞ§8Âö³å µôµç  ×´Ì¬Òì						//ÊÖ»úµÄÈ¨ÏŞ¿ØÖÆ×Ö
+        extern unsigned char SMS_array;
      
         extern unsigned char send_phase;
         extern unsigned int yc[8];	// 8Âö³åÒ£²âÖµ
