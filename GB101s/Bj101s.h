@@ -265,7 +265,7 @@ class CBJ101S : public CPrtcSms//CPSecondary
 		BOOL SendCos(void);
 		BOOL SendLBML(void);		
 		BOOL SendFrameHead(BYTE Style, BYTE Reason);
-		BOOL SendFrameTail(BYTE PRM, BYTE dwCode, BYTE Num,BYTE EncType);
+		BOOL SendFrameTail(BYTE PRM, BYTE dwCode, BYTE Num);
 		BOOL SendReadYCAck(WORD YCNo);
 		BOOL SendReadYXAck(WORD YXNo);
 		BOOL SendNoData(void);
