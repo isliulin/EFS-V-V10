@@ -14,7 +14,7 @@
 #define SD_101S      //¶¨Òå=µ¤»ªê»²©101¹æÔ¼£»²»¶¨Òå=±ê×¼101¹æÔ¼
 
 #define CONDIN_3      //½Ó´¥Æ÷Êä³ö3Â·¿ªºÏÐÅºÅ  È¡ÏûÐÅºÅÔ´Òì³£Ò£ÐÅ(¸¨Öú¿ª¹ØÌø¿ª)
-//#define TWOP_CALB      //Two-point calibration methodÁ½µãÐ£×¼))
+
 
 #define         TYPE_EQU                0x1111  //Éè±¸´úÂë
 
@@ -34,6 +34,13 @@
 
 #define         LuboType_XH      0x55
 #define         LuboType_ACT      0xAA
+
+#define  OPERATING_LOGO1 1 //²Ù×÷±êÊ¶1 ¶ÁÄ¿Â¼
+#define  OPERATING_LOGO2 2//²Ù×÷±êÊ¶2 ¶ÁÄ¿Â¼È·ÈÏ
+#define  OPERATING_LOGO3 3//¶ÁÎÄ¼þ¼¤»î
+#define  OPERATING_LOGO4 4 //¶ÁÎÄ¼þ¼¤»îÈ·ÈÏ
+#define  OPERATING_LOGO5 5 //¶ÁÎÄ¼þÊý¾ÝÏìÓ¦
+#define  OPERATING_LOGO6 6 //¶ÁÎÄ¼þÊý¾ÝÏìÓ¦È·ÈÏ
 
 /*-------------------------------------------------------------------------
  *   Standard Bits
@@ -89,7 +96,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define IECP_AUT_MODE        5//Ö÷¶¯ÉÏ´«Ä£Ê½£¬0=Ö÷Õ¾·¢ËÍ³õÊ¼»¯ºó·½¿ÉÖ÷¶¯ÉÏ´«ºÍ×ÜÕÙ
                               //1=ÊÕµ½Ö÷Õ¾ÈÎºÎÃüÁîºó·½¿ÉÖ÷¶¯ÉÏ´«£¬ÈÎºÎÊ±ºò¶¼ÏìÓ¦×ÜÕÙÃüÁî¡£
                               //2=Ö÷¶¯ÉÏ´«²»ÊÜÈÎºÎÔ¼Êø
-#define IECP_OBJ_COM0        6 //µ÷ÊÔ´®¿Ú²¨ÌØÂÊ£¬0=9600£,19200£,38400£,57600£,115200
+#define IECP_OBJ_COM0        6 //µ÷ÊÔ´®¿Ú²¨ÌØÂÊ£¬0=9600,1=19200,2=38400,3=57600,4=115200
 #define IECP_OBJ_COM1        7
 #define IECP_OBJ_COM2        8
 #define IECP_OBJ_COM3        9
@@ -137,6 +144,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define FLOAD_NEW                          1             //¼´½«´æ´¢µÄ¼ÇÂ¼ÓëµÚÒ»Ìõ¼ÇÂ¼µÄÆ«ÒÆÎ»ÖÃ(²»ÊÇÒÑ´æ´¢µÄ×îÐÂÒ»Ìõ¼ÇÂ¼µÄÎ»ÖÃ)
 #define FLOAD_OLD                           2             //×îÀÏÒ»Ìõ¼ÇÂ¼µÄÎ»ÖÃ
 #define FLOAD_CS                             3
+#define FLOAD_DAY 3
 #define FLASH_LOAD_MAXNUM        8192
 #define FADDR_LOAD_START           0x750000//750000-790000
 #define FLASH_PLOAD_LEN              32//Ã¿Ìõ¸ººÉ¼ÇÂ¼32×Ö½Ú
@@ -301,9 +309,9 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define YX_AEARTH_FAULT          24  //½ÓµØ¸æ¾¯
 #define YX_BEARTH_FAULT          25 //½ÓµØ¸æ¾¯
 #define YX_CEARTH_FAULT          26 //½ÓµØ¸æ¾¯
-#define YX_KJC         31 //Ó²Ò£ÐÅ1
-#define YX_KJA          32 //Ó²Ò£ÐÅ1
-#define YX_KJB          33 //Ó²Ò£ÐÅ2
+#define YX_KJC         10 //Ó²Ò£ÐÅ1
+#define YX_KJB          32 //Ó²Ò£ÐÅ1
+#define YX_KJA          33 //Ó²Ò£ÐÅ2
 #define YX_RH_SUCCESS          34 //È¼»¡³É¹¦
 #define YX_RH_FAIL         35 //È¼»¡Ê§°Ü
 #define YX_BREAK            36 //¶ÏÏß
@@ -318,6 +326,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define YX_I0_HIGH         45//I0¹ýÁ÷	1£º¹ýÁ÷×´Ì¬£»0£º
 #define YX_KJ_TIMEOVER 46//¿ª¹Ø±ÕºÏ³¬Ê±	1£º³¬Ê±£»0£º
 #define YX_I0_TIMEOVER 47//I0³¬Ê±	1£º³¬Ê±£»0£º
+#define YX_SYSRESET 63//ÏµÍ³¸´Î»
 //#define YX_I0_HIGH         48//I0¹ýÁ÷	1£º¹ýÁ÷×´Ì¬£»0£º
 //#define YX_I0_HIGH         49//I0¹ýÁ÷	1£º¹ýÁ÷×´Ì¬£»0£º
 
@@ -357,24 +366,6 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define ADJ_REF_CHNU0                         3       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
 #define ADJ_REF_CHNI0                         4       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
 #define ADJ_REF_CHNUPt                       5       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UAX1                       6       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UAX2                       7       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UAY1                       8       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UAY2                       9       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UA_A                       10       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UA_B                       11     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UBX1                      12       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UBX2                       13       //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UBY1                       14     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UBY2                       15     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UB_A                       16     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UB_B                       17     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UCX1                       18     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UCX2                       19   //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UCY1                       20     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UCY2                       21     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UC_A                       22     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
-#define ADJ_REF_UC_B                       23     //Í¨µÀ4»ù×¼Ô´Ð£ÕýÖµ  
 
 #define ADJ_CRC                               6
 
@@ -450,7 +441,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define RP_SEND_TIME1           37//Âö³å·¢ËÍ¼ä¸ôÊ±¼ä1 £¬10msÎªµ¥Î» Ä¬ÈÏ100
 #define RP_SEND_TIME2           38//Âö³å·¢ËÍ¼ä¸ôÊ±¼ä2 £¬10msÎªµ¥Î» Ä¬ÈÏ125
 
-#define RP_OVERLOAD_CNT       39//Âö³å¿í¶ÈÐÞÕý£¬Êµ¼ÊÂö³å¿í¶ÈÎª10msÎª RP_PLUSE_TIME -RP_PLUSE_MODFK µ¥Î»10ms Ä¬ÈÏ0
+#define RP_PLUSE_NUM       39//Âö³å¸öÊý£¬6 £¬7£¬8
 #define RP_OVERLOAD_I            40
 #define RP_OVERLOAD_T           41
 #define RP_SENDSMS_T             42//ÕÅ| Ò£²âÆðÊ¼µØÖ·ÐÞ¸ÄÔËÐÐ²ÎÊý
@@ -640,7 +631,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 
 #define         SOE_DATA_LEN            11       //Ã¿ÌõSOEÊý¾ÝµÄ³¤¶È
 #define         SOEVALID               0X55
-#define         SOE_SENDDA_LEN         10//SOE_DATA_LEN-1
+#define         SOE_SENDDA_LEN         11//SOE_DATA_LEN-1
 //SOEÊý¾ÝµÄ¶¨Òå
 #define         SOE_FLAG    0  
 #define         SOE_TYPEL   1 
@@ -662,7 +653,7 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 
 #define SOE_RECORD_ADD   0x42000     //SOE¼ÇÂ¼µØÖ·Çø
 
-#define SOE_NUM_SEG   42
+#define SOE_NUM_SEG   4//42
 #define SOE_SEG       24 
 
 #define SOE_RECORD_LEN  0x10        //Ã¿Ìõ¼ÇÂ¼16×Ö½Ú
@@ -736,6 +727,19 @@ typedef double         FP64;            //Ë«¾«¶È¸¡µãÊý
 #define EEPADD_BLEN             0x0E9C //BÏàµÄÆ«ÒÆÁ¿
 #define EEPADD_CLEN             0x0E9E //CÏàµÄÆ«ÒÆÁ¿
 #define EEPADD_COMLEN           0x0EA0 //×î´óÆ«ÒÆÁ¿
+
+
+#define EEPADD_VerNum            0x1104 // µ±Ç°Â¼²¨µÄ×Ü¸öÊý,Õ¼ÓÃ8¸ö×Ö½Ú£¬SV01.033
+#define EEPADD_LOGNUM           0x1110  //ÔÚFLASHÖÐ±£´æµÄ¸ººÉ¼ÇÂ¼µÄÌõÊý Õ¼ÓÃ2×Ö½Ú
+#define EEPADD_LOGADDR_NEW      0x1112  //¼´½«´æ´¢µÄ¼ÇÂ¼ÓëµÚÒ»Ìõ¼ÇÂ¼µÄÆ«ÒÆÎ»ÖÃ£¬Îª(0----FLASH_LOAD_MAXNUM-1) Õ¼ÓÃ2×Ö½Ú
+#define EEPADD_LOGADDR_OLD      0x1114  //×îÀÏÒ»Ìõ¼ÇÂ¼´æ´¢Î»ÖÃ
+#define EEPADD_LOG_CHK          0x1116  //ÒÔÉÏÁ½¸öÊý¾Ý¼ÓºÍÐ£Ñé
+#define EEPADD_DAYNUM           0x1200 //¶¨µã¸ººÉ¼ÇÂ¼¹²´æ31Ìì£¬Ã¿Ìì×î¶à´æ96Ìõ£¬Êµ¼Ê´æµÄÌõÊý
+#define EEPADD_VALIDITY         0x1300 //ÓÐÐ§ÆÚ£¬64ÌõÂ¼²¨Ä¿Â¼£¬Ã¿ÌõÂ¼²¨Ä¿Â¼µÄÓÐÐ§ÆÚÎª2¸ö×Ö½Ú£¬¹²2*64¸ö×Ö½Ú
+#define EEPADD_FIXNUM           0x1400 //Í¨¹ýÎÄ¼þÃû±£´æ¶¨µãµÄË÷Òý£¬¹²31*20¸ö×Ö½Ú
+#define EEPADD_CFG              0x1700 //±£´æCFGÎÄ¼þ£¬Ä¿Ç°CFGÎÄ¼þ×î¶àÕ¼ÓÃ700¸ö×Ö½Ú£¬Ã»ÓÐÐ´ÈëFLASHµÄÔ­ÒòÊÇ:Ã¿´Î·¢ËÍ¸ÃÎÄ¼þÊ±£¬¶¼ÐèÒª¶ÔCFGÎÄ¼þµÄÄ³¼¸¸öµØ·½×öÐÞ¸Ä£¬·½±ã²Ù×÷
+#define EEPADD_DEGBF101            0x1A00 // DEG¿Ú ¶ÁÐ´±¨ÎÄÊ±£¬±¸·Ýµ±Ç°½øÐÐµÄÃüÁî¡£¶ÁÐ´ÎÄ¼þÊ±£¬Èô±»ÆäËüµÄ½ø³Ì°üÀ¨×ÜÕÙ¡¢¶ÔÊ±¡¢Ö÷¶¯ÉÏ±¨µÈÃüÁî´ò¶ÏÊ±£¬¿ÉÒÔ¼ÌÐø´«Êä
+#define EEPADD_GPRSBF101           0x1B00 // GPRS¿Ú ¶ÁÐ´±¨ÎÄÊ±£¬±¸·Ýµ±Ç°½øÐÐµÄÃüÁî¡£¶ÁÐ´ÎÄ¼þÊ±£¬Èô±»ÆäËüµÄ½ø³Ì°üÀ¨×ÜÕÙ¡¢¶ÔÊ±¡¢Ö÷¶¯ÉÏ±¨µÈÃüÁî´ò¶ÏÊ±£¬¿ÉÒÔ¼ÌÐø´«Êä
 
 #define EEPADD_SOESTARTADR       0x2000 //×î´óÆ«ÒÆÁ¿
 #define EEPADD_SOEENDADR       0x4000

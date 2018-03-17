@@ -95,12 +95,12 @@ const char RECCfg[]=
 const char CfgEnd[]=
 "ASCII\n\
 1\n\
-";
+\0";
 
 const char CfgEnd1[]=
 "BINARY\n\
 1\n\
-";
+\0";
 
 /*
 const char ComtrderCfg[]=
@@ -167,9 +167,10 @@ struct RECORDER_CFG//配置文件的录波目录
     //unsigned int DATA_SOF;//配置文件的状态
     DWORD DATA_Leng;//data长度
     DWORD TOTAL_Leng; 
-	//unsigned char lubo_flag;//录波标志位
-	//WORD     relative_timel;
-	//WORD     relative_timeh;
+	unsigned char lubo_flag;//录波标志位
+	//WORD     relative_time1;
+	//WORD     relative_time2;
+	//WORD     relative_time3;
 };
 
 struct FLAG_RECORDER
@@ -177,6 +178,7 @@ struct FLAG_RECORDER
     //unsigned char CFG_flag;//是否在读配置文件的数据
     //unsigned char DAT_flag;//是否在读数据文件的数据
     unsigned char LIST_flag;//是否在读目录文件的数据
+    unsigned char LIST_flag_YN;
     unsigned char pRXBuff[64]; //保存101规约中68长帧的数据
 };
 
@@ -188,7 +190,36 @@ struct RE_SEND_REC
    int res_segment_leng;
    unsigned char res_timeout;
 };
+struct SOE_RECORDER
+{	  
+	  unsigned int Soe_Area;//每段SOE存储起始地址
+	  unsigned int Soe_Ptr;//保存SOE存储起始地址，防止阐述过程中SOE增加
+	  unsigned int soe_count;////保存soe数量，防止传输过程中SOE增加
+	  unsigned char follow_mark;//后续标志
+	  unsigned int Soe_Curren_count;//已发送SOE数量
+	  unsigned char Soe_count_flag;
+	  //char soeBuff[100]; //文件内容数据流
+	  //unsigned char check_sum;
+	  
+};
 
+struct FIXPT_RECORDER
+{	  
+	  unsigned char fixpt_Ptr;
+	  unsigned char fixpt_count;//文件内容的偏移指针值。
+	  unsigned char fixpt_Curren_count;
+	  unsigned char fixpt_count_flag;
+	  //char soeBuff[100]; //文件内容数据流
+	  //unsigned char check_sum;	  
+};
+struct LOG_RECORDER
+{	  
+	unsigned char log_Ptr;
+	unsigned char log_count;//文件内容的偏移指针值。
+	unsigned char log_Curren_count;
+	unsigned char log_count_flag;
+	//unsigned char check_sum;	  
+};
 
 //=====================录波数据===========================================
 /*#define RECORDER_TOTALNUM  0//在FLASH中保存的录波记录的条数
@@ -205,8 +236,14 @@ struct RE_SEND_REC
 //RECORDER_WAVE_EXT unsigned long FLbAddrEnd;
 //const char  ComtrderCfg2[]=
 //"//
+RECORDER_WAVE_EXT DWORD TOTAL_Leng; 
+RECORDER_WAVE_EXT DWORD Fixpt_TOTAL_Leng;
+RECORDER_WAVE_EXT WORD Fixpt_SECTION_Leng;
 
+RECORDER_WAVE_EXT DWORD Log_TOTAL_Leng; 
+RECORDER_WAVE_EXT unsigned char LuboGetCtrCode(BYTE control);
 RECORDER_WAVE_EXT void Code_Lubo(unsigned char *p=null,unsigned char *pTxBuf=null);
+RECORDER_WAVE_EXT void Code_Lubo_YN(unsigned char *p=null,unsigned char *pTxBuf=null);
 //#ifdef YN_101S
 RECORDER_WAVE_EXT struct RECORDER_CFG gRecorder_cfg[2/*FRECORDER_TOLNUM*/];
 //#endif
@@ -223,7 +260,11 @@ RECORDER_WAVE_EXT BYTE GLubodat_Sum;//数据文件的校验，第二节的校验
 RECORDER_WAVE_EXT BYTE GLubocfg_Sum;//配置文件的校验，第一节的校验
 RECORDER_WAVE_EXT BYTE GLubo_Sum;//两个文件的校验
 RECORDER_WAVE_EXT BYTE g_lubo_erase;
+RECORDER_WAVE_EXT  unsigned int  wSendLISTNum ;////= 0已经发送的目录的条数，最多发18条
+RECORDER_WAVE_EXT  unsigned int  BK_FRecorder_Current_COUNT ;//从当前的指针发送录波数据
+
 RECORDER_WAVE_EXT unsigned char * FileDirectory(unsigned char *pTxBuf, unsigned char leng,unsigned int wave_total);
+RECORDER_WAVE_EXT unsigned char * FileDirectory_YN(unsigned char *pTxBuf, unsigned char leng,unsigned int wave_total);
 RECORDER_WAVE_EXT unsigned char * FileDataCfg(unsigned char *pTxBuf, unsigned char leng,RECORDER_CFG *pgRecorder_cfg,int segment_leng);//CFG文件WORD wSecLenPtr,
 RECORDER_WAVE_EXT unsigned char * FileDatadat(unsigned char pTxBuf,unsigned char leng,WORD wSecLenPtr,int segment_leng);//dat文件
 RECORDER_WAVE_EXT unsigned char * ApprovalFile(unsigned char *pTxBuf,unsigned char leng,RECORDER_CFG *pgRecorder_cfg,WORD wSecLenPtr);//认可文件、节的流程处理
@@ -235,7 +276,44 @@ RECORDER_WAVE_EXT unsigned char * FileDatadat_YN(unsigned char pTxBuf,unsigned c
 RECORDER_WAVE_EXT unsigned char * FileCfgOneFrame_YN(unsigned char *pTxBuf, unsigned char leng,RECORDER_CFG *pgRecorder_cfg,int framenum);//CFG文件WORD wSecLenPtr,
 RECORDER_WAVE_EXT unsigned char * FileDatOneFrame_YN(unsigned char pTxBuf,unsigned char leng,WORD wSecLenPtr,int framenum);//dat文件
 //RECORDER_WAVE_EXT 
+RECORDER_WAVE_EXT unsigned char  check;
+RECORDER_WAVE_EXT unsigned char *SectionPrepareSoe(unsigned char *pTxBuf,unsigned char leng);
+RECORDER_WAVE_EXT unsigned char *SectionPrepareFixpt(unsigned char *pTxBuf,unsigned char leng);
+RECORDER_WAVE_EXT unsigned char *FixptData(unsigned char *pTxBuf,unsigned char leng,int segment_leng);
+RECORDER_WAVE_EXT unsigned char * SoeData(unsigned char *pTxBuf,unsigned char leng,int segment_leng);
+RECORDER_WAVE_EXT unsigned char *SectionPrepareLog(unsigned char *pTxBuf,unsigned char leng);
+RECORDER_WAVE_EXT unsigned char *LogData(unsigned char *pTxBuf,unsigned char leng,int segment_leng);
+RECORDER_WAVE_EXT WORD  ReadNumSoeFromFlash(WORD *pHeadPtr,WORD TailPtr);
 
+RECORDER_WAVE_EXT void LuBoGetNum(unsigned int wave_total);//unsigned int
+
+RECORDER_WAVE_EXT unsigned char* SoeDirectory(unsigned char *pTxBuf, unsigned char leng,unsigned int wave_total);
+RECORDER_WAVE_EXT unsigned char* FixDirectory(unsigned char *pTxBuf, unsigned char leng);
+RECORDER_WAVE_EXT  SOE_RECORDER soe_recorded;
+RECORDER_WAVE_EXT  unsigned char soe_sum;
+RECORDER_WAVE_EXT unsigned char* LogDirectory(unsigned char *pTxBuf, unsigned char leng);
+
+RECORDER_WAVE_EXT  FIXPT_RECORDER fixpt_recorded;
+RECORDER_WAVE_EXT  LOG_RECORDER log_recorded;
+
+
+RECORDER_WAVE_EXT  BYTE fix_YC_NUM;
+
+RECORDER_WAVE_EXT  unsigned char fixpt_sum[96];
+RECORDER_WAVE_EXT  BYTE lubo_valid[64];
+RECORDER_WAVE_EXT  BYTE lubonum_valid[64];
+
+//RECORDER_WAVE_EXT  BYTE bySoeDa[512];
+RECORDER_WAVE_EXT unsigned char *  ApprovalSoeFile(unsigned char *pTxBuf,unsigned char leng,WORD wSecLenPtr);
+RECORDER_WAVE_EXT unsigned char wavefix_total;
+RECORDER_WAVE_EXT unsigned char wavelog_total;
+RECORDER_WAVE_EXT void LuBoNum(unsigned int wave_total);
+RECORDER_WAVE_EXT unsigned char *  ApprovalFixFile(unsigned char *pTxBuf,unsigned char leng,WORD wSecLenPtr);
+RECORDER_WAVE_EXT  unsigned char log_sum_section;
+RECORDER_WAVE_EXT  unsigned char log_sum_total;
+RECORDER_WAVE_EXT unsigned char *  ApprovalLogFile(unsigned char *pTxBuf,unsigned char leng,WORD wSecLenPtr);
+//RECORDER_WAVE_EXT  char *strtemp ; 
+RECORDER_WAVE_EXT unsigned int  BkFlashhead;
 //RECORDER_WAVE_EXT WORD m_wSendCFGNum;////已经发送的配置文件的字节数，控制多帧传送用
 
 
@@ -412,7 +490,22 @@ typedef struct
 }ComtrderCfg;*/
 
 
+#define  FADDR_LOG_START 				2
+#define  FLASH_DAYLOAD_LEN 				2
 
+#define  RM_1A_LUBO 				2
+#define  RTC_WEEK 				2
+#define  FSOE_LEN 2
+#define  FSOE_TOLNUM 2
+#define  FLASH_PLOG_LEN 2
+
+
+//=====================日志记录ulog===========================================
+#define FLOG_TOTALNUM  0//在FLASH中保存的日志记录的条数
+#define FLOG_NEW       1//即将存储的记录与第一条记录的偏移位置，
+#define FLOG_OLD       2//最老一条记录存储位置
+#define FLOG_CS        3//以上三个数据加和校验
+#define FLOGINFONUM  4
 
 #endif
 

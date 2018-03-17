@@ -165,14 +165,58 @@ void ScanDin(void)
 {
      unsigned char i;
  
-//#ifndef  CONDIN_3
+#ifndef  CONDIN_3
+    if(KJc1==0)     /////////检测到辅助触点吸合，报警()
+    {
+        if(abnormal_counter<7)	
+            abnormal_counter++;
+        if(abnormal_counter==7)              ///////状态异常报警，检测到保护开关跳开报警。
+    	{	
+            abnormal_counter=8;
+    	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
+    	    save_abnormal=0x55;
+            g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
+            KA1_ON;	             
 
-//#endif	
-    if(save_abnormal==0x55)
-    	{
-    	save_abnormal=0;
-	CreatNewSMS(ABN_CHECK);	
+	     //CreatNewSMS(ABN_CHECK);                      //产生保护开关跳开短信//张弢
+            for(i=0;i<6;i++)
+                g_sSoeData.m_gAbnBuff[i] = g_sRtcManager.m_gRealTimer[i];
+            g_sSoeData.m_gAbnBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
+           
+            CreatNewSMS(ABN_CHECK);                      //产生保护开关跳开短信
+    	   /*  if(g_gProcCnt[PC_GPRS_MODEL]==0)
+	    {
+	        upload_interval[0]=(3*upload_interval_set)-1;      //////////////状态异常set 4 minutes
+                upload_flag|=ABN_CHECK;	
+	    }
+            else
+	    {
+	        upload_interval[0]=0;      //////////////eight pulse set 4 minutes	
+	        upload_flag&=~ABN_CHECK;	
+	    }*/
     	}
+    }
+    else
+    {
+        if(abnormal_counter>0)	
+        {
+            if(abnormal_counter>1)	
+                abnormal_counter-=2;
+            else
+              	abnormal_counter--;              	
+            if(abnormal_counter==0)
+            {
+                 save_abnormal=0x66;
+                 g_gRmtInfo[YX_EFS_ABNORMAL] =0;
+             	 KA1_OFF; 
+                 for(i=0;i<6;i++)
+                     g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
+                 g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
+              /*  */ 
+             }	
+         }
+    }
+#endif	
     if((Powerdown_counter == 0)&&(power_off_flag==1))    /////////信号源掉电恢复	
     {
        power_off_flag=0;
@@ -221,13 +265,14 @@ void ScanDin(void)
 
 void RmInfoChk(void)
 {
-    unsigned char m,k;
+    unsigned char m;
     //unsigned int unRmtTemp = 0;
     //unsigned int j=1;
     for(m= 0;m < RMT_INFO_NUM;m++)
     {
          if(g_gRmtInfoBak[m] != g_gRmtInfo[m])
-        {        
+        {       
+        /*
                for(k = 0; k < g_ucYxTransNum;k++)
                {
                    if(m == g_ucYXAddr[k]-1)
@@ -237,7 +282,8 @@ void RmInfoChk(void)
                        break;
                    }
              
-        	 }  
+        	 }  */
+        CreatNewSoe(m,g_gRmtInfo[m],2);	 
         g_gRmtInfoBak[m] = g_gRmtInfo[m];   
        }
     }    
@@ -257,9 +303,9 @@ void ScanDinYX(void)
     	if(KJa1==ka)//&&(g_gKON!=100)     /////////检测到硬遥信1
     		{
     		g_gPhasErrTimer[0]++;
-		if(g_gPhasErrTimer[0]>100)
+		if(g_gPhasErrTimer[0]>250)
 			{
-			g_gPhasErrTimer[0] = 100;
+			g_gPhasErrTimer[0] = 250;
     			g_gRmtInfo[YX_PHASEA_ERR]=1;
 			}
     		}
@@ -273,9 +319,9 @@ void ScanDinYX(void)
     	if(KJb1==kb)//&&(g_gKON!=100)     /////////检测到硬遥信1
     		{
     		g_gPhasErrTimer[1]++;
-		if(g_gPhasErrTimer[1]>100)
+		if(g_gPhasErrTimer[1]>250)
 			{
-			g_gPhasErrTimer[1] = 100;
+			g_gPhasErrTimer[1] = 250;
     			g_gRmtInfo[YX_PHASEB_ERR]=1;
 			}
     		}
@@ -289,9 +335,9 @@ void ScanDinYX(void)
     	if(KJc1==kc)//&&(g_gKON!=100)     /////////检测到硬遥信1
     		{
     		g_gPhasErrTimer[2]++;
-		if(g_gPhasErrTimer[2]>100)
+		if(g_gPhasErrTimer[2]>250)
 			{
-			g_gPhasErrTimer[2] = 100;
+			g_gPhasErrTimer[2] = 250;
     			g_gRmtInfo[YX_PHASEC_ERR]=1;
 			}
     		}

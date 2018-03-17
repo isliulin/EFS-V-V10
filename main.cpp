@@ -52,6 +52,35 @@ void app(void)@"APPLICATION"
 
         SaveCfgPara();*/
         WDG_CLR;
+ 	if(g_STimeout == ON)
+		{
+		g_STimeout = OFF;
+		if(pGprs->m_PaWaitflag_lubo == ON)
+   			{
+      			if(pGprs->m_PaWaitCt_lubo > 0)
+      				{//ODU写参数重发计时
+          			pGprs->m_PaWaitCt_lubo--;
+          			if(pGprs->m_PaWaitCt_lubo <= 0)
+          				{
+            				pGprs->m_PaWaitflag_lubo = TRUE;
+            				//return TRUE;
+          				}
+       			}
+    			}
+               if(pDbg->m_PaWaitflag_lubo == ON)
+   			{
+      			if(pDbg->m_PaWaitCt_lubo > 0)
+      				{//ODU写参数重发计时
+          			pDbg->m_PaWaitCt_lubo--;
+          			if(pDbg->m_PaWaitCt_lubo <= 0)
+          				{
+            				pDbg->m_PaWaitflag_lubo = TRUE;
+            				//return TRUE;
+          				}
+       			}
+    			}					
+		}
+       
 	 if(g_NolinkWifi>900)
 	 	{
 	 	WIFIR_CLR;
@@ -291,6 +320,7 @@ void InitSys(void)
     //ReadLEDVer();  // 读取液晶版本号
    g_unSms_s = 0;
    g_gRmtInfo[YX_BREAK]=0;//复位后，断线检测遥信也复位	
+   g_gRmtInfo[YX_SYSRESET] =1;
    g_gRmtInfo[YX_EFS_ABNORMAL]=0;
    if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ
     

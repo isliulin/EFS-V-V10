@@ -14,7 +14,7 @@
 
 #undef BJ101_GZTEST
 
-#define GRP_YCNUM   72//128         //每组最多发送遥测个数
+#define GRP_YCNUM   50//128         //每组最多发送遥测个数，增加加密，72改为50
 #define GRP_YXNUM   127//128         //每组最多发送遥信字节
 
 #define FRM_YCNUM    72//64         //每帧报文最多发送遥测个数
@@ -112,6 +112,7 @@ BOOL CBJ101S::Init(WORD uartId)
     m_DSoeHeadPtrBk = 0;
     m_WaitConfTpId = 0;
     m_comtradeflag =0;
+	m_comtradeflag_YN =0;
     if(m_uartId == g_CmIdDBG)
     {
     //对应g_yxChangeflag 
@@ -351,8 +352,20 @@ BOOL CBJ101S::RecFrame10(void)
 	     //if(this == pDbg)    g_DBGSendLink = OFF;		
           //  g_Soenum=0;
             m_resendflag=0;
-
+            m_PaWaitflag_lubo = OFF;
+            m_TxNum_lubo = 0;
+            m_PaWaitCt_lubo = 0;
             
+      if((mRecorder_flag.LIST_flag == ON)||(mRecorder_flag.xuchuanflag== ON))
+        m_ackRecorder =ON;
+      if((gRecorder_flag.LIST_flag == ON) &&(m_uartId == g_Cmid))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
+            {
+              m_ackflag =1;
+            }
+      if((gRecorder_flag.LIST_flag_YN== ON) &&(m_uartId == g_Cmid))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
+            {
+              m_ackflag =1;
+            }			
             if((pSendFrame->Frame68.Start1 == 0x68) && (m_WaitConfTpId > 0))//用以判断主站回的报文是不是对主动上报报文的确认
             {
                 #ifndef GETSOEFROMRAM
@@ -371,20 +384,6 @@ BOOL CBJ101S::RecFrame10(void)
                 m_DSoeHeadPtrBk = m_DSoeHeadPtr;
 		return TRUE; //收到主站的确认帧(包括复位链路，请求链路状态等)		
             }
-
-		if((gRecorder_flag.LIST_flag == ON))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
-           {
-
-			m_LuboRe10Flag = 1;			
-           }	
-	    gRes_rec.res_timeout = 0;	
-           /*if((gRecorder_flag.LIST_flag == ON)&& (m_WaitConfTpId == 0))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
-           {
-              g_Cmid = m_uartId;
-              //memcpy(&pReceiveFrame->Frame68.Start1,gRecorder_flag.pRXBuff,256); 
-              //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
-              Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
-           }	*/		
             return TRUE; //收到主站的确认帧(包括复位链路，请求链路状态等)
         case 0x40:
             RecResetLink();
@@ -403,6 +402,8 @@ BOOL CBJ101S::RecFrame10(void)
 		 g_RenZLink++;
 #else
             RecReqLink();
+	mRecorder_flag.LIST_flag = OFF;
+      mRecorder_flag.xuchuanflag= OFF;
 #endif
             return TRUE; //请求链路状态
         case 0x4A: 
@@ -521,6 +522,24 @@ BOOL CBJ101S::RecFrame68(void)
         case 0x79:    
         case 0x7a://读文件
         case 0x7c:
+            if(m_dwasdu.Info ==26882)
+              RecReadFile();
+            else
+              {
+                g_Cmid = m_uartId;
+                m_comtradeflag = 0x55;
+		    m_comtradeflag_YN = 0;		
+        m_PaWaitflag_lubo = OFF;
+                m_TxNum_lubo = 0;
+                m_PaWaitCt_lubo = 0;
+                wSendLISTNum = 0;
+        BK_FRecorder_Current_COUNT = g_FRecorder_Current_COUNT;
+        for(int i =0;i<64;i++)
+          lubo_valid[i] = 0;
+                memcpy(gRecorder_flag.pRXBuff,&pReceiveFrame->Frame68.Start1,6+pReceiveFrame->Frame68.Length1);  
+                //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
+              }	
+		break;	
         case 0x88://136 云南录波协议  读目录
         case 0x89://137 云南录波协议  读文件	
         case 0x8a://138 云南录波协议  补包
@@ -529,7 +548,8 @@ BOOL CBJ101S::RecFrame68(void)
             else
               {
                 g_Cmid = m_uartId;
-                m_comtradeflag = 0x55;
+                m_comtradeflag_YN = 0xAA;
+		   m_comtradeflag = 0;		
                 //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
               }
             break;
@@ -720,6 +740,14 @@ BOOL CBJ101S::SendCallAll(void)
 #endif			
         }
    }
+#ifdef YN_101S	
+ 	if(m_wSendZJNum == 0)
+ 	{//总召发送自检
+ 	SendZJGroup(0,1,36);
+	m_wSendZJNum = 0x55;
+	return TRUE;
+ 		}
+#endif	
 /*//张弢云南与标准101	
    if(m_ZongzhaoYC == 0x55)
    {
@@ -732,7 +760,7 @@ BOOL CBJ101S::SendCallAll(void)
   if (CheckClearEqpFlag(CALL_ALLSTOP))
       {
           m_callallflag=0;
-          m_acdflag=0;
+          m_acdflag=0;m_wSendZJNum = 0;
         if(SendAllStop())
             return TRUE;
       }
@@ -871,7 +899,10 @@ BOOL CBJ101S::SendYXGroup(WORD GroupNo, BYTE Reason, BYTE bType)
     BYTE PRM = 0, dwCode = 3; 
     WORD YXNo;
     WORD YXValue;
-    BYTE VSQ=0x80;//离散发送
+    BYTE VSQ=0x80;//顺序发送
+#ifdef YN_101S  	
+	VSQ=0x00;//离散发送
+#endif    
     //WORD ucTemp = 0x01;
     YXNo = GroupNo * GRP_YXNUM;
     YXNo+=m_wSendYxNum;
@@ -1110,7 +1141,7 @@ BOOL CBJ101S::SendZJGroup(WORD GroupNo, BYTE Reason ,BYTE bType)
     {
       return FALSE;
     }
-#ifndef YN_101S
+/*#ifndef YN_101S
     switch(Style)
     {
         case M_ME_TA:
@@ -1126,7 +1157,7 @@ BOOL CBJ101S::SendZJGroup(WORD GroupNo, BYTE Reason ,BYTE bType)
             Style = M_ME_NC;
             break;
     }
-#endif
+#endif*/
     SendFrameHead(Style, Reason);
     for (ZJSendNum = 0;(ZJNo < m_pEqpInfo[m_wEqpNo].wZJNum);ZJNo++,ZJSendNum++)
     {       
@@ -1179,7 +1210,10 @@ BOOL CBJ101S::SendYCGroupContinue(WORD GroupNo, BYTE Reason)
     SendFrameTail(PRM,dwCode, YCSendNum | 0x80,0);
     return TRUE;
 }
-
+void CBJ101S::SendlbRetry(void)
+{
+   CommWrite((char*)m_gprsSendBuf,m_gprsSendLen);
+}
 
 //通道发送空闲处理
 void CBJ101S::DoCommSendIdle(void)
@@ -1188,12 +1222,8 @@ void CBJ101S::DoCommSendIdle(void)
   //  if((m_uartId == g_CmIdGPRS) && (!g_GprsPowerSt))
      // return;//GPRS通道中如果GPRS没打开则不发任何数据
 
-    if(m_guiyuepara.mode==1)
-#ifdef YN_101S		
+    if(m_guiyuepara.mode==1)		
         m_PRM =0;   //云南
-#else
-	m_PRM =1; 
-#endif
     else if(m_recfalg!=3)   //非平衡式
         return;
     if((m_uartId == 2) && (g_GPRSSendLink == ON)&&(m_linkflag == 0))
@@ -1277,12 +1307,19 @@ void CBJ101S::DoCommSendIdle(void)
           if(SendCallHistLuBo())
               return;
       }
-	  if(m_comtradeflag)
+	  if(m_comtradeflag==0x55)
       {
-        Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
-	gRes_rec.res_timeout = 1;	
-        m_comtradeflag=0;
+        //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
+        Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
+        m_comtradeflag=0;gRes_rec.res_timeout = 0;
       }
+	  if(m_comtradeflag_YN==0xAA)
+      {
+        Code_Lubo_YN(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
+	//gRes_rec.res_timeout = 1;	
+        m_comtradeflag_YN=0;
+	 // m_com101flag_YN=0x55;	
+      }	  
       m_acdflag=0;
 
 
@@ -1303,7 +1340,7 @@ void CBJ101S::DoCommSendIdle(void)
           m_zdflag = 0;
           return ;
         }
-      }		  
+      }	  
       if(m_delayflag)
       {
         m_delayflag=0;
@@ -1486,28 +1523,63 @@ void CBJ101S::DoCommSendIdle(void)
         }
          
     }//b
-
-	if((gRecorder_flag.LIST_flag == ON)&&m_LuboRe10Flag)//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
-           {
-
-			m_LuboRe10Flag= 0;
-			g_Cmid = m_uartId;
-              //memcpy(&pReceiveFrame->Frame68.Start1,gRecorder_flag.pRXBuff,256); 
-              //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
-              Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
-			  gRes_rec.res_timeout = 1;
-           }	
-        if(gRes_rec.res_timeout >=4)
-        	{
-        	//m_SendBuf.pBuf =FileDatadat(gRes_rec.res_leng,gRes_rec.res_leng,gRes_rec.res_wSecLenPtr,gRes_rec.res_segment_leng);
-		Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
-		gRes_rec.res_timeout = 1;
-        	}	
     if(m_recfalg)
     {
         m_recfalg=0;
         SendNoData();
     }
+    if(m_PaWaitflag_lubo == TRUE && m_PaWaitCt_lubo == 0)
+     {
+          if(m_TxNum_lubo < 3)
+          {
+            
+            m_PaWaitCt_lubo =  4;//g_gRunPara[RP_LUBOGPRS_T];
+            m_PaWaitflag_lubo = ON;
+           Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);// SendlbRetry();
+            m_TxNum_lubo++;gRes_rec.res_timeout = 0x55;
+            return;
+          }
+          else
+          {
+            m_PaWaitflag_lubo = OFF;
+            m_TxNum_lubo = 0;
+            m_PaWaitCt_lubo = 0;
+            gRecorder_flag.LIST_flag = OFF;
+      }    
+      
+     }
+     if((gRecorder_flag.LIST_flag == ON)&&(m_ackflag))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
+     {
+              m_ackflag =0;
+              //g_Cmid = m_uartId;
+              //memcpy(&pReceiveFrame->Frame68.Start1,gRecorder_flag.pRXBuff,256); 
+              //if(FILEPREPAR_TYPE)
+              //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
+              Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
+		gRes_rec.res_timeout = 0;	  
+     }
+     if((gRecorder_flag.LIST_flag_YN== ON)&&(m_ackflag))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
+     {
+              m_ackflag =0;
+              Code_Lubo_YN(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
+		gRes_rec.res_timeout = 0;	  
+     }	 
+/*	 国网读录波文件规约
+   if(((mRecorder_flag.LIST_flag == ON)||(mRecorder_flag.xuchuanflag== ON))&&(m_ackRecorder ==ON))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
+     {
+         m_ackRecorder =OFF;
+         BYTE mRecorder_RXBuff[256];
+         if(m_uartId == g_CmIdDBG)//if(pDbg != null)
+         {
+            CAT_SpiReadBytes(EEPADD_DEGBF101, 255, mRecorder_RXBuff);
+         }
+         else if(m_uartId == g_CmIdGPRS)//if(pGprs != null)
+         {
+            CAT_SpiReadBytes(EEPADD_GPRSBF101, 255, mRecorder_RXBuff);
+        }              
+        Recfileprocessing(mRecorder_RXBuff);//(mRecorder_flag.pRXBuff);
+     }
+*/   
     //只针对GPRS通道进行判断提前关GPRS
   /*  if((g_sTimer[TM_GPRSPWOERDOWN].m_TmCountBk != 60) && (g_gRunPara[RP_POWER_MODE]!= REALTIME) && g_GprsPowerSt && (m_uartId == g_CmIdGPRS))
     {
@@ -1568,6 +1640,18 @@ BOOL CBJ101S::DoTimeOut(WORD wTimerID)
         return TRUE;
       }
    }
+   if(m_PaWaitflag_lubo == ON)
+   {
+      if(m_PaWaitCt_lubo > 0)
+      {//ODU写参数重发计时
+          m_PaWaitCt_lubo--;
+          if(m_PaWaitCt_lubo <= 0)
+          {
+            m_PaWaitflag_lubo = TRUE;
+            return TRUE;
+          }
+       }
+    }
     if(g_sTimer[TM_SENDYC].m_TmFlag & m_SendYcBit)
     {//启动定时传输遥测
         g_sTimer[TM_SENDYC].m_TmFlag &= ~m_SendYcBit;
@@ -2092,7 +2176,7 @@ BYTE CBJ101S::GetCtrCode(BYTE PRM,BYTE dwCode,BYTE fcv)
           CodeTmp&=0x7f;
         else 
           CodeTmp|=0x80;
-#ifndef YN_101s
+/*#ifndef YN_101s
         if(fcv)
         {
             if(!m_resendflag)//非重发报文才进行fcb的翻转
@@ -2104,7 +2188,7 @@ BYTE CBJ101S::GetCtrCode(BYTE PRM,BYTE dwCode,BYTE fcv)
             }
             CodeTmp|=(m_fcb|0x10);            
         }
-#endif
+#endif*/
     }
     return CodeTmp;
 }
