@@ -1014,7 +1014,6 @@ void UpInitClk(void)@"UPDATECODE"
 }
 void UPPortInit(void)@"UPDATECODE"
 {
-
     P1SEL = 0x00;
     P2SEL = 0x00;
     P3SEL |= 0x3e;        //P3.1-2 SPI0引脚，P3.4-5 串口0引脚
@@ -1023,7 +1022,7 @@ void UPPortInit(void)@"UPDATECODE"
     P5SEL |= 0xc7;        //P5.0-1 Vref+,-   P5.2 x2clkIN   P5.6-7 串口1
     P6SEL |= 0xf0;        //AD输入4-7 Ua/Ub/Uc/U0
 
-    P7SEL |= 0x70;        //  P7.4P7.5P7.6 AD输入I0
+    P7SEL |= 0x70;        //  P7.4 P7.5 P7.6AD输入I0
     P8SEL = 0x00;
     P9SEL |= 0x3e;        //P9.1-3 SPI2  4-5串口2 
 
@@ -1031,12 +1030,13 @@ void UPPortInit(void)@"UPDATECODE"
     P11SEL = 0x00;
     
     P1DIR = 0x00;         //
-    P2DIR |= 0x0c;        //P2.2 W5500RST P2.1 W5500INT  P2.3 W5500 CS0
-    P3DIR |= 0x19;        //P3.4 TXD0,P3.3 SPI0 CLK, P3.0 ESAM CS, P3.7 接触器短路检测
+    P2DIR |= 0xf0;        //P2.1=DIN4;P2.2=DIN5;P2.3=DIN6;P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
+    P3DIR |= 0x19;        //P3.4 TXD0,P3.3 SPI0 CLK, P3.0 ESAM CS, P3.7=KJa1=DIN1
 
-    P4DIR |= 0xc0;        //P4.0-5 KJA1-KJC1输入  P4.6-7 Ka1/Kb1
+    P4DIR |= 0xfc;        // P4.0=KJB1=DIN2;P4.1=KJC1=DIN3;P4.2=Ka0=JA;P4.3=Kb0=JB;
+    					// P4.4=Kc0=JC;P4.5=Ka1;P4.6=Kb1;P4.7=Kc1;
     P4OUT = 0;
-    P5DIR |= 0x79;        //P5.0 输出VREF+ P5.2晶振输入 P5.3 WDG_CLR P5.4 Kc1输出 P5.5 KMP输出 P5.6 TXD1
+    P5DIR |= 0x69;        //P5.0 输出VREF+ P5.2晶振输入 P5.3 WDG_CLR ;P5.4 R1-3输入; P5.5 KMP输出 P5.6 TXD1
     P6DIR = 0x0f;         //AD输入4-7  P6.0 运行灯RUN P6.1-3 时钟芯片IIC SCLK/DATA/CE
 
     P7DIR |= 0x0d;        //P7.2 Ka0, P7.3 Kb0

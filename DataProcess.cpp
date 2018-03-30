@@ -1009,7 +1009,11 @@ void RecData(void)
     else if(g_sRecData.m_ucFaultRecStart == ON)//开始录波，录1024点结束
     {
         g_sRecData.m_unRecAcLockCnt++; 
-	 if(g_sRecData.m_unRecAcLockCnt >= 260)   //故障发生后的5个周波记录完毕，记录最后时间，
+#ifdef YN_101S
+	 if(g_sRecData.m_unRecAcLockCnt >= 10)   //故障发生后的5个周波记录完毕，记录最后时间，
+#else
+	 if(g_sRecData.m_unRecAcLockCnt >= 120)   //故障发生后的5个周波记录完毕，记录最后时间，
+#endif
         {
             g_sRecData.m_ucFaultRecStart = CLOSE;//录波结束，故障恢复后，恢复OFF
             g_sRecData.m_unRecAcLockCnt = 1000;
@@ -1045,7 +1049,7 @@ void RecActData(void)
     {
     return; //动作录波,从故障开始至存储结束，则不再进行新的录波
     }   	
-    if(g_sRecData.m_ucActRecStart != CLOSE)
+    if((g_sRecData.m_ucActRecStart == ON)||(g_sRecData.m_ucActRecStart == OFF))
     {
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0] =g_unAdcData[CHAN_UA]-g_gAdjAD[CHAN_UA];// g_sSampleData.m_gAcAdcData[CHAN_UA][g_sSampleData.m_unAcDataTail];
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1] =g_unAdcData[CHAN_UB]-g_gAdjAD[CHAN_UB];// g_sSampleData.m_gAcAdcData[CHAN_UB][g_sSampleData.m_unAcDataTail];
@@ -1361,6 +1365,8 @@ int ReadSoe(unsigned char *pBuf,int iSegNo,int iStartNo,int iSoeNum)
   return num_cnt;
 }
 //张弢 SOE存FLASH
+
+
 
 //==============================================================================
 //  函数名称   : ReadSoe

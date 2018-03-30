@@ -145,6 +145,7 @@ void app(void)@"APPLICATION"
         SaveSoeDataRepeat();
 
         RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
+        g_gRmtInfo[YX_SYSRESET] =0;
         //ScanDinYX();//张弢 移入主循环，否则栈太大无法中断嵌套	
         //ScanSoftLacth();//pt断线软闭锁
         if((g_gSaveload>=g_gRunPara[RP_FLOAD_T] )&&(g_gRunPara[RP_FLOAD_T] !=0))//每隔一段时间存储负荷记录
@@ -309,7 +310,7 @@ void InitSys(void)
     InitcfgPara();//系统参数初始化，包括系统用到的参数初始化和从存储器中读取出来的参数。
     FEED_WATCH_DOG();
     InitDataProc();       //必须在参数初始化之后，因为有用到运行参数
-
+    InitSCI();
     InitDMA();      //DMA三通道初始化   
 
     InitAdc();//AD采样初始化,定义AD采样顺序   //由于在TIMER初始化接收后，立即启动AD采样，保证第一次进TIMER中断时，已经完成一次采样，因此把ADC初始化转移到TIMER之前

@@ -218,8 +218,8 @@ class CBJ101S : public CPrtcSms//CPSecondary
 		BOOL RecCallAllStart(void);
 
 		BOOL RecSetClock(void);
+		BOOL RecReadClock(void);		
 		BOOL RecDelaytime(void);
-		BOOL RecReadClock(void);
 		BOOL RecDelaytrans(void);
 		BOOL RecTestLink(void);
 		BOOL RecResetRTU(void);		

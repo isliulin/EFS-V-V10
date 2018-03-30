@@ -899,7 +899,9 @@ BOOL CProtocol::RecWriteFile(void)
             
             if(bValnew > 3) bValnew = 1;
             if(bValCur != bValnew)
+			{
               g_gRmtInfo[(g_ucYXAddr[i]-1)]=bValnew;
+            		}
           }
           SetYxTrans();
           SendWrPaSuc();

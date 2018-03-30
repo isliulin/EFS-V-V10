@@ -132,8 +132,8 @@ struct sSAMPLE_DATA
     //unsigned char g_gFaF[256];//
     unsigned char g_gKON;//继电器状态
     unsigned char g_gKONBK;//继电器状态
-    unsigned char g_gVErrTimer[10];	      //电压超过阈值确认时间计时	    
     unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，
+    unsigned char g_gVErrTimer[10];	      //电压超过阈值确认时间计时	       
     unsigned int g_gRmtMeasPJ[3][32];
     unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM*/]; //备份遥测量
     unsigned int g_gYCYueXian;//张弢 遥测越限	

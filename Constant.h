@@ -62,14 +62,14 @@
 #define NBITE                (0xBFFF)
 #define NBITF                (0x7FFF)
 
-#define KJa1                (P4IN&0x08)//a接触器开关位置信号
-#define KJb1                (P4IN&0x10)//
-#define KJc1                (P4IN&0x20)//
-#define KJ4                (P4IN&0x01)//遥信DIN4
-#define KJ5                (P4IN&0x02)//遥信DIN5
-#define KJ6                (P4IN&0x04)//遥信DIN6
+#define KJa1                (P3IN&0x80)//a接触器开关位置信号
+#define KJb1                (P4IN&0x01)//
+#define KJc1                (P4IN&0x02)//
+#define KJ4                (P2IN&0x01)//遥信DIN4
+#define KJ5                (P2IN&0x02)//遥信DIN5
+#define KJ6                (P2IN&0x04)//遥信DIN6
 
-#define KMP_S           (P3IN&0x80)//P3.7接触器短路
+#define KMP_S           (P5IN&0x10)//P5.4接触器短路
 
 //===================数据类型定义============================
 typedef unsigned char  INT8U;       //无符号8位数
@@ -740,7 +740,7 @@ typedef double         FP64;            //双精度浮点数
 #define EEPADD_CFG              0x1700 //保存CFG文件，目前CFG文件最多占用700个字节，没有写入FLASH的原因是:每次发送该文件时，都需要对CFG文件的某几个地方做修改，方便操作
 #define EEPADD_DEGBF101            0x1A00 // DEG口 读写报文时，备份当前进行的命令。读写文件时，若被其它的进程包括总召、对时、主动上报等命令打断时，可以继续传输
 #define EEPADD_GPRSBF101           0x1B00 // GPRS口 读写报文时，备份当前进行的命令。读写文件时，若被其它的进程包括总召、对时、主动上报等命令打断时，可以继续传输
-//#define EEPADD_CFG                      0x1E00 
+
 #define EEPADD_SOESTARTADR       0x2000 //最大偏移量
 #define EEPADD_SOEENDADR       0x4000
 //============================   GPIO对应LED定义  ===============================
@@ -758,19 +758,19 @@ typedef double         FP64;            //双精度浮点数
 #define WIFIR_CLR         (P9OUT &= NBIT6)        //WiFi模块复位
 
 //============================   GPIO对应DO定义  ===============================
-#define KA1_OFF     (P4OUT &= NBIT6)                        //异常状态恢复
-#define KA1_ON      (P4OUT |= BIT6)                         //异常状态报警
-#define KB1_OFF     (P4OUT &= NBIT7)                        //信号源掉电恢复
-#define KB1_ON      (P4OUT |= BIT7)                         //信号源掉电报警
-#define KC1_OFF     (P5OUT &= NBIT4)                        //没有有效8脉冲
-#define KC1_ON      (P5OUT |= BIT4)                         //发出有效8脉冲
+#define KA1_OFF     (P4OUT &= NBIT5)                        //异常状态恢复
+#define KA1_ON      (P4OUT |= BIT5)                         //异常状态报警
+#define KB1_OFF     (P4OUT &= NBIT6)                        //信号源掉电恢复
+#define KB1_ON      (P4OUT |= BIT6)                         //信号源掉电报警
+#define KC1_OFF     (P4OUT &= NBIT7)                        //没有有效8脉冲
+#define KC1_ON      (P4OUT |= BIT7)                         //发出有效8脉冲
 
-#define KA0_OFF     (P7OUT &= NBIT2)                        //A相接触器截止
-#define KA0_ON      (P7OUT |= BIT2)                         //A相接触器导通
-#define KB0_OFF     (P7OUT &= NBIT3)                        //B相接触器截止
-#define KB0_ON      (P7OUT |= BIT3)                         //B相接触器导通
-#define KC0_OFF     (P8OUT &= NBIT0)                        //C相接触器截止
-#define KC0_ON      (P8OUT |= BIT0)                         //C相接触器导通
+#define KA0_OFF     (P4OUT &= NBIT2)                        //A相接触器截止
+#define KA0_ON      (P4OUT |= BIT2)                         //A相接触器导通
+#define KB0_OFF     (P4OUT &= NBIT3)                        //B相接触器截止
+#define KB0_ON      (P4OUT |= BIT3)                         //B相接触器导通
+#define KC0_OFF     (P4OUT &= NBIT4)                        //C相接触器截止
+#define KC0_ON      (P4OUT |= BIT4)                         //C相接触器导通
 
 #define   ABN_CHECK           BIT0          //abnormal self checked
 #define   POWER_OFF           BIT1          //power down
