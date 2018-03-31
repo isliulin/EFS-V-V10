@@ -32,7 +32,7 @@ CBJ101S::CBJ101S() : CPrtcSms()//
 {
   m_YkWaitCount=0;//遥控执行命令发给rf后等待的时间 单位s
   m_LuboRe10Flag= 0;
-
+  time_delay_set = 0;
 }
 
 
@@ -76,7 +76,7 @@ BOOL CBJ101S::Init(WORD uartId)
     m_linkflag=0;
     m_testflag=0;
     m_timeflag = 0;m_timeREQflag = 0;
-
+    m_time =0;
     m_resetflag = 0;
     m_groupflag=0;
     m_YxYcGrpFlag = 0;
@@ -92,6 +92,7 @@ BOOL CBJ101S::Init(WORD uartId)
     m_DCosHeadPtr = 0;
 //--------------------------------------------------------------------------	
     //m_SSoeHeadPtr = EEPADD_SOESTARTADR;
+    //Init_Rec();
     unsigned int untemp[4];
 	CAT_SpiReadWords(EEPADD_SOESEND_E2ROMADR, 4, untemp);  //保存到EEPROM中
 	if(pDbg != null)
@@ -511,11 +512,11 @@ BOOL CBJ101S::RecFrame68(void)
         case 0x6E:
             //RecSetPara();
             break;//设置参数
-        case 0xD2:
+        //case 0xD2:
             //m_SendFixNum =0;   
             //Recfileprocess();
             //Recfileprocessing();
-            break;
+            //break;
         case 0xD3://远程升级
             //FileRemoteupdata(&pReceiveFrame->Frame68.Start1);
             break;           
@@ -539,7 +540,35 @@ BOOL CBJ101S::RecFrame68(void)
                 memcpy(gRecorder_flag.pRXBuff,&pReceiveFrame->Frame68.Start1,6+pReceiveFrame->Frame68.Length1);  
                 //Code_Lubo(&pReceiveFrame->Frame68.Start1,m_SendBuf.pBuf);
               }	
-		break;	
+		break;
+    case 0xD2:
+        /*g_Cmid = m_uartId;
+                m_fileprocessing = 0x55;
+        m_PaWaitflag_lubo = OFF;
+              m_TxNum_lubo = 0;
+                m_PaWaitCt_lubo = 0;
+                wSendLISTNum = 0;
+        //for(int i =0;i<64;i++)
+          //lubo_valid[i] = 0;
+                memcpy(gRecorder_flag.pRXBuff,&pReceiveFrame->Frame68.Start1,6+pReceiveFrame->Frame68.Length1); */ 
+        if(g_bAppType)
+        {
+            SendEncFrameAck(0x0191, 0x0000, 0x1F);
+            return TRUE;
+        }     
+		for(int i =0;i<64;i++)
+          lubo_valid[i] = 0;
+        
+        mRecorder_flag.LIST_flag = OFF;//收到短贞确认需要回数据时，置位改标志位
+                mRecorder_flag.xuchuanflag= OFF;
+                m_lubo_num =0; 
+        m_fixpt_num =0;
+        m_SendListNum =0;
+        m_SendFixNum =0;  
+        BK_FRecorder_Current_COUNT = g_FRecorder_Current_COUNT;
+           
+        //Recfileprocessing(&pReceiveFrame->Frame68.Start1);
+        break;//?		
         case 0x88://136 云南录波协议  读目录
         case 0x89://137 云南录波协议  读文件	
         case 0x8a://138 云南录波协议  补包

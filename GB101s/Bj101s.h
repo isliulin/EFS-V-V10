@@ -118,6 +118,7 @@ class CBJ101S : public CPrtcSms//CPSecondary
         BYTE m_timeflag;
 		BYTE m_timeREQflag;
 		BYTE m_delayflag;
+		BYTE m_time;
         BYTE m_testflag;
         BYTE m_resetflag;
  		BOOL m_DIR;  /*get DIR */

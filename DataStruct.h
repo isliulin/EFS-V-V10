@@ -123,6 +123,7 @@ struct sSAMPLE_DATA
 
 #ifdef _DATA_PROCESS
     __no_init struct sREC_DATA g_sRecData;//录波数据
+    unsigned int g_gRmtLockLB;//录波标志位遥信闭锁时间计数
     unsigned char g_SendZJDingshi = 0; 
     unsigned char 	g_YXLBOKCounter;
     unsigned char g_TQBSCounter = 0; //投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁	
@@ -224,6 +225,7 @@ extern unsigned int g_test;
     extern unsigned int g_gSaveload;//每x秒存储1次负荷记录
     //extern unsigned char g_gFaF[256];//
     extern unsigned char g_YXLBOKCounter;
+    extern unsigned int g_gRmtLockLB;//录波标志位遥信闭锁时间计数	
     extern unsigned char g_SendZJDingshi; 
     extern unsigned char g_TQBSCounter; 
     extern unsigned char FlashReading;		

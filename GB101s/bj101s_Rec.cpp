@@ -235,7 +235,7 @@ BOOL CBJ101S::Recfileprocessing(unsigned char *pRxBuf)
               {
                 mluboYX_flag =OFF;
                 g_gRmtLockLB =0;
-                CreatNewSoe(RI_LUBO_FLAG,0);
+                //CreatNewSoe(RI_LUBO_FLAG,0);
               }
               
                                 //mfile_flag = 2;//DAT
