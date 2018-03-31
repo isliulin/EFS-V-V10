@@ -79,8 +79,9 @@ struct sSAMPLE_DATA
   struct sREC_DATA  //录波数据结构体定义
   {
 
-    int m_gRecAc[REC_AC_LEN][REC_AC_CHAN_NUM];//故障动作的交流电压电流波形，保存故障动作前10个周波，故障动作后6个周波。操作录波时只需要保存动作之前10个周波，动作之后6个周波
-    //unsigned char m_gRecD[REC_AC_LEN];
+    //int m_gRecAc[REC_AC_LEN][REC_AC_CHAN_NUM];//故障动作的交流电压电流波形，保存故障动作前10个周波，故障动作后6个周波。操作录波时只需要保存动作之前10个周波，动作之后6个周波
+    unsigned char m_gRecAc[REC_AC_LEN][8];
+	//unsigned char m_gRecD[REC_AC_LEN];
     unsigned int m_gFaultRecSOE[REC_DATA_LEN];//启动该故障录波对应的故障SOE，内容包括时间，不需要最后的CRC校验
     unsigned int m_gFaultRecOver[7]; //采样结束时间
 	

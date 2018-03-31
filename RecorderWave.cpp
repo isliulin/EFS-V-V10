@@ -79,7 +79,7 @@ void cfg_dat_length(int file_current_num)
 	  
       //for(i = 0; (i< 6); i++,tt++)
 	//  	{ComtrderCfg1[tt]=ComtrderCfg_adj[i+6];}	  
-	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,(unsigned char*)ComtrderCfg_adj[6]);
+	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,((unsigned char*)ComtrderCfg_adj)+6);
 	tt += 6;
 	
       //memcpy(&ComtrderCfg1[tt],ComtrderCfg_2,strlen(ComtrderCfg_2));//添加主体
@@ -92,7 +92,7 @@ void cfg_dat_length(int file_current_num)
 	  
       //for(i = 0; (i< 6); i++,tt++)
 	//  	{ComtrderCfg1[tt]=ComtrderCfg_adj[12+i];}
-	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,(unsigned char*)ComtrderCfg_adj[12]);
+	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,((unsigned char*)ComtrderCfg_adj)+12);
 	tt += 6;
 	
       //memcpy(&ComtrderCfg1[tt],ComtrderCfg_2,strlen(ComtrderCfg_2));//添加主体
@@ -105,7 +105,7 @@ void cfg_dat_length(int file_current_num)
 	  
       //for(i = 0; (i< 6); i++,tt++)
 	//  	{ComtrderCfg1[tt]=ComtrderCfg_adj[i+18];}
-	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,(unsigned char*)ComtrderCfg_adj[18]);
+	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,((unsigned char*)ComtrderCfg_adj)+18);
 	tt += 6;
 	
       //memcpy(&ComtrderCfg1[tt],ComtrderCfg_2,strlen(ComtrderCfg_2));//添加主体
@@ -118,7 +118,7 @@ void cfg_dat_length(int file_current_num)
 	  
       //for(i = 0; (i< 6); i++,tt++)
 	//  	{ComtrderCfg1[tt]=ComtrderCfg_adj[i+24];}  
-	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,(unsigned char*)ComtrderCfg_adj[24]);
+	CAT_SpiWriteBytes(EEPADD_CFG+tt, 6,((unsigned char*)ComtrderCfg_adj)+24);
 	tt += 6;
 	
       //memcpy(&ComtrderCfg1[tt],ComtrderCfg_2,strlen(ComtrderCfg_2));//添加主体
@@ -218,7 +218,7 @@ void cfg_dat_length(int file_current_num)
             		tt +=strlen(ch);
 			}
 		}
-	else if(gRecorder_filecfg.CFG_Samp==800)
+	else if(gRecorder_Readfilecfg.CFG_Samp==800)
 	{
 	      sprintf((char *)ch,"%2d/%02d/%02d,%02d:%02d:%02d.%03d\n",gRecorder_Readfilecfg.comtrade_time[RTC_DATE],gRecorder_Readfilecfg.comtrade_time[RTC_MONTH],
                                                                 (gRecorder_Readfilecfg.comtrade_time[RTC_YEAR]-2000),gRecorder_Readfilecfg.comtrade_time[RTC_HOUR],
@@ -1555,7 +1555,8 @@ unsigned char * SoeData(unsigned char *pTxBuf,unsigned char leng,int segment_len
 unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecLenPtr,int segment_leng)
 {
     
-    unsigned char datBuff[16] = {0}; //8个通道,每个通道的数值有2个
+    unsigned char tt[8] = {0}; //8个通道,每个通道的数值有2个
+    unsigned char datBuff[12] = {0};
     unsigned char k;
     unsigned int Sample_num;// = 100;CRG_SAMPLE_NUM;CFG_EndSamp
     gRecorder_flag.LIST_flag = OFF;
@@ -1602,27 +1603,37 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
         {
               if(FileName<(MAX_REC_NUM+1))
               	{
-              	FLbAddrV = FADDR_RECORDER_DATA+(unsigned long)(FileName)*0x2000+(unsigned long)wSendDATNum*10;
+              	FLbAddrV = FADDR_RECORDER_DATA+(unsigned long)(FileName)*0x2000+(unsigned long)wSendDATNum*8;
               	}
 		else if(FileName<(MAX_REC_NUM+MAX_ACTREC_NUM+2))	
 			{
-			FLbAddrV =FADDR_RECORDER_ACTDATA+(unsigned long)(FileName-51)*0x90000+(unsigned long)wSendDATNum*10;
+			FLbAddrV =FADDR_RECORDER_ACTDATA+(unsigned long)(FileName-51)*0x90000+(unsigned long)wSendDATNum*8;
 			}
 		else if(FileName<(MAX_REC_NUM+MAX_ACTREC_NUM+MAX_XHREC_NUM+3))	
 			{
-			FLbAddrV = FADDR_RECORDER_XHDATA+(unsigned long)(FileName-62)*0x8000+(unsigned long)wSendDATNum*10;
+			FLbAddrV = FADDR_RECORDER_XHDATA+(unsigned long)(FileName-62)*0x8000+(unsigned long)wSendDATNum*8;
 			}
 		else
 			{//err
 			}
 			  
-          	//unsigned long FLbAddrV = ((unsigned long)(FADDR_RECORDER_DATA+FileName*4)<<16)+(unsigned long)wSendDATNum*10;
-	       Sst26vf064b_Read(FLbAddrV,&datBuff[0],10);//WRITEPECORDER+电压每只指示器的第一报数据存相关信息
+          	
+	       Sst26vf064b_Read(FLbAddrV,&tt[0],8);//WRITEPECORDER+电压每只指示器的第一报数据存相关信息
 	       
           unsigned long xt =250;
           if(gRecorder_Readfilecfg.CFG_Samp==800)xt=1250;//张弢 动作录波 频率800 时间间隔1250
       	   if(gRecorder_Readfilecfg.CFG_Samp==1600)xt=625;//张弢 动作录波 频率1600 时间间隔625
       	   if(gRecorder_Readfilecfg.CFG_Samp==2000)xt=500;//张弢 动作录波 频率1600 时间间隔625
+         datBuff[0]=tt[0];datBuff[2]=tt[1];datBuff[4]=tt[2];datBuff[6]=tt[3]; datBuff[8]=tt[4];
+	  datBuff[1]=tt[5]&0x0f;datBuff[3]=(tt[5]>>4)&0x0f;datBuff[5]=tt[6]&0x0f;datBuff[7]=(tt[6]>>4)&0x0f; datBuff[9]=tt[7]&0x0f; 
+	  if(tt[7]&BIT7)datBuff[1]|=0xf0;
+	  if(tt[7]&BIT6)datBuff[3]|=0xf0;
+	  if(tt[7]&BIT5)datBuff[5]|=0xf0;
+	  if(tt[7]&BIT4)datBuff[7]|=0xf0;
+	  if(tt[4]&BIT0)datBuff[9]|=0xf0;
+	  datBuff[11]=0;
+	  datBuff[10]=tt[0]&BIT0+(tt[1]&BIT0)*2+(tt[2]&BIT0)*4;
+/*
           unsigned int dka;//,dkd;
 	   dka = MAKEWORD(datBuff[8],datBuff[9]);
 	   //dkd = (dka>>14)&0x1;
@@ -1650,13 +1661,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
 	   	datBuff[5] |= (1<<6);
 	   else
 	   	datBuff[5] &= 0xbf;
-
-	   //g=(datBuff[9]>>6)&0x01;
-	   
-	   //datBuff[1] = datBuff[1]&0xbf;
-	   //datBuff[3] = datBuff[3]&0xbf;
-	   //datBuff[5] = datBuff[5]&0xbf;
-	   
+*/	   
           unsigned long xtt = (long)wSendDATNum*xt;
 		  
           if(g_gRunPara[RP_CFG_KEY]&BIT[RP_COMTRADE_TYPE])
@@ -1668,19 +1673,18 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
                ch[7] = HIBYTE(HIWORD(xtt));
 		 ch[8] = datBuff[0];ch[9] = datBuff[1];ch[10] = datBuff[2];ch[11] = datBuff[3];
 		 ch[12] = datBuff[4];ch[13] = datBuff[5];ch[14] = datBuff[6];ch[15] = datBuff[7];
-		 ch[16]=LOBYTE(dka);ch[17]=HIBYTE(dka);
-#ifdef YN_101S
-		 ch[18]=(datBuff[9]>>6)&0x01;//信号源控制信号//云南录波取控制信号
-#else
-		ch[18]=a+b*2+c*4;//取三相接触器辅助触点信号
-#endif
+		 //ch[16]=LOBYTE(dka);ch[17]=HIBYTE(dka);
+		 ch[16]=datBuff[8];ch[17]=datBuff[9];
+		//ch[18]=a+b*2+c*4;//取三相接触器辅助触点信号
+		ch[18]=datBuff[10];
 		 ch[19]=0;
 		 i+=20;k=20;
           	}
 	   else
 	   	{
           	sprintf((char *)ch,"%d,%ld,%d,%d,%d,%d,%d,%d,%d,%d\n",wSendDATNum,xtt,MAKEWORD(datBuff[0],datBuff[1]),MAKEWORD(datBuff[2],datBuff[3]),
-                                 MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),dka,(unsigned int)a,(unsigned int)b,(unsigned int)c);//每个周期80个点，采样周期250微妙//张弢
+                                 //MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),dka,(unsigned int)a,(unsigned int)b,(unsigned int)c);//每个周期80个点，采样周期250微妙//张弢
+                                 MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),MAKEWORD(datBuff[8],datBuff[9]),(unsigned int)(tt[0]&BIT0),(unsigned int)(tt[1]&BIT0),(unsigned int)(tt[2]&BIT0));//每个周期80个点，采样周期250微妙//张弢
                                  
           	i+= strlen(ch);k=strlen(ch);
 	   	}
@@ -1917,7 +1921,8 @@ unsigned char *  FileDataCfg_YN(unsigned char *pTxBuf, unsigned char leng,RECORD
 unsigned char *  FileDatadat_YN(unsigned char *pTxBuf,unsigned char leng,WORD wSecLenPtr,int segment_leng)
 {
     
-    unsigned char datBuff[16] = {0}; //8个通道,每个通道的数值有2个
+    unsigned char datBuff[12] = {0}; //8个通道,每个通道的数值有2个
+    unsigned char tt[8] = {0};
     unsigned char k,temp;
     unsigned int Sample_num;// = 100;CRG_SAMPLE_NUM;CFG_EndSamp
     gRecorder_flag.LIST_flag_YN= OFF;
@@ -1973,26 +1978,36 @@ unsigned char *  FileDatadat_YN(unsigned char *pTxBuf,unsigned char leng,WORD wS
           	unsigned long FLbAddrV;// = ((unsigned long)(FADDR_RECORDER_DATA+FileName*4)<<16)+(unsigned long)wSendDATNum*10;
 	   if(FileName<(MAX_REC_NUM+1))
               	{
-              	FLbAddrV = FADDR_RECORDER_DATA+(unsigned long)(FileName)*0x2000+(unsigned long)wSendDATNum*10;
+              	FLbAddrV = FADDR_RECORDER_DATA+(unsigned long)(FileName)*0x2000+(unsigned long)wSendDATNum*8;
               	}
 		else if(FileName<(MAX_REC_NUM+MAX_ACTREC_NUM+2))	
 			{
-			FLbAddrV =FADDR_RECORDER_ACTDATA+(unsigned long)(FileName-51)*0x90000+(unsigned long)wSendDATNum*10;
+			FLbAddrV =FADDR_RECORDER_ACTDATA+(unsigned long)(FileName-51)*0x90000+(unsigned long)wSendDATNum*8;
 			}
 		else if(FileName<(MAX_REC_NUM+MAX_ACTREC_NUM+MAX_XHREC_NUM+3))	
 			{
-			FLbAddrV = FADDR_RECORDER_XHDATA+(unsigned long)(FileName-62)*0x8000+(unsigned long)wSendDATNum*10;
+			FLbAddrV = FADDR_RECORDER_XHDATA+(unsigned long)(FileName-62)*0x8000+(unsigned long)wSendDATNum*8;
 			}
 		else
 			{//err
 			}  
-	       Sst26vf064b_Read(FLbAddrV,&datBuff[0],10);//WRITEPECORDER+电压每只指示器的第一报数据存相关信息
+	       Sst26vf064b_Read(FLbAddrV,&tt[0],8);//WRITEPECORDER+电压每只指示器的第一报数据存相关信息
 	       
           unsigned long xt =250;
           if(gRecorder_Readfilecfg.CFG_Samp==800)xt=1250;//张弢 动作录波 频率800 时间间隔1250
       	   if(gRecorder_Readfilecfg.CFG_Samp==1600)xt=625;//张弢 动作录波 频率1600 时间间隔625
       	   if(gRecorder_Readfilecfg.CFG_Samp==2000)xt=500;//张弢 动作录波 频率1600 时间间隔625
-          unsigned int dka,dkd;
+
+	  datBuff[0]=tt[0];datBuff[2]=tt[1];datBuff[4]=tt[2];datBuff[6]=tt[3]; datBuff[8]=tt[4];
+	  datBuff[1]=tt[5]&0x0f;datBuff[3]=(tt[5]>>4)&0x0f;datBuff[5]=tt[6]&0x0f;datBuff[7]=(tt[6]>>4)&0x0f; datBuff[9]=tt[7]&0x0f; 
+	  if(tt[7]&BIT7)datBuff[1]|=0xf0;
+	  if(tt[7]&BIT6)datBuff[3]|=0xf0;
+	  if(tt[7]&BIT5)datBuff[5]|=0xf0;
+	  if(tt[7]&BIT4)datBuff[7]|=0xf0;
+	  if(tt[4]&BIT0)datBuff[9]|=0xf0;
+	  datBuff[11]=0;
+	  datBuff[10]=tt[3]&BIT0;	   
+         /* unsigned int dka,dkd;
 	   dka = MAKEWORD(datBuff[8],datBuff[9]);
 	   dkd = (dka>>14)&0x1;
 	   if(dka&((unsigned int)(1<<15)))
@@ -2011,7 +2026,7 @@ unsigned char *  FileDatadat_YN(unsigned char *pTxBuf,unsigned char leng,WORD wS
 	   	datBuff[5] |= (1<<6);
 	   else
 	   	datBuff[5] &= 0xbf;
-	   
+	   */
           unsigned long xtt = (long)wSendDATNum*xt;
 		  
           if(g_gRunPara[RP_CFG_KEY]&BIT[RP_COMTRADE_TYPE])
@@ -2023,17 +2038,18 @@ unsigned char *  FileDatadat_YN(unsigned char *pTxBuf,unsigned char leng,WORD wS
                ch[7] = HIBYTE(HIWORD(xtt));
 		 ch[8] = datBuff[0];ch[9] = datBuff[1];ch[10] = datBuff[2];ch[11] = datBuff[3];
 		 ch[12] = datBuff[4];ch[13] = datBuff[5];ch[14] = datBuff[6];ch[15] = datBuff[7];
-		 ch[16]=LOBYTE(dka);ch[17]=HIBYTE(dka);
-		 //ch[18]=LOBYTE(dkd);ch[19]=HIBYTE(dkd);
-		 ch[18]=(datBuff[9]>>6)&0x01;//信号源控制信号//云南录波取控制信号
+		 //ch[16]=LOBYTE(dka);ch[17]=HIBYTE(dka);
+		 //ch[18]=(datBuff[9]>>6)&0x01;//信号源控制信号//云南录波取控制信号
+		 ch[16]=datBuff[8];ch[17]=datBuff[9];ch[18]=datBuff[10];
 		 ch[19]=0;
 		 i+=20;k=20;
           	}
 	   else
 	   	{
           	sprintf((char *)ch,"%d,%ld,%d,%d,%d,%d,%d,%d\n",wSendDATNum,xtt,MAKEWORD(datBuff[0],datBuff[1]),MAKEWORD(datBuff[2],datBuff[3]),
-                                 MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),dka,dkd);//每个周期80个点，采样周期250微妙//张弢
-                                 
+                                 //MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),dka,dkd);//每个周期80个点，采样周期250微妙//张弢
+                                 MAKEWORD(datBuff[4],datBuff[5]),MAKEWORD(datBuff[6],datBuff[7]),MAKEWORD(datBuff[8],datBuff[9]),MAKEWORD(datBuff[10],datBuff[11]));
+			
           	i+= strlen(ch);k=strlen(ch);
 	   	}
           if(i <=segment_leng)

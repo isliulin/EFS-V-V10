@@ -971,7 +971,7 @@ void RecData(void)
     {
     return; //如果录波数据还没有保存结束则不再进行新的录波
     }
-	
+	/*
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0] =g_unAdcData[CHAN_UA]-g_gAdjAD[CHAN_UA];// g_sSampleData.m_gAcAdcData[CHAN_UA][g_sSampleData.m_unAcDataTail];
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1] =g_unAdcData[CHAN_UB]-g_gAdjAD[CHAN_UB];// g_sSampleData.m_gAcAdcData[CHAN_UB][g_sSampleData.m_unAcDataTail];
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2] =g_unAdcData[CHAN_UC]-g_gAdjAD[CHAN_UC];// g_sSampleData.m_gAcAdcData[CHAN_UC][g_sSampleData.m_unAcDataTail];
@@ -996,7 +996,45 @@ void RecData(void)
 	  	g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2] |= (1<<14);//录波增加继电器开关量
 	  else	
 		g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2] &= NBITE;//录波增加继电器开关量
-		
+*/
+	int a,b,c,u,i;
+	 a =g_unAdcData[CHAN_UA]-g_gAdjAD[CHAN_UA];// g_sSampleData.m_gAcAdcData[CHAN_UA][g_sSampleData.m_unAcDataTail];
+       b =g_unAdcData[CHAN_UB]-g_gAdjAD[CHAN_UB];// g_sSampleData.m_gAcAdcData[CHAN_UB][g_sSampleData.m_unAcDataTail];
+       c =g_unAdcData[CHAN_UC]-g_gAdjAD[CHAN_UC];// g_sSampleData.m_gAcAdcData[CHAN_UC][g_sSampleData.m_unAcDataTail];	
+	if(g_gProcCnt[PC_U0_CAL] == 0)  //
+              u = a+b+c; 
+	 else
+	  	u =g_unAdcData[CHAN_U0]-g_gAdjAD[CHAN_U0];
+	  i =g_unAdcData[CHAN_I0]-g_gAdjAD[CHAN_I0];
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0]=(unsigned char)(a)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1]=(unsigned char)(b)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2]=(unsigned char)(c)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3]=(unsigned char)(u)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4]=(unsigned char)(i)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][5]=(unsigned char)(a>>8)&0x0f;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][5]+=((unsigned char)(b>>4)&0xf0);
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][6]=(unsigned char)(c>>8)&0x0f;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][6]+=((unsigned char)(u>>4)&0xf0);
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]=(unsigned char)(i>>8)&0x0f;
+	  if(a<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT7;
+	  if(b<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT6;
+	  if(c<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT5;
+	  if(u<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT4;
+	  if(i<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4]|=BIT0;
+	unsigned char ka,kb,kc;
+	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
+		{//0=nc
+		ka=0x08;kb=0x10;kc=0x20;
+		}
+	else
+		{//0=no
+		ka=0;kb=0;kc=0;
+		}
+	if(KJa1==ka) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0]|=BIT0;
+	if(KJb1==kb) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1]|=BIT0;
+	if(KJc1==kc) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2]|=BIT0;
+	 if((g_gKON>0)&&(g_gKON<4))g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3]|=BIT0;
+	
         g_sRecData.m_unRecAcTail++;
         if(g_sRecData.m_unRecAcTail == REC_AC_LEN)
             g_sRecData.m_unRecAcTail = 0;    
@@ -1050,7 +1088,7 @@ void RecActData(void)
     return; //动作录波,从故障开始至存储结束，则不再进行新的录波
     }   	
     if((g_sRecData.m_ucActRecStart == ON)||(g_sRecData.m_ucActRecStart == OFF))
-    {
+    {/*
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0] =g_unAdcData[CHAN_UA]-g_gAdjAD[CHAN_UA];// g_sSampleData.m_gAcAdcData[CHAN_UA][g_sSampleData.m_unAcDataTail];
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1] =g_unAdcData[CHAN_UB]-g_gAdjAD[CHAN_UB];// g_sSampleData.m_gAcAdcData[CHAN_UB][g_sSampleData.m_unAcDataTail];
         g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2] =g_unAdcData[CHAN_UC]-g_gAdjAD[CHAN_UC];// g_sSampleData.m_gAcAdcData[CHAN_UC][g_sSampleData.m_unAcDataTail];	
@@ -1119,7 +1157,45 @@ g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3] =g_gRmtMeas[RM_U0];
 		g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2] &= NBITE;//录波增加继电器开关量
 
 	  	}
-		
+*/	
+	int a,b,c,u,i;
+	 a =g_unAdcData[CHAN_UA]-g_gAdjAD[CHAN_UA];// g_sSampleData.m_gAcAdcData[CHAN_UA][g_sSampleData.m_unAcDataTail];
+       b =g_unAdcData[CHAN_UB]-g_gAdjAD[CHAN_UB];// g_sSampleData.m_gAcAdcData[CHAN_UB][g_sSampleData.m_unAcDataTail];
+       c =g_unAdcData[CHAN_UC]-g_gAdjAD[CHAN_UC];// g_sSampleData.m_gAcAdcData[CHAN_UC][g_sSampleData.m_unAcDataTail];	
+	if(g_gProcCnt[PC_U0_CAL] == 0)  //
+              u = a+b+c; 
+	 else
+	  	u =g_unAdcData[CHAN_U0]-g_gAdjAD[CHAN_U0];
+	  i =g_unAdcData[CHAN_I0]-g_gAdjAD[CHAN_I0];
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0]=(unsigned char)(a)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1]=(unsigned char)(b)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2]=(unsigned char)(c)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3]=(unsigned char)(u)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4]=(unsigned char)(i)&0xfe;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][5]=(unsigned char)(a>>8)&0x0f;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][5]+=((unsigned char)(b>>4)&0xf0);
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][6]=(unsigned char)(c>>8)&0x0f;
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][6]+=((unsigned char)(u>>4)&0xf0);
+	  g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]=(unsigned char)(i>>8)&0x0f;
+	  if(a<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT7;
+	  if(b<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT6;
+	  if(c<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT5;
+	  if(u<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][7]|=BIT4;
+	  if(i<0) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][4]|=BIT0;
+	unsigned char ka,kb,kc;
+	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
+		{//0=nc
+		ka=0x08;kb=0x10;kc=0x20;
+		}
+	else
+		{//0=no
+		ka=0;kb=0;kc=0;
+		}
+	if(KJa1==ka) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][0]|=BIT0;
+	if(KJb1==kb) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][1]|=BIT0;
+	if(KJc1==kc) g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][2]|=BIT0;
+	 if((g_gKON>0)&&(g_gKON<4))g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3]|=BIT0;
+	
 g_test++;
     	if((g_sRecData.m_unRecAcTail == 360))
     		g_sRecData.m_ucActRecSavingFlag = YES; //开始存储前320个点	  
@@ -1812,10 +1888,10 @@ void SaveRecData(void)
   uRect = g_sRecData.m_unRecAcTail;//m_gRecAc数组的文职//1次最多写256字节
   PTemp = (unsigned char *)&(g_sRecData.m_gRecAc[uRect][0]);
   //PTemp = (unsigned char *)&(g_sRecData.m_gRecAc[0][0]);
-  unum = uRect*10;
-  for(j=0;j<6400;)//对于鼓掌
+  unum = uRect*8;
+  for(j=0;j<5120/*640*8=5120 6400*/;)//对于鼓掌
   {
-    if((unum+256)<6400)
+    if((unum+256)<5120/*640*8=5120 6400*/)
     {
          ulen = 256;	  
 	  Sst26vf064b_Page_WriteBytes(ulAddr,PTemp,ulen);
@@ -1825,7 +1901,7 @@ void SaveRecData(void)
     }
    else
     {
-      	ulen = 6400-unum;	
+      	ulen = 5120/*640*8=5120 6400*/-unum;	
 	Sst26vf064b_Page_WriteBytes(ulAddr,PTemp,ulen);
 	ulAddr +=ulen;
 	PTemp = (unsigned char *)&(g_sRecData.m_gRecAc[0][0]);
@@ -1838,10 +1914,7 @@ void SaveRecData(void)
 		unum = 0;
 	}
      }
-/*  */   
-    
-    j += 256;
-	
+    j += 256;	
   }
 
 //张弢 录波 需要写入CFG文件
@@ -1928,12 +2001,12 @@ void SaveActRecData(void)
   PTemp = (unsigned char *)&(g_sRecData.m_gRecAc[0][0]);//存前320点
   if(g_sRecData.m_ucActRecSavingFlag == YES)
   {
-  	pagelen=12;
+  	pagelen=10/*12*/;
   }
   if(g_sRecData.m_ucActRecSavingFlag == ON)
   {
-  	PTemp += 3072;
-	pagelen=13;
+  	PTemp += 2560/*3072*/;
+	pagelen=10/*13*/;
   }
   g_sRecData.m_ucActRecSavingFlag = OFF;  
   WatchDog();
