@@ -2137,7 +2137,7 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
   BYTE count_num =0;
   unsigned char *pTxPos,*pTxPos1;
   RECORDER_CFG m_Recorder_cfg;
-        SendFrameHead(Style, Reason);
+  SendFrameHead(Style, Reason);
   write_infoadd(InfoAddr);
   m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =2;  //在信息体地址后面，附加数据包类型1个字节，备用1,3,4.文件传输 2
   m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =OPERATING_LOGO2;
@@ -2159,71 +2159,71 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
   
     LuBoGetNum(wave_total);//lubo_total = 
     }
-    if(g_gRunPara[RP_LUBO_NUM] >0)
+  if(g_gRunPara[RP_LUBO_NUM] >0)
     {
   
     LuBoNum(wave_total);//lubo_total = 
     }
-    if(wave_total >= 0xFE)  wave_total = 0;
+  if(wave_total >= 0xFE)  wave_total = 0;
      
-     if((m_SendListNum > wave_total) ||(wave_total==0))//最后一段=
+  if((m_SendListNum > wave_total) ||(wave_total==0))//最后一段=
       {       
-          m_SendListNum = 0;
-          if(wave_total == 0)
-          {
-              *pTxPos = 1;
-        *pTxPos1 = 0;//后续标志  
+      m_SendListNum = 0;
+      if(wave_total == 0)
+      	{
+       	*pTxPos = 1;
+       	*pTxPos1 = 0;//后续标志  
         *(pTxPos1 + 1) = 0;//文件数量     
-          }
+        }
       
       SendFrameTail(PRM, dwCode, 0x01,0);
-	  	return;
+	  return;
       }
-      else
+  else
       {
-        if(m_SendListNum == wave_total) m_SendListNum=0;
+      if(m_SendListNum == wave_total) m_SendListNum=0;
     
-    if(call_sign ==1)
-    {
-      m_send_flag = Get_time_read(wave_total,start_minute_time,start_date_time,end_minute_time,end_date_time);
-    }
-        for(int i=0;(m_SendListNum < wave_total)&&(i< 2);i++,m_SendListNum++)//i++
+      if(call_sign ==1)
+    	{
+      	m_send_flag = Get_time_read(wave_total,start_minute_time,start_date_time,end_minute_time,end_date_time);
+    	}
+      for(int i=0;(m_SendListNum < wave_total)&&(i< 2);i++,m_SendListNum++)//i++
         {
-      //flag_lb =0;
+      	  //flag_lb =0;
           lubo_sign = OFF;
           for(int j=0;j<3;j++)
-          {
+          	{
             //long FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)m_SendListNum*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
-      if(g_Recorder_Total_COUNT < FRECORDER_TOLNUM)//总条数小于64，从头开始取值 g_FRecorder_Current_COUNT;//flash保存到第几条了
-      {
-        FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)m_SendListNum*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
-        count_num = m_SendListNum;
-      }
-      else
-      {
+      		if(g_Recorder_Total_COUNT < FRECORDER_TOLNUM)//总条数小于64，从头开始取值 g_FRecorder_Current_COUNT;//flash保存到第几条了
+      			{
+        		FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)m_SendListNum*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
+        		count_num = m_SendListNum;
+      			}
+      		else
+      			{
         
-        FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)BK_FRecorder_Current_COUNT*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
-        count_num = BK_FRecorder_Current_COUNT;
-      }
-      Sst26vf064b_Read(FADDR_RECORDER,(unsigned char *)&m_Recorder_cfg,sizeof(m_Recorder_cfg)); //(unsigned char *)不在这里保存gRecorder_cfg的值是因为三相的录波不一定都能传上来 
+        		FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)BK_FRecorder_Current_COUNT*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
+        		count_num = BK_FRecorder_Current_COUNT;
+      			}
+      		Sst26vf064b_Read(FADDR_RECORDER,(unsigned char *)&m_Recorder_cfg,sizeof(m_Recorder_cfg)); //(unsigned char *)不在这里保存gRecorder_cfg的值是因为三相的录波不一定都能传上来 
             //flag_lb++;
             if(m_Recorder_cfg.lubo_flag ==0x55)
-            {
+            	{
               //flag_lb =0;
                 break;
-            }
-          }
-        BK_FRecorder_Current_COUNT++;
-        if(BK_FRecorder_Current_COUNT >= FRECORDER_TOLNUM)
-          BK_FRecorder_Current_COUNT =0;
+            	}
+          	}
+          BK_FRecorder_Current_COUNT++;
+          if(BK_FRecorder_Current_COUNT >= FRECORDER_TOLNUM)
+          	BK_FRecorder_Current_COUNT =0;
           if(m_SendListNum >= wave_total-1)//SOF状态
-            {
+          	{
               //m_Recorder_cfg.CFG_SOF = 0x20;  /*<0>:=后面还有目录文件；<1>:=最后目录文件*/  
-              mRecorder_flag.LIST_flag = OFF;
-        mRecorder_flag.xuchuanflag= OFF;
+            mRecorder_flag.LIST_flag = OFF;
+        	mRecorder_flag.xuchuanflag= OFF;
             
             }      
-            else
+          else
             {
               //m_Recorder_cfg.CFG_SOF = 0;
               mRecorder_flag.LIST_flag= ON;//TRUE;//新修改
@@ -2231,145 +2231,145 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
       //if(flag_lb >=3) 
         //continue;
           if((((lubo_valid[count_num] ==0x55)&&(g_gRunPara[RP_LBSTORAGE_TIME] > 0))||(g_gRunPara[RP_LBSTORAGE_TIME] == 0)) &&(((lubonum_valid[count_num] ==ON)&&(g_gRunPara[RP_LUBO_NUM] > 0))||(g_gRunPara[RP_LUBO_NUM] == 0)))
-          {
-      if(call_sign == 1)
-      {
-        date_time = m_Recorder_cfg.comtrade_time[RTC_DATE] ;
-        date_time+= (DWORD)m_Recorder_cfg.comtrade_time[RTC_MONTH]<< 8;
-        date_time+=((DWORD)m_Recorder_cfg.comtrade_time[RTC_YEAR]-2000)<<16;
-        minute_time = m_Recorder_cfg.comtrade_time[RTC_SEC];
-        minute_time += (DWORD)m_Recorder_cfg.comtrade_time[RTC_MINUT]<<8;
-        minute_time +=  (DWORD)m_Recorder_cfg.comtrade_time[RTC_HOUR] <<16;
-        if((date_time >= start_date_time) &&(date_time <=end_date_time)) 
-        {
+          	{
+      		if(call_sign == 1)
+      			{
+        		date_time = m_Recorder_cfg.comtrade_time[RTC_DATE] ;
+        		date_time+= (DWORD)m_Recorder_cfg.comtrade_time[RTC_MONTH]<< 8;
+        		date_time+=((DWORD)m_Recorder_cfg.comtrade_time[RTC_YEAR]-2000)<<16;
+        		minute_time = m_Recorder_cfg.comtrade_time[RTC_SEC];
+        		minute_time += (DWORD)m_Recorder_cfg.comtrade_time[RTC_MINUT]<<8;
+        		minute_time +=  (DWORD)m_Recorder_cfg.comtrade_time[RTC_HOUR] <<16;
+        		if((date_time >= start_date_time) &&(date_time <=end_date_time)) 
+        			{
           
-                  if((date_time == start_date_time) &&(date_time ==end_date_time))
-                    {
-                      if((minute_time >= start_minute_time ) &&(minute_time <= end_minute_time))
-                        {
-              lubo_sign = ON;//满足时间召唤条件条件
-              m_lubo_num++;
-                        }
-                    }
+                  	if((date_time == start_date_time) &&(date_time ==end_date_time))
+                    	{
+                      	if((minute_time >= start_minute_time ) &&(minute_time <= end_minute_time))
+                        	{
+              				lubo_sign = ON;//满足时间召唤条件条件
+              				m_lubo_num++;
+                        	}
+                    	}
                     else if(date_time == start_date_time)
-                    {
-                      if(minute_time >= start_minute_time ) 
-                        {
-                lubo_sign = ON;//满足
-                m_lubo_num++;
-                        }
-                    }
+                    	{
+                      	if(minute_time >= start_minute_time ) 
+                        	{
+                			lubo_sign = ON;//满足
+                			m_lubo_num++;
+                        	}
+                    	}
                     else if(date_time ==end_date_time)
-                  {
-                      if(minute_time <= end_minute_time)
-                        {
-                          lubo_sign = ON;//满足
+                  		{
+                      	if(minute_time <= end_minute_time)
+                        	{
+                          	lubo_sign = ON;//满足
                             m_lubo_num++;
-                        }
-                    }
+                        	}
+                    	}
                     else
-                    {
-                      lubo_sign = ON;//满足
-                         m_lubo_num++;
-                    }
+                    	{
+                      	lubo_sign = ON;//满足
+                      	m_lubo_num++;
+                    	}
             
-        }
-        if((lubo_sign == OFF)&&(i==1)&&(m_SendListNum < wave_total))//每条报文发送2条CFG和dat,若其中一条不符合继续寻找
-          i=0;
+        		}
+            	if((lubo_sign == OFF)&&(i==1)&&(m_SendListNum < wave_total))//每条报文发送2条CFG和dat,若其中一条不符合继续寻找
+          		i=0;
 		
-      }
+      		}
 	 
-      if((call_sign == 0) ||((call_sign == 1) &&(lubo_sign ==ON)))//召唤全部录波或满足条件的录波
-      {
-        sc_num ++;
-        /*sprintf((char *)ph,"COMTRADE");
-            m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = strlen(ph)+2;
-            for(BYTE j = 0; j < strlen(ph); j++)
+      	    if((call_sign == 0) ||((call_sign == 1) &&(lubo_sign ==ON)))//召唤全部录波或满足条件的录波
+      			{
+        		sc_num ++;
+        		/*sprintf((char *)ph,"COMTRADE");
+            	m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = strlen(ph)+2;
+            	for(BYTE j = 0; j < strlen(ph); j++)
                 m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = ph[j]; 
-        m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.lubo_total_num;
-        m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.lubo_total_num >> 8;
-        m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =0;//文件属性*/
-        for(BYTE j = 0; j < 2; j++)
-        {
-          if(j ==0)
-            sprintf((char *)ph,"BAY01_%04d_%04d%02d%02d_%02d%02d%02d_%03d.cfg",(m_Recorder_cfg.lubo_total_num),m_Recorder_cfg.comtrade_time[RTC_YEAR],m_Recorder_cfg.comtrade_time[RTC_MONTH],
+        		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.lubo_total_num;
+        		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.lubo_total_num >> 8;
+        		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =0;//文件属性*/
+        		for(BYTE j = 0; j < 2; j++)
+        			{
+          			if(j ==0)
+            			sprintf((char *)ph,"BAY01_%04d_%04d%02d%02d_%02d%02d%02d_%03d.cfg",(m_Recorder_cfg.lubo_total_num),m_Recorder_cfg.comtrade_time[RTC_YEAR],m_Recorder_cfg.comtrade_time[RTC_MONTH],
                             m_Recorder_cfg.comtrade_time[RTC_DATE],m_Recorder_cfg.comtrade_time[RTC_HOUR],m_Recorder_cfg.comtrade_time[RTC_MINUT],m_Recorder_cfg.comtrade_time[RTC_SEC],m_Recorder_cfg.comtrade_time[RTC_MICROSEC]);
-          else
-            sprintf((char *)ph,"BAY01_%04d_%04d%02d%02d_%02d%02d%02d_%03d.dat",(m_Recorder_cfg.lubo_total_num),m_Recorder_cfg.comtrade_time[RTC_YEAR],m_Recorder_cfg.comtrade_time[RTC_MONTH],
+          			else
+            			sprintf((char *)ph,"BAY01_%04d_%04d%02d%02d_%02d%02d%02d_%03d.dat",(m_Recorder_cfg.lubo_total_num),m_Recorder_cfg.comtrade_time[RTC_YEAR],m_Recorder_cfg.comtrade_time[RTC_MONTH],
                             m_Recorder_cfg.comtrade_time[RTC_DATE],m_Recorder_cfg.comtrade_time[RTC_HOUR],m_Recorder_cfg.comtrade_time[RTC_MINUT],m_Recorder_cfg.comtrade_time[RTC_SEC],m_Recorder_cfg.comtrade_time[RTC_MICROSEC]);
                             m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = strlen(ph);
-          for(BYTE n = 0; n < strlen(ph); n++)
-                  m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = ph[n]; 
-          m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =0;//文件属性
-                                        if(j ==0)//文件大小需要修改
-                                        {
-                          m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]= m_Recorder_cfg.CFG_Leng;//文件大小
-                          m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>8;
-                          m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>16; 
-            m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>24; 
-                                        }
-                                        else
-                                        {
-                                            m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]=  m_Recorder_cfg.DATA_Leng;//文件大小
-                            m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>8;
-                            m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>16; 
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>24; 
-                                        }
-          m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = (m_Recorder_cfg.comtrade_time[RTC_MICROSEC]+m_Recorder_cfg.comtrade_time[RTC_SEC]*1000)&0XFF;
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = (m_Recorder_cfg.comtrade_time[RTC_MICROSEC]+m_Recorder_cfg.comtrade_time[RTC_SEC]*1000)>>8;
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_MINUT];
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_HOUR];
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_DATE]|(m_Recorder_cfg.comtrade_time[RTC_WEEK]<<5);
-              m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_MONTH];
-              if(m_Recorder_cfg.comtrade_time[RTC_YEAR] >=2000)
-                  m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_YEAR]-2000;
-              else
-                  m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_YEAR];
-              }
-      }
+          			for(BYTE n = 0; n < strlen(ph); n++)
+                  		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = ph[n]; 
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =0;//文件属性
+            		if(j ==0)//文件大小需要修改
+            			{
+                		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]= m_Recorder_cfg.CFG_Leng;//文件大小
+            			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>8;
+           				m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>16; 
+            			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.CFG_Leng>>24; 
+                		}
+            		else
+             			{
+               			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]=  m_Recorder_cfg.DATA_Leng;//文件大小
+               			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>8;
+              			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>16; 
+              			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.DATA_Leng>>24; 
+                		}
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = (m_Recorder_cfg.comtrade_time[RTC_MICROSEC]+m_Recorder_cfg.comtrade_time[RTC_SEC]*1000)&0XFF;
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]  = (m_Recorder_cfg.comtrade_time[RTC_MICROSEC]+m_Recorder_cfg.comtrade_time[RTC_SEC]*1000)>>8;
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_MINUT];
+         			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_HOUR];
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_DATE]|(m_Recorder_cfg.comtrade_time[RTC_WEEK]<<5);
+          			m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_MONTH];
+          			if(m_Recorder_cfg.comtrade_time[RTC_YEAR] >=2000)
+                  		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_YEAR]-2000;
+          			else
+                  		m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = m_Recorder_cfg.comtrade_time[RTC_YEAR];
+            		}
+      	   		}
           }
        
    }
       
   }
       *pTxPos = 0;
-    if(call_sign == 0)
-    {
+	if(call_sign == 0)
+    	{
         if(m_SendListNum >= wave_total)//+218每报数传8条录波数据，每条对应CFG DAT两个目录
-      *pTxPos1 = 0;//后续标志
+      		*pTxPos1 = 0;//后续标志
         else
-      *pTxPos1 = 1;//后续标志
-    }
+      		*pTxPos1 = 1;//后续标志
+    	}
     else if(call_sign == 1)
-    {
-      if(m_lubo_num >= m_send_flag)
-      {
-              *pTxPos1 = 0;//后续标志 
+    	{
+      	if(m_lubo_num >= m_send_flag)
+      		{
+           	*pTxPos1 = 0;//后续标志 
             }
-      else
-      { 
-              *pTxPos1 = 1;//后续标志
-      }
+      	else
+      		{ 
+          	*pTxPos1 = 1;//后续标志
+      		}
     }
-        if(mRecorder_flag.LIST_flag == OFF)
-        {
-              m_SendListNum = 0;
+ 	if(mRecorder_flag.LIST_flag == OFF)
+  		{
+      	m_SendListNum = 0;
         }
   //if(g_gRunPara[RP_LBSTORAGE_TIME] > 0)
   //{
     *(pTxPos1+1) = sc_num*2;
-        if(sc_num ==0)//按条件查询，没查询到相关的录波
+	if(sc_num ==0)//按条件查询，没查询到相关的录波
         {
-      		mRecorder_flag.xuchuanflag= OFF;
-	   		*pTxPos = 1;//结果描述字失败 
-	    	*pTxPos1 =0;
-                if(m_lubo_num ==0)//确认回复时该变量不为0
-		  SendFrameTail(PRM, dwCode, 0x01,0);
-                else
-      		  return;
+      	mRecorder_flag.xuchuanflag= OFF;
+	  	*pTxPos = 1;//结果描述字失败 
+		*pTxPos1 =0;
+       	if(m_lubo_num ==0)//确认回复时该变量不为0
+			SendFrameTail(PRM, dwCode, 0x01,0);
+      	else
+      		return;
         }
-         else
-    SendFrameTail(PRM, dwCode, 0x01,0);
+   	else
+    	SendFrameTail(PRM, dwCode, 0x01,0);
     
 
   //}

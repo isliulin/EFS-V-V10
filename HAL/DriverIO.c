@@ -119,7 +119,7 @@ void InitPort(void)
 
     P1SEL = 0x00;
     P2SEL = 0x00;
-    P3SEL |= 0x3e;        //P3.1-2 SPI0引脚，P3.4-5 串口0引脚
+    P3SEL |= 0x3e;        //P3.1-3 SPI0引脚，P3.4-5 串口0引脚
 
     P4SEL = 0x00;        
     P5SEL |= 0xc7;        //P5.0-1 Vref+,-   P5.2 x2clkIN   P5.6-7 串口1
@@ -134,7 +134,7 @@ void InitPort(void)
     
     P1DIR = 0x00;         //
     P2DIR |= 0xf0;        //P2.1=DIN4;P2.2=DIN5;P2.3=DIN6;P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
-    P3DIR |= 0x19;        //P3.4 TXD0,P3.3 SPI0 CLK, P3.0 ESAM CS, P3.7=KJa1=DIN1
+    P3DIR |= 0x1b;        //P3.4 TXD0,P3.3 SPI0 CLK, P3.1 SIMO,P3.0 ESAM CS, P3.7=KJa1=DIN1
 
     P4DIR |= 0xfc;        // P4.0=KJB1=DIN2;P4.1=KJC1=DIN3;P4.2=Ka0=JA;P4.3=Kb0=JB;
     					// P4.4=Kc0=JC;P4.5=Ka1;P4.6=Kb1;P4.7=Kc1;

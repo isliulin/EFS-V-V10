@@ -504,6 +504,184 @@ unsigned char * SoeDirectory(unsigned char *pTxBuf, unsigned char leng,unsigned 
      }
      return pTxBuf;
 }
+void LuBoNum(unsigned int wave_total)
+{
+  BYTE i ;
+  if(g_gRunPara[RP_LUBO_NUM] >0)
+    {
+        //CAT_SpiReadWords(EEPADD_LUBOFLAG, 1, &g_FRecorder_Current_COUNT);
+      for(i =0;i<64;i++)
+        lubonum_valid[i] = OFF;
+      if(g_FRecorder_Current_COUNT == wave_total)
+      {
+        if(g_gRunPara[RP_LUBO_NUM] >= g_FRecorder_Current_COUNT)
+        {
+          for( i =0;i<wave_total;i++ )
+            lubonum_valid[i] = ON;
+        }
+        else
+        {
+          for(i =(g_FRecorder_Current_COUNT -g_gRunPara[RP_LUBO_NUM]); i<wave_total;i++)
+            lubonum_valid[i] = ON;
+        }
+          
+      }
+      else if(g_FRecorder_Current_COUNT < wave_total)
+      {
+        if(g_gRunPara[RP_LUBO_NUM] <= g_FRecorder_Current_COUNT)
+        {
+          for(i =(g_FRecorder_Current_COUNT -g_gRunPara[RP_LUBO_NUM]); i<g_FRecorder_Current_COUNT;i++)
+            lubonum_valid[i] = ON;
+        }
+        else
+        {
+          for(i =0;i<g_FRecorder_Current_COUNT;i++)
+            lubonum_valid[i] = ON;
+          if((64-g_gRunPara[RP_LUBO_NUM]+g_FRecorder_Current_COUNT)>0)
+          {
+            for(i =(64-g_gRunPara[RP_LUBO_NUM]+g_FRecorder_Current_COUNT);i<64;i++)
+              lubonum_valid[i] = ON;
+          }
+        }
+      }
+    }
+}
+
+void LuBoGetNum(unsigned int wave_total)//unsigned int 如果设置了录波的有效期则对目录进行新的判断
+{
+  RECORDER_CFG m_Recorder_cfg;
+  BYTE num_lubo =0;
+  //unsigned long start_addr;
+        WORD total_day,day_num,n;
+        DWORD a,b;
+    
+    
+  BYTE month_day[13]={0,31,28,31,30,31,30,31,31,30,31,30,31};
+  total_day =0;
+  for(int i=0;i< wave_total;i++)
+  {
+      //flag_lb =0;
+      for(int j=0;j<3;j++)
+      {
+      	long FADDR_RECORDER =FADDR_RECORDER_INFO+ (long)i*(long)FLINEADDR +(long)j*(long)FPHASEADDR; 
+       	Sst26vf064b_Read(FADDR_RECORDER,(unsigned char *)&m_Recorder_cfg,sizeof(m_Recorder_cfg)); //(unsigned char *)不在这里保存gRecorder_cfg的值是因为三相的录波不一定都能传上来 
+            //flag_lb++;
+       	if(m_Recorder_cfg.lubo_flag ==0x55)
+       		{
+              //flag_lb =0;
+          	break;
+            } 
+      }
+      //if(g_sRtcManager.m_gRealTimer[RTC_YEAR] == m_Recorder_cfg.comtrade_time[RTC_YEAR])
+      //{
+      if((((m_Recorder_cfg.comtrade_time[RTC_YEAR]%4) ==0) &&(m_Recorder_cfg.comtrade_time[RTC_YEAR]%100)!=0)||(m_Recorder_cfg.comtrade_time[RTC_YEAR]%400 ==0))
+        month_day[2]=29;//{0,31,29,31,30,31,30,31,31,30,31,30,31};
+    //else
+      //month_day[13]={0,31,28,31,30,31,30,31,31,30,31,30,31};
+    for (int m =0;m<13;m++)
+      total_day += month_day[m];
+    //unsigned int month =m_Recorder_cfg.comtrade_time[RTC_MONTH];
+    if((m_Recorder_cfg.comtrade_time[RTC_DATE] == g_sRtcManager.m_gRealTimer[RTC_DATE])&&(m_Recorder_cfg.comtrade_time[RTC_YEAR] == g_sRtcManager.m_gRealTimer[RTC_YEAR]))
+    {
+      if(g_sRtcManager.m_gRealTimer[RTC_HOUR] >= m_Recorder_cfg.comtrade_time[RTC_HOUR])
+      {
+        a = g_sRtcManager.m_gRealTimer[RTC_HOUR]*60 + g_sRtcManager.m_gRealTimer[RTC_MINUT];
+        b = m_Recorder_cfg.comtrade_time[RTC_HOUR]*60 + m_Recorder_cfg.comtrade_time[RTC_MINUT];
+
+        if((a - b) < g_gRunPara[RP_LBSTORAGE_TIME])
+        {
+      lubo_valid[i]= 0x55;
+      num_lubo ++;
+        }
+      }
+      else
+      {
+    lubo_valid[i]= 0x55;
+    num_lubo ++;
+      }
+  }
+  else
+  {
+    if(m_Recorder_cfg.comtrade_time[RTC_MONTH] == g_sRtcManager.m_gRealTimer[RTC_MONTH])
+    {
+      if(g_sRtcManager.m_gRealTimer[RTC_DATE] >= m_Recorder_cfg.comtrade_time[RTC_DATE] )
+      {
+    a = g_sRtcManager.m_gRealTimer[RTC_DATE] *24*60+g_sRtcManager.m_gRealTimer[RTC_HOUR]*60 + g_sRtcManager.m_gRealTimer[RTC_MINUT];
+    b = m_Recorder_cfg.comtrade_time[RTC_DATE] *24*60+m_Recorder_cfg.comtrade_time[RTC_HOUR]*60 + m_Recorder_cfg.comtrade_time[RTC_MINUT];
+    if((a - b) < g_gRunPara[RP_LBSTORAGE_TIME])
+    {
+      lubo_valid[i]= 0x55;
+      num_lubo ++;
+    }
+      }
+      else
+      {
+    lubo_valid[i]= 0x55;
+    num_lubo ++;
+      }
+    }
+    else
+    {
+      if(m_Recorder_cfg.comtrade_time[RTC_YEAR] == g_sRtcManager.m_gRealTimer[RTC_YEAR])
+      {
+    if(g_sRtcManager.m_gRealTimer[RTC_MONTH] >= m_Recorder_cfg.comtrade_time[RTC_MONTH])
+    {
+      day_num = month_day[m_Recorder_cfg.comtrade_time[RTC_MONTH]] - m_Recorder_cfg.comtrade_time[RTC_DATE];
+
+      for(n = m_Recorder_cfg.comtrade_time[RTC_MONTH]+1; n <g_sRtcManager.m_gRealTimer[RTC_MONTH];n++ )
+      day_num += month_day[n];
+
+      b = m_Recorder_cfg.comtrade_time[RTC_HOUR]*60 + m_Recorder_cfg.comtrade_time[RTC_MINUT];//m_Recorder_cfg.comtrade_time[RTC_MONTH] * month_day[RTC_MONTH] +m_Recorder_cfg.comtrade_time[RTC_DATE]) *24*60+
+      a = (day_num+g_sRtcManager.m_gRealTimer[RTC_DATE]) *24*60+g_sRtcManager.m_gRealTimer[RTC_HOUR]*60 + g_sRtcManager.m_gRealTimer[RTC_MINUT];
+      if((a - b) < g_gRunPara[RP_LBSTORAGE_TIME])
+      {
+        lubo_valid[i]= 0x55;
+        num_lubo ++;
+      }
+    }
+    else
+    {
+      lubo_valid[i]= 0x55;
+      num_lubo ++;
+    }
+        }
+        else if(m_Recorder_cfg.comtrade_time[RTC_YEAR] < g_sRtcManager.m_gRealTimer[RTC_YEAR])
+        {
+    if(g_sRtcManager.m_gRealTimer[RTC_YEAR] - m_Recorder_cfg.comtrade_time[RTC_YEAR] ==1)
+    {
+              
+      day_num = month_day[m_Recorder_cfg.comtrade_time[RTC_MONTH]] - m_Recorder_cfg.comtrade_time[RTC_DATE];
+              
+      for(n = m_Recorder_cfg.comtrade_time[RTC_MONTH]+1; n <13;n++ )
+      day_num += month_day[n];
+              
+      for(n = 1; n <g_sRtcManager.m_gRealTimer[RTC_MONTH];n++ )
+      day_num += month_day[n];
+
+      b = (m_Recorder_cfg.comtrade_time[RTC_HOUR]*60) + m_Recorder_cfg.comtrade_time[RTC_MINUT];//m_Recorder_cfg.comtrade_time[RTC_YEAR]*total_day+g_sRtcManager.m_gRealTimer[RTC_MONTH] * month_day[RTC_MONTH]+g_sRtcManager.m_gRealTimer[RTC_DATE]) *24*60+
+      a = (day_num +g_sRtcManager.m_gRealTimer[RTC_DATE]) *24*60+g_sRtcManager.m_gRealTimer[RTC_HOUR]*60 + g_sRtcManager.m_gRealTimer[RTC_MINUT];
+      if((a - b) < g_gRunPara[RP_LBSTORAGE_TIME])
+      {
+      lubo_valid[i]= 0x55;
+      num_lubo ++;
+      } 
+     }
+    }
+    else if(m_Recorder_cfg.comtrade_time[RTC_YEAR] > g_sRtcManager.m_gRealTimer[RTC_YEAR])
+    {
+      lubo_valid[i]= 0x55;
+      num_lubo ++;
+    } 
+        }
+            
+      }
+      
+      
+      //}
+      }
+    //return num_lubo;
+}
+
 //***********************************************************************************
 //*函数名：FileDirectory
 //*功能：响应主站的召唤目录的命令

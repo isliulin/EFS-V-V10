@@ -92,13 +92,17 @@ void UCB0SPIInit(void)
  
     UCB0CTL1 |= UCSWRST;                          // **Put state machine in reset** 
     UCB0CTL1 |= UCSSEL_1;                         // ACLK
-    UCB0CTL0 |= UCMST + UCSYNC + UCCKPH + UCMSB;   // 3-pin, 8-bit SPI master  + UCCKPL
+    UCB0CTL0=0;UCB0CTL0 |= UCMST + UCSYNC + UCCKPL + UCMSB;   // 3-pin, 8-bit SPI master  + UCCKPL + UCCKPH
                                                   // Clock polarity high, MSB
    
-    UCB0BR0 = 0x02;                               // /4
+    UCB0BR0 = 0x10;                               // /4
     UCB0BR1 = 0;                                  
            
-    UCB0CTL1 &= ~UCSWRST;                         // **Initialize USCI state machine**    
+    UCB0CTL1 &= ~UCSWRST;                         // **Initialize USCI state machine** 
+
+#define CAT_SELECT_TESAM     P3OUT &= ~BIT0  //加密芯片片选信号
+#define CAT_UNSELECT_TESAM   P3OUT |= BIT0
+	CAT_UNSELECT_TESAM;
   //  CAT_UNSELECT_CHIP;                            //CAT25128片选不使能
   //  CAT_WP;                                       //CAT25128写保护    
   //  CAT_SpiConcelWP();                            //25128写使能

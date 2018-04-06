@@ -1252,7 +1252,11 @@ void CBJ101S::DoCommSendIdle(void)
      // return;//GPRS通道中如果GPRS没打开则不发任何数据
 
     if(m_guiyuepara.mode==1)		
-        m_PRM =0;   //云南
+#ifdef YN_101S		
+        	m_PRM =0;  //云南
+#else
+		m_PRM =1; 
+#endif
     else if(m_recfalg!=3)   //非平衡式
         return;
     if((m_uartId == 2) && (g_GPRSSendLink == ON)&&(m_linkflag == 0))
@@ -2205,7 +2209,7 @@ BYTE CBJ101S::GetCtrCode(BYTE PRM,BYTE dwCode,BYTE fcv)
           CodeTmp&=0x7f;
         else 
           CodeTmp|=0x80;
-/*#ifndef YN_101s
+/*#ifndef YN_101s*/
         if(fcv)
         {
             if(!m_resendflag)//非重发报文才进行fcb的翻转
@@ -2217,7 +2221,7 @@ BYTE CBJ101S::GetCtrCode(BYTE PRM,BYTE dwCode,BYTE fcv)
             }
             CodeTmp|=(m_fcb|0x10);            
         }
-#endif*/
+/*#endif*/
     }
     return CodeTmp;
 }
@@ -2822,6 +2826,8 @@ void CBJ101S::SendInitFinish(void)
 void CBJ101S::SendAck(void)
 {
     //SendBaseFrame(PRM_SLAVE, SFC_CONFIRM);
+    BYTE SendData[256];
+    BYTE SendDataLen;
     WORD wLinkAddress;
     m_SendBuf.wReadPtr = m_SendBuf.wWritePtr = 0;
 
@@ -2834,9 +2840,22 @@ void CBJ101S::SendAck(void)
     write_10linkaddr(GetAddress());
     m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = (BYTE)ChkSum((BYTE *)&pSendFrame->Frame10.Control,m_guiyuepara.linkaddrlen+1);
     m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = 0x16;
+    if(g_gRunPara[RP_CFG_KEY] & BIT[RPCFG_ENCRYPT])
+    {
+        SendDataLen = m_SendBuf.wWritePtr;
+        memcpy(SendData,m_SendBuf.pBuf,SendDataLen);
+        SendFrameEBHead(0x0000,0x00);  
+        SendAppData(SendDataLen,SendData);
+        m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = 0;
+        m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = 0;
+        SendFrameEBTail();
+    }
+    else
+    {
     wLinkAddress = m_dwasdu.LinkAddr;
     m_SendBuf.wReadPtr = 0;
     WriteToComm(wLinkAddress);
+    }  
 
 }
 /***************************************************************
@@ -2967,6 +2986,21 @@ DWORD CBJ101S::SearchOneFrame(BYTE *Buf, WORD Len)
 //          m_dwasdu.Address=wLinkAddress;
 //          #endif
            return FRAME_OK|FrameLen;
+      case 0xEB:
+            if (pReceiveFrame->FrameEB.Start2 != 0xEB)
+                return FRAME_ERR|1;
+            FrameLen=MAKEWORD(pReceiveFrame->FrameEB.LengthL,pReceiveFrame->FrameEB.LengthH) + 6;
+            if (FrameLen > Len)
+            {
+                return FRAME_LESS;
+            }
+            if (Buf[FrameLen-1] != 0xD7)
+                return FRAME_ERR|1;
+            if (Buf[FrameLen-2] != (BYTE)ChkSum((BYTE *)&pReceiveFrame->FrameEB.FrameType[0],FrameLen - 6))
+            {
+                return FRAME_ERR|1;
+            }            
+            return FRAME_OK|FrameLen;
         default:
             return FRAME_ERR|1;
     }
@@ -3764,7 +3798,14 @@ void CBJ101S::getasdu(void)
 }
 void CBJ101S::write_linkaddr(int  data)
 {
+    if(g_gRunPara[RP_CFG_KEY] & BIT[RPCFG_ENCRYPT])
+    {
+        m_SendBuf.wWritePtr=7;
+    }
+    else
+    {
     m_SendBuf.wWritePtr=5;
+    }
     for(BYTE i=0;i<m_guiyuepara.linkaddrlen;i++)
     {
         m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]=(data>>(i*8))&0xff;
@@ -3783,7 +3824,14 @@ void CBJ101S::write_10linkaddr(int  data)
 
 void CBJ101S::write_typeid(int  data)
 {
+    if(g_gRunPara[RP_CFG_KEY] & BIT[RPCFG_ENCRYPT])
+    {
+        m_SendBuf.wWritePtr=7+m_guiyuepara.linkaddrlen;
+    }
+    else
+    {
     m_SendBuf.wWritePtr=5+m_guiyuepara.linkaddrlen;
+    }
     for(BYTE i=0;i<m_guiyuepara.typeidlen;i++)
     {
        m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]=(data>>(i*8))&0xff;
@@ -3800,7 +3848,14 @@ void CBJ101S::write_VSQ(int  data)
 }
 void CBJ101S::write_COT(int  data)
 {
+    if(g_gRunPara[RP_CFG_KEY] & BIT[RPCFG_ENCRYPT])
+    {
+        m_SendBuf.wWritePtr=7+m_guiyuepara.linkaddrlen+m_guiyuepara.typeidlen+m_guiyuepara.VSQlen;
+    }
+    else
+    {
     m_SendBuf.wWritePtr=5+m_guiyuepara.linkaddrlen+m_guiyuepara.typeidlen+m_guiyuepara.VSQlen;
+    }
     {
         m_SendBuf.pBuf[ m_SendBuf.wWritePtr+0 ]=(data)&0xff;
         m_SendBuf.pBuf[ m_SendBuf.wWritePtr+1] = 0;//m_sourfaaddr;
@@ -3811,7 +3866,14 @@ void CBJ101S::write_COT(int  data)
 }
 void CBJ101S::write_conaddr(int  data)
 {
+    if(g_gRunPara[RP_CFG_KEY] & BIT[RPCFG_ENCRYPT])
+    {
+        m_SendBuf.wWritePtr=7+m_guiyuepara.linkaddrlen+m_guiyuepara.typeidlen+m_guiyuepara.VSQlen+m_guiyuepara.COTlen;
+    }
+    else
+    {
     m_SendBuf.wWritePtr=5+m_guiyuepara.linkaddrlen+m_guiyuepara.typeidlen+m_guiyuepara.VSQlen+m_guiyuepara.COTlen;
+    }
     for(BYTE i=0;i<m_guiyuepara.conaddrlen;i++)
     {
        m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ]=(data>>(i*8))&0xff;

@@ -30,12 +30,13 @@ void InitcfgPara(void)
     {
         g_gChangFlag[i] = OFF;
     }
+    FEED_WATCH_DOG();
     CheckRECPara();   //读取各故障的条数及当前位置	
       RstRMTInfo(0);	
     CheckCfgPara();
     InitTsYxInfo();
     InitTsYcInfo();
-    
+    FEED_WATCH_DOG();
     CheckProtCnt(); //读取保护定值，如果定值错误置对应的遥信位
 
     CheckAdjPara(); //读取各通道校正参数，如果参数错误，置对应的遥信位，并按照默认参数校正
