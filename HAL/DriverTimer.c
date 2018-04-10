@@ -49,7 +49,7 @@ void InitTimer(void)
 
     TA0CCR0 = 500; 			    //输出周期250uS 每周波80点 4000hz    
     TA0CTL = TASSEL_1 + ID_3 + MC_1 + TACLR  ;         //TMA0模式配置 ACLK时钟, 8分频 ,计数清0，增计数  
-#ifndef _TIME_AD
+#ifndef DEBUG_N 
     TA0CCTL0 |= CCIE; //使用中断 如果使用中断启动AD需呀这句话
     ADC12CTL0 |= ADC12SC;
 #endif
@@ -982,12 +982,9 @@ __interrupt void TIMER1_A1_ISR(void)    //毫秒中断函数
     switch(TA1IV)
     {
          case 0x02:
-//#ifdef INT_NEST  			 	
-//UCA1IE &= (~(UCRXIE + UCTXIE));              //关闭 USCI_A1RX 中断  // 张弢测试中断嵌套	 
-//UCA2IE &= (~(UCRXIE + UCTXIE));              // 关闭 USCI_A2 RX 中断  // 张弢测试中断嵌套// 张弢测试中断嵌套	
+#ifndef DEBUG_N 
 _EINT();//开总中断// 张弢测试中断嵌套	
-//delay(2000);	// 张弢测试中断嵌套
-//#endif 
+#endif 
             TA1CCR1 += 250;
             for(i = 0;i <= 2;i++)
     {

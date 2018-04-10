@@ -14,43 +14,13 @@
 void app(void)@"APPLICATION"
 {
     WDTCTL = WDTPW + WDTHOLD;//禁止芯片自带的看门狗，采用外部看门狗
-    InitSys();
-    //strcpy(ComtrderCfg1,ComtrderCfg);
-      if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(0,11,null);
-	WDG_CLR;delayms(3000);   WDG_CLR;     
-      if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);
-	//WDG_CLR;delayms(3000);   WDG_CLR;    
-	   //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ	
-    //启动时取出重启次数加1并保存
-   /* CAT_SpiReadWords(EEPADD_RSTARTNUM, 1, &g_RstartNum);
-    if(g_RstartNum >= 0xfffe) g_RstartNum = 0;
-    
-    g_RstartNum++;
-    CAT_SpiWriteWords(EEPADD_RSTARTNUM, 1, &g_RstartNum);*/
-	
+    InitSys();    
+      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(0,11,null);
+	//WDG_CLR;delayms(3000);   WDG_CLR;     
+      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);
+		
     while(1)
-    {
-        /*WatchDog();
-        HandleTimerEvent();
-        CalcuRmtMeas();//整理AD采集数据     
-        if(g_sRtcManager.m_ucRtcSynFlag == YES) //每4分钟从时钟芯片读取一次时间，该标志在定时器中断中计数设标志
-        {
-            ReadRealTime(1);//从RTC芯片中读取系统时钟，并更新SysTime中的时间
-            g_sRtcManager.m_ucRtcSynFlag = NO;
-        }
-        
-        //OpenBatSmsGprs();
-        SetYxTrans();
-        SetYcTrans(); 
-        SaveSoeData();
-        #ifndef GETSOEFROMRAM
-          CopySoeToFlash();
-        #endif
-        
-        if(pDbg != null) pDbg->Run();
-        if(pGprs != null) pGprs->Run();
-
-        SaveCfgPara();*/
+    { 
         WDG_CLR;
  	if(g_STimeout == ON)
 		{
@@ -294,7 +264,9 @@ void InitSys(void)
 {
    // unsigned char Data[5];
    // static unsigned char ucPcData[5] = {1,2,3,4,5};
+#ifndef DEBUG_N    
     InitClk();//系统时钟初始化
+#endif
     WDG_SET;
     InitPort();//IO端口初始化
   
@@ -317,7 +289,9 @@ void InitSys(void)
     InitTimer();//定时器初始化，包括1ms中断、0.625ms中断、0.125ms中断、捕获等定时器的初始化
     InitCommObj();
     __bis_SR_register(GIE);       //使能全局中断
-    delayms(500);
+    //FEED_WATCH_DOG();
+    //delayms(500);
+    //FEED_WATCH_DOG();
     //ReadLEDVer();  // 读取液晶版本号
    g_unSms_s = 0;
    g_gRmtInfo[YX_BREAK]=0;//复位后，断线检测遥信也复位	

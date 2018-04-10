@@ -452,6 +452,11 @@ BOOL CBJ101S::RecFrame68(void)
     m_bReceiveControl = pReceiveFrame->Frame68.Control;
     m_acdflag=1;
     m_recfalg=1;
+    if(((m_bReceiveControl&0xf)!=4)&&(SwitchToAddress(m_dwasdu.LinkAddr))&&(m_linkflag))//增加链路初始化完成后再响应短帧确认
+    {    
+        SendAck();
+        delayms(200);
+    } 	
     switch(m_dwasdu.TypeID)
     {
         case 0x2D:
@@ -567,7 +572,7 @@ BOOL CBJ101S::RecFrame68(void)
         m_SendFixNum =0;  
         BK_FRecorder_Current_COUNT = g_FRecorder_Current_COUNT;
            
-        //Recfileprocessing(&pReceiveFrame->Frame68.Start1);
+        Recfileprocessing(&pReceiveFrame->Frame68.Start1);
         break;//?		
         case 0x88://136 云南录波协议  读目录
         case 0x89://137 云南录波协议  读文件	
@@ -823,8 +828,8 @@ BOOL CBJ101S::RecCallAllStart(void)
         m_byRTUStatus = RTU_RECCALL;
     }
 	
-    SendBaseFrame(0,0);//张弢重庆 总召确认报文
-   delayms(100);
+    //SendBaseFrame(0,0);//张弢重庆 总召确认报文
+   //delayms(100);
     SendCallAllStartAck();
     if(m_ztype==20)
     {/*
@@ -1597,7 +1602,7 @@ void CBJ101S::DoCommSendIdle(void)
               Code_Lubo_YN(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);
 		gRes_rec.res_timeout = 0;	  
      }	 
-/*	 国网读录波文件规约
+//	 国网读录波文件规约
    if(((mRecorder_flag.LIST_flag == ON)||(mRecorder_flag.xuchuanflag== ON))&&(m_ackRecorder ==ON))//(( gRecorder_flag.CFG_flag ==ON )||(gRecorder_flag.DAT_flag ==ON )||)//正在读配置文件的数据
      {
          m_ackRecorder =OFF;
@@ -1612,7 +1617,7 @@ void CBJ101S::DoCommSendIdle(void)
         }              
         Recfileprocessing(mRecorder_RXBuff);//(mRecorder_flag.pRXBuff);
      }
-*/   
+   
     //只针对GPRS通道进行判断提前关GPRS
   /*  if((g_sTimer[TM_GPRSPWOERDOWN].m_TmCountBk != 60) && (g_gRunPara[RP_POWER_MODE]!= REALTIME) && g_GprsPowerSt && (m_uartId == g_CmIdGPRS))
     {
@@ -1816,8 +1821,8 @@ BOOL CBJ101S::SenddelayeAck(void)
 //链路测试回复报文
 BOOL CBJ101S::SendTsetLinkAck(void)
 {
-    SendBaseFrame(0,0);//张弢重庆 总召确认报文
-delayms(100);
+    //SendBaseFrame(0,0);//张弢重庆 总召确认报文
+//delayms(100);
     BYTE Style = 0x68, Reason = COT_ACTCON;
     BYTE PRM = 0, dwCode =3, Num = 1;
 
@@ -2812,11 +2817,7 @@ void CBJ101S::SendInitFinish(void)
 //  #else
     m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = 0; //初始化原因  云南
     //#endif
-#ifdef SD_101S
-    SendFrameTail(0, 0x03, 1,0);
-#else
-    SendFrameTail(PRM_MASTER, 0x03, 1,0);//funcode=0x0a?
-#endif    
+    SendFrameTail(PRM_MASTER, 0x03, 1,0);//funcode=0x0a?  
 }
     if(m_guiyuepara.mode == 1)  //平衡式
         m_linkflag=1;
@@ -3449,6 +3450,7 @@ BOOL CBJ101S::SendYKSetAck(void)
     return TRUE;
 }
 
+#ifdef YN_101S
 void CBJ101S::RecReadData()
 {
   BYTE * pData = &pReceiveFrame->Frame68.Data[m_byInfoShift];
@@ -3604,6 +3606,8 @@ void CBJ101S::RecReadData()
   SendFrameTail(0, 0xa5, bVSQ,0);
   return;
 }
+#endif
+
 //解析时钟同步报文
 BOOL CBJ101S::RecSetClock(void)
 {
@@ -3633,16 +3637,14 @@ BOOL CBJ101S::RecSetClock(void)
     unHYM[6] = MSecond/1000;//SEC
     WriteRealTime(unHYM);  //修改时间
   //SendtimeAck();应先发短帧确认再发长针
-//#ifdef CQ_101S	
-    SendBaseFrame(0,0);//张弢重庆 总召要个确认报文
-//#endif     
+   
     m_timeflag=1;
     return true;
 }
 //解析读时钟报文
 BOOL CBJ101S::RecReadClock(void)
 {
-    SendBaseFrame(0,0);//张弢重庆 总召要个确认报文
+    //SendBaseFrame(0,0);//张弢重庆 总召要个确认报文
     m_timeREQflag =1;
     return true;
 }
@@ -4004,6 +4006,7 @@ BOOL CBJ101S::SendRetry(void)
   return 0;  
 }
 
+#ifdef YN_101S
 BOOL CBJ101S::RecYSCommand(void)
 {
   BYTE i,k;
@@ -4521,6 +4524,7 @@ BOOL CBJ101S::RecYSCommand(void)
   return TRUE;
 
 }
+#endif
 /*********************************************************
 函数名称:SendCallHistLoad
 输入参数：无

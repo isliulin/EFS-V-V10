@@ -12,6 +12,7 @@
 //#define INT_NEST      //张弢测试中断嵌套       0//1=GPRS;0=SMS
 //#define DH_101S      //定义=丹华昊博101规约；不定义=标准101规约
 #define SD_101S      //定义=丹华昊博101规约；不定义=标准101规约
+//#define DEBUG_N 
 
 #define CONDIN_3      //接触器输出3路开合信号  取消信号源异常遥信(辅助开关跳开)
 
@@ -138,16 +139,7 @@ typedef double         FP64;            //双精度浮点数
 #define CHAN_I0                               4
 #define CHAN_Upt                               5
 
-//============================ 符合历史记录  =============================================
-#define FLOADINFONUM                    4           //
-#define FLOAD_TOTALNUM                0            //记录总条数
-#define FLOAD_NEW                          1             //即将存储的记录与第一条记录的偏移位置(不是已存储的最新一条记录的位置)
-#define FLOAD_OLD                           2             //最老一条记录的位置
-#define FLOAD_CS                             3
-#define FLOAD_DAY 3
-#define FLASH_LOAD_MAXNUM        8192
-#define FADDR_LOAD_START           0x750000//750000-790000
-#define FLASH_PLOAD_LEN              32//每条负荷记录32字节
+
 
 //============================  SMS-电话号码        =======================================
 
@@ -455,9 +447,19 @@ typedef double         FP64;            //双精度浮点数
 #define RP_PLUSE_AMODFK	   	50  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 默认0
 #define RP_PLUSE_BMODFK	   	51  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 默认0
 #define RP_PLUSE_CMODFK	   	52  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 默认0
+#define RP_LBSTORAGE_TIME        53  //录波存储有效期
+#define RP_LUBO_NUM              54  //录波存储数量
+#define RP_LUBO_CYCLE            55  //总录波周期
+#define RP_temp1        		56  //录波存储有效期
+#define RP_temp2              	57  //录波存储数量
+#define RP_temp3            	58  //总录波周期
+#define RP_temp4        		59  //录波存储有效期
+#define RP_temp5              	60  //录波存储数量
+#define RP_temp6            	61  //总录波周期
+#define RP_temp7        		62  //录波存储有效期
 
-#define RP_CRC                   53      //crc校验码//张弢 遥测起始地址修改运行参数
-#define RUN_PARA_NUM             54//张弢 遥测起始地址修改运行参数
+#define RP_CRC                   63      //crc校验码//张弢 遥测起始地址修改运行参数
+#define RUN_PARA_NUM             64//张弢 遥测起始地址修改运行参数
 
 //控制字具体定义
 #define RPCFG_CON_NC              0      //接触器位置0=常开no 1=常闭nc
@@ -889,6 +891,21 @@ const unsigned char ucVerNum[]="Ver02.02";
 #define FADDR_RECORDER_DATA      0x4000   //故障录波数据0x4000
 #define FADDR_RECORDER_ACTDATA      0x70000   //动作录波数据0x70000
 #define FADDR_RECORDER_XHDATA      0x6C0000   //熄弧录波数据0x6C0000
+#define FADDR_RECORDER_LOADATA      0x730000  //负荷记录 每条记录32字节=5时间+8*2遥测+4遥信
+											  //30天*24小时*12（5分钟）*32=391680/65536=5.9	
+											  //需要6个BLOCK，截至地址为780000		
+#define FADDR_RECORDER_LOGDATA      0x7A0000  //log日志，每条记录32字节=7时间+8*2遥测+4遥信		
+											  //存2048条	 占用1个BLOCK 64*1024/32
+//============================ 符合历史记录  =============================================
+#define FLOADINFONUM                    4           //
+#define FLOAD_TOTALNUM                0            //记录总条数
+#define FLOAD_NEW                          1             //即将存储的记录与第一条记录的偏移位置(不是已存储的最新一条记录的位置)
+#define FLOAD_OLD                           2             //最老一条记录的位置
+#define FLOAD_CS                             3
+#define FLOAD_DAY 3
+#define FLASH_LOAD_MAXNUM        8192
+#define FADDR_LOAD_START           0x730000//730000-790000
+#define FLASH_PLOAD_LEN              32//每条负荷记录32字节											  
 /*
 程序升级7AF000
 负荷记录//750000-790000   每条32字节 共8192条

@@ -337,6 +337,7 @@ class CBJ101S : public CPrtcSms//CPSecondary
         BOOL SendHostVerifyAck(void);
         BOOL SendEncChipID(BYTE type);
         BOOL SendChipKeyVer(BYTE type);
+		void RecReadParaData(BYTE Style,BYTE VSQ);
         BOOL SendUpdataKeyAck(void);
         BOOL SendRecovKeyAck(void);
         BOOL SendCerUpdataAck(void);  //远程证书更新
@@ -365,8 +366,7 @@ class CBJ101S : public CPrtcSms//CPSecondary
 //Rec.cpp
 		void RecFIUpdata(BYTE Type);
 		//void RecReadData(void);
-		void RecWriteData(BYTE Style,BYTE mQos,BYTE VSQ);//BYTE cpypara,
-		void RecReadParaData(BYTE Style,BYTE VSQ);
+		void RecWriteData(BYTE Style,BYTE mQos,BYTE VSQ);//BYTE cpypara,		
 		BOOL Recfileprocessing(unsigned char *pRxBuf);
 		void lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_sign,DWORD start_minute_time,DWORD start_date_time,DWORD end_minute_time,DWORD end_date_time);
 		void fixpt_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_sign,DWORD start_minute_time,DWORD start_date_time,DWORD end_minute_time,DWORD end_date_time);

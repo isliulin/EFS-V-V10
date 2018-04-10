@@ -2154,10 +2154,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
 	gRecorder_filecfg.FileName=temp[1]+MAX_REC_NUM+1;//设为文件名
 	}  
   gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
-  gRecorder_filecfg.CFG_Samp=800;	//采样频率 
-#ifdef SD_101S
-  gRecorder_filecfg.CFG_Samp=800;	//采样频率 
-#endif  
+  gRecorder_filecfg.CFG_Samp=800;	//采样频率   
   if(g_sRecData.m_LuboType == LuboType_XH)
   	{
   	ulAddr = FADDR_RECORDER_XHDATA+(unsigned long)(g_sRecData.m_gXHRecCNum)*0x8000;//flash地址  g_sRecData.m_gActRecAdr/10
