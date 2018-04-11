@@ -367,7 +367,7 @@ BOOL CBJ101S::RecFrame10(void)
             {
               m_ackflag =1;
             }			
-            if((pSendFrame->Frame68.Start1 == 0x68) && (m_WaitConfTpId > 0))//用以判断主站回的报文是不是对主动上报报文的确认
+            if(((pSendFrame->Frame68.Start1 == 0x68)||(pSendFrame->Frame68.Start1 == 0xEB)) && (m_WaitConfTpId > 0))//用以判断主站回的报文是不是对主动上报报文的确认
             {
                 #ifndef GETSOEFROMRAM
                   if(m_WaitConfTpId == M_SP_TB)
@@ -694,6 +694,7 @@ BOOL CBJ101S::RecCallSomeGroup(void)
 {
 
   m_ztype=m_RecFrame.pBuf[5+m_dwasdu.Infooff+m_guiyuepara.infoaddlen];
+  m_ztype=20;
   if(m_ztype==20) m_callallflag=20|0x80;
   if((m_ztype>20)&&(m_ztype<32)) m_groupflag=m_ztype|0x80;
   if(m_ztype==34)
