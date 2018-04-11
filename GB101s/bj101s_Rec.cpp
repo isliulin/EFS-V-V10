@@ -1912,11 +1912,11 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
   	CAT_SpiReadWords(EEPADD_LUBONUM, 1, (unsigned int*)&wave_total);
   	if(g_gRunPara[RP_LBSTORAGE_TIME] >0)
     	{  
-    	LuBoGetNum(wave_total);//lubo_total = 
+    	//LuBoGetNum(wave_total);//lubo_total = 
     	}
   	if(g_gRunPara[RP_LUBO_NUM] >0)
     	{  
-    	LuBoNum(wave_total);//lubo_total = 
+    	//LuBoNum(wave_total);//lubo_total = 
     	}
   	if(wave_total >= 0xFE)  wave_total = 0;
 

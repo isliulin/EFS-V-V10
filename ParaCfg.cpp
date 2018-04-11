@@ -253,6 +253,7 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
     //运行参数
     if((g_ucParaChang & BIT0) == BIT0)
     {
+    	g_gRmtInfo[YX_EFS_ABNORMAL] = 0;
        u_dellubo =0;
         if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_DEL_LUBO])
     	{
@@ -495,7 +496,23 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
     {
         g_ucParaChang &= NBIT7;
     }	
- 
+
+    if (g_gRunPara[RP_CRC] != CrcCount((unsigned int *)g_gRunPara, RP_CRC)) //CRC校验错误
+    	{
+    	g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
+    	CAT_SpiReadWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara);  //读出当前保护定值
+    	if (g_gRunPara[RP_CRC] != CrcCount((unsigned int *)g_gRunPara, RP_CRC)) //CRC校验错误
+      		{
+      		CAT_SpiReadWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara);  //读出当前保护定值
+			if (g_gRunPara[RP_CRC] != CrcCount((unsigned int *)g_gRunPara, RP_CRC)) //CRC校验错误
+				{
+      			RstRunPara();
+      			CalcProtCnt();
+      			g_ucParaChang |= BIT0;   //调用保存函数
+    			}				
+    		}
+		g_ucParaChang |= BIT0; 
+    	}    	
 }
 //==============================================================================
 //  函数名称   : CheckCfgPara

@@ -12,7 +12,7 @@
 //#define INT_NEST      //张弢测试中断嵌套       0//1=GPRS;0=SMS
 //#define DH_101S      //定义=丹华昊博101规约；不定义=标准101规约
 #define SD_101S      //定义=丹华昊博101规约；不定义=标准101规约
-#define DEBUG_N 
+//#define DEBUG_N 
 
 #define CONDIN_3      //接触器输出3路开合信号  取消信号源异常遥信(辅助开关跳开)
 
