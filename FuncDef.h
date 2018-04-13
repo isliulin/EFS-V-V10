@@ -139,6 +139,7 @@ extern "C"
         void InitcfgPara(void);
         void SaveCfgPara(void); 
         void CheckCfgPara(void);
+		void CheckCfgERR(void);
     	void InitTsYxInfo(void);
         void InitTsYcInfo(void);
         void RstRunPara(void);
@@ -171,6 +172,7 @@ extern "C"
         extern void InitcfgPara(void);   
         extern void SaveCfgPara(void);
         extern void CheckCfgPara(void);
+		extern void CheckCfgERR(void);
         extern void InitTsYxInfo(void);
         extern void InitTsYcInfo(void);
         extern void RstRunPara(void);
