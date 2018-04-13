@@ -668,11 +668,12 @@ BOOL CBJ101S::RecResetLink(void)
                 m_linkflag=1;
             if(m_guiyuepara.mode==1)
             {
-                m_initflag=7;
+                m_initflag=0x0f;
+				m_linkflag = 0;//涓荤珯鍙戝垵濮嬪寲鎸囦护鏃跺悓鏃舵柇寮€杩炴帴锛屼繚闅滃垵濮嬪寲杩囩▼涓嶈涓诲姩涓婃姤鎵撴柇
 		  if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_SEND_FTYC])	
-		 	m_initflag=4;
+		 	m_initflag=0x0c;		  	
 #ifdef YN_101S
-		m_initflag=4;
+		m_initflag=0x0c;
 #endif		  
                 m_recfalg=1;
             }
@@ -1268,9 +1269,9 @@ void CBJ101S::DoCommSendIdle(void)
     if((m_uartId == 2) && (g_GPRSSendLink == ON)&&(m_linkflag == 0))
     {
         g_GPRSSendLink = 0;
-        m_initflag = 7;
+        m_initflag = 0x0f;
 	 if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_SEND_FTYC])	
-		m_initflag=4;		
+		m_initflag=0x0c;		
         m_initfirstflag = 1;
         Initlink();
     }
@@ -1285,9 +1286,9 @@ void CBJ101S::DoCommSendIdle(void)
     {
         g_SendBeatFailureNum = 0;
         //delayms(3000);
-        m_initflag=7;
+        m_initflag=0x0f;
 	 if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_SEND_FTYC])	
-		m_initflag=4;			
+		m_initflag=0x0c;			
         //m_recfalg=1;
         m_initfirstflag = 1;
         g_GPRSSendLink = 0;//张弢，开启1分钟一次的连接
@@ -2782,26 +2783,30 @@ void CBJ101S::Initlink(void)
     if(m_initflag&2)  //复位远方链路
     {
         m_initflag&=~2;
-	delayms(1000);		
+	//delayms(1000);		
         SendResetLink(PRM_SLAVE);  //云南
         return;
     }
     if(m_initflag&4)
     {
-        m_initflag=0;
+        //m_initflag=0;
+        m_initflag&=~4;
         m_fcb=0x20;
         if(((m_initfirstflag==1))||(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_ISSENDINITFIN]))
         {//只第一次上传或一直上传初始化长帧时发送
-          m_initfirstflag=0;
-         // g_SendLink = OFF;
-#ifdef CQ_101S
-          delayms(5000);	
-#endif	
-		  delayms(100);	 		 
+          m_initfirstflag=0;		  	 		 
           return SendInitFinish();
         }
-       
+       else
+          m_initflag = 0;
     }
+    else if(m_initflag&8)
+    {
+       m_initflag&=~8;
+    } 
+    if(!m_initflag && (m_guiyuepara.mode == 1))  //平衡式
+       m_linkflag=1;      
+    return;  
 }
 void CBJ101S::SendInitFinish(void)
 {
@@ -2820,8 +2825,8 @@ void CBJ101S::SendInitFinish(void)
     //#endif
     SendFrameTail(PRM_MASTER, 0x03, 1,0);//funcode=0x0a?  
 }
-    if(m_guiyuepara.mode == 1)  //平衡式
-        m_linkflag=1;
+    //if(m_guiyuepara.mode == 1)  //平衡式
+    //    m_linkflag=1;
     return;
 }
 
