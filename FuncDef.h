@@ -49,11 +49,13 @@ extern "C"
 #ifdef _DATA_PROCESS
         void InitDataProc(void);
         void CalcuRmtMeas(void);
+		void ScanPT(void);
 	 void YCthCross(void);	
         void SaveSoeData(void);
         void SaveSoeDataRepeat(void);
         void RECParaPro(void);
 	void DelALLSOE(void);
+	void DelALLLOG(void);
 	
         void SaveRecData(void);
 	 void SaveActRecData(void);	
@@ -62,6 +64,10 @@ extern "C"
     	int ReadSoe(unsigned char *pBuf,int iSegNo,int iStartNo,int iSoeNum);
         int ReadSoeHistory(unsigned char *pBuf,int iSegNo,int iStartNo,int iSoeNum);
 	void SaveLoad(void);        
+	void SaveLOG(char   logtype,char logvalue);
+	void SaveMEMLOG(char   logtype,char logvalue);
+	void ScanLOG(void);
+	void SaveFlashLOG(void);
         void RstRMTInfo(unsigned int SoeType);
         void RstRMTMeas();
         void SetYxTrans(void);
@@ -80,11 +86,13 @@ extern "C"
 #else
         extern void InitDataProc(void);
         extern void CalcuRmtMeas(void);
+		extern void ScanPT(void);
 	 extern void YCthCross(void);	
         extern void SaveSoeData(void);
         extern void SaveSoeDataRepeat(void);
         extern void RECParaPro(void);
 	 extern void DelALLSOE(void);
+	 extern void DelALLLOG(void);
 
         extern void SaveRecData(void);
 	 extern void SaveActRecData(void);	
@@ -93,6 +101,10 @@ extern "C"
         extern int ReadSoe(unsigned char *pBuf,int iSegNo,int iStartNo,int iSoeNum);
         extern int ReadSoeHistory(unsigned char *pBuf,int iSegNo,int iStartNo,int iSoeNum);
         extern void SaveLoad(void);
+		extern void SaveLOG(char   logtype,char logvalue);
+		extern void SaveMEMLOG(char   logtype,char logvalue);
+		extern void ScanLOG(void);
+		extern void SaveFlashLOG(void);
         extern void RstRMTInfo(unsigned int SoeType);
         extern void RstRMTMeas();
         extern void SetYxTrans(void);

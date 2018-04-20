@@ -237,7 +237,7 @@ void CHECK8PLUS(void)
     {
       g_FinishACTFlag = 0x55;   
     }
-	
+	SaveLOG(LOG_8FULS_STA,0);
     g_MaichongNum = 0;
     
     if(pulse_phase_flag ==1)
@@ -408,6 +408,7 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
     latch_upload_flag=0x55;
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位    
+    SaveLOG(LOG_LATCH, 1);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0
     chongfa=0;  moniguzhang=0;	
     g_gRmtMeas[RM_ACT_NUM] = 2;
@@ -566,6 +567,7 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
     	}    	
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位  
+    SaveLOG(LOG_LATCH, 1);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0    
     chongfa=0;moniguzhang=0;	
    g_gRmtMeas[RM_ACT_NUM] = 3;
@@ -701,6 +703,7 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
     	}    	
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位  
+    SaveLOG(LOG_LATCH, 1);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0    
     chongfa=0;	moniguzhang=0;
     g_gRmtMeas[RM_ACT_NUM] = 2;
@@ -831,6 +834,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
     		}             	  
              uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
              g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+             SaveLOG(LOG_LATCH, 1);
              g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0             
 	      chongfa=0;moniguzhang=0;
              g_gRmtMeas[RM_ACT_NUM] = 1;
@@ -910,41 +914,38 @@ __interrupt void TIMER0_A0_ISR(void)
     ADC12CTL0 |= ADC12SC;     
 #ifdef SD_101S
     if(M05SecCount&0x01)
-    	{
-		//RecActData();
+    	{		
 		RecData();
     	}
      M05SecCount++; 	
 #endif
 
-    if(M125SecCount>4)//每4次采样4*156.25uS=625us 则计算存储数据// 张弢测试中断嵌套
+    if(M125SecCount>4)//每5次采样5*250uS=1.25ms 则计算存储数据// 张弢测试中断嵌套
     	{// 张弢测试中断嵌套
-
         GetAcSamData();//把交流数据经过软件滤波后，存放到g_sSampleData中 
         M125SecCount = 0;
         //CalcuProtMeas();//张弢取消此程序//利用均方根算法计算，把计算结果保存到保护电量中  
         ProtStart();//启动元件判断
-        //ProtLogic();//张弢 程序放入CalcuRmtMeas(void) 5ms执行1次
-//#ifndef SD_101S        
+        //ProtLogic();//张弢 程序放入CalcuRmtMeas(void) 5ms执行1次       
         RecActData();
-	McSecCount++;	
-//#endif
+		McSecCount++;	
+		if(McSecCount>=16)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
+    		{	
+		 	g_unRmCaluFlag = ON; 
+		 	McSecCount = 0;
+    		}		
     	}
 #ifndef SD_101S	
     RecData();
 #endif	
-    if((McSecCount&0x1f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
-    	{	
-	 g_unRmCaluFlag = ON; 
-    	}
+
     if((M05SecCount&0x7f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
-    	{	
-	 //g_unTESTFlag = ON; 
-	 			g_gRmtMeasPJ[0][pjno]=g_gRmtMeas[1];
-	 			g_gRmtMeasPJ[1][pjno]=g_gRmtMeas[2];
-				g_gRmtMeasPJ[2][pjno]=g_gRmtMeas[3];
-                        pjno++;
-			if(pjno>31)pjno=0;;	
+    	{	 
+	 	g_gRmtMeasPJ[0][pjno]=g_gRmtMeas[1];
+	 	g_gRmtMeasPJ[1][pjno]=g_gRmtMeas[2];
+		g_gRmtMeasPJ[2][pjno]=g_gRmtMeas[3];
+       	pjno++;
+		if(pjno>31)pjno=0;;	
     	}
 
         //扫描开关量输入
@@ -1000,6 +1001,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     }
             g_sRtcManager.m_gRealTimer[RTC_MICROSEC]++;  //系统实时时钟g_sRtcManager.m_gRealTimer的毫秒累加
             ScanDinYX();
+			ScanLOG();
             MicSecCount++;
 	     Mic50SecCount++;		
             SecCount = g_sRtcManager.m_gRealTimer[RTC_MICROSEC];
@@ -1163,6 +1165,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
                     g_sRecData.m_gFaultRecSOE[REC_MONTH] = g_sRtcManager.m_gRealTimer[RTC_MONTH];
                     g_sRecData.m_gFaultRecSOE[REC_YEAR] = (g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000);
 			KMP_SET;//KM接触器供电
+						SaveLOG(LOG_8FULS_STA,1);
 			  }		
                     if(eight_delay_counter==0)
                         eight_delay_flag=0x55;
@@ -1233,6 +1236,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 		if(g_I0RmtZeroNum>=2*(g_gRunPara[RP_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK]))
 			{
 			g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
+			SaveLOG(LOG_BREAK, 1);
 			g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0
                         g_I0RmtZeroNum = 0;
 			if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_BREAK_STOP8PUL])
@@ -1245,6 +1249,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     				latch_upload_flag=0x55;      	
     				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    				SaveLOG(LOG_LATCH, 1);
     				chongfa=0;	moniguzhang=0;
     				g_gRmtMeas[RM_ACT_NUM] = 0;
 				if(g_sRecData.m_ucActRecStart == ON)	
@@ -1419,6 +1424,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
                Mic50SecCount =0;
 		 //if((g_sRecData.m_ucActRecStart != OFF))	   
 		 SaveActRecData();		   
+		 ScanPT();
              }
 	     		 
             if(SecCount >= 1000)   //秒计时
@@ -1492,6 +1498,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 				   g_gRmtInfo[YX_PHASEB_ACT] = 0;
 				   g_gRmtInfo[YX_PHASEC_ACT] = 0;
                                 g_gRmtInfo[YX_EFS_LATCH] = 0;   //置解锁遥信位 
+                                SaveLOG(LOG_LATCH, 0);
                                 g_gRmtInfo[YX_RH_FAIL] = 0;   //燃弧失败遥信复归
                                 g_gRmtInfo[YX_MANUAL_ACTION] = 0;   //置手动投切结束
                                // g_gRmtInfo[0] &= ~YX_EIGHT_PULSE;   //有效8脉冲清除 
@@ -1643,8 +1650,8 @@ _EINT();//开总中断// 张弢测试中断嵌套
 	             }
 
      //g_gRmtMeas[RM_UCAP] = g_unAdcData[6];
-    if(g_gRmtMeas[RM_UCAP]>2800)g_gRmtInfo[YX_SBP_OFF]=0;//5.87
-    if(g_gRmtMeas[RM_UCAP]<2600)g_gRmtInfo[YX_SBP_OFF]=1;//5.4v	               
+    if(g_gRmtMeas[RM_UCAP]>2800){g_gRmtInfo[YX_SBP_OFF]=0;SaveLOG(LOG_UCAP, 0);}//5.87
+    if(g_gRmtMeas[RM_UCAP]<2600){g_gRmtInfo[YX_SBP_OFF]=1;SaveLOG(LOG_UCAP, 1);}//5.4v	               
             }    
             
                        

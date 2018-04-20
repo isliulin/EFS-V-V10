@@ -19,6 +19,7 @@ void app(void)@"APPLICATION"
 	//WDG_CLR;delayms(3000);   WDG_CLR;     
       //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);
 		
+	SaveLOG(LOG_RESET,1);
     while(1)
     { 
         WDG_CLR;
@@ -78,7 +79,7 @@ void app(void)@"APPLICATION"
         CalcuRmtMeas();//有效值计算，并更新对应的遥测值
         ScanDin();
 	 YCthCross();//遥测越限判断	
-        
+     ProtLogic();   
 	if(newsms_8pluse == ON)
 		{	
 		newsms_8pluse = OFF;
@@ -124,6 +125,7 @@ void app(void)@"APPLICATION"
         	g_gSaveload=0;
 		SaveLoad();	
         	}
+		SaveFlashLOG();
         if(g_sRecData.m_EraseBlock == ON)
         	{
         	g_sRecData.m_EraseBlock = OFF;

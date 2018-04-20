@@ -221,6 +221,7 @@ void ScanDin(void)
     if((Powerdown_counter == 0)&&(power_off_flag==1))    /////////信号源掉电恢复	
     {
        power_off_flag=0;
+	   SaveLOG(LOG_POW_ONF, 0);
        g_gRmtInfo[YX_EFS_OFF] = 0;
        for(i=0;i<6;i++)
            g_sSoeData.m_gPowerONBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
@@ -234,6 +235,7 @@ void ScanDin(void)
         power_off_flag=1;	  
         power_ctl_flag=5;              ///////断电遥控标志   延时5秒钟
         save_power_off=0x55; 
+		SaveLOG(LOG_POW_ONF, 1);
         g_gRmtInfo[YX_EFS_OFF] = 1;
         //KB1_ON; //KB1改为投切灯           ///新电路板 	 
         //CreatNewSMS(POWER_OFF);                      //产生掉电短信//张弢
@@ -359,12 +361,16 @@ void ScanDinYX(void)
 			{
 			g_gI0OverTimer=100;
 			g_gRmtInfo[YX_I0_TIMEOVER]=1;
+			SaveLOG(LOG_I0T_ERR, 1);
 			}
 		}
 	else
 		{
 		if(g_gI0OverTimer==0)
+			{
 			g_gRmtInfo[YX_I0_TIMEOVER]=0;
+			SaveLOG(LOG_I0T_ERR, 0);
+			}
 		else
 			g_gI0OverTimer--;
 		}
@@ -381,7 +387,7 @@ void ScanDinYX(void)
             g_gExtDinYesTimer[0] = g_gRunPara[YX_delay];
             g_gExtDinStat[1] |= 1;
             //ucTemp[0] = 1;
-	     g_gRmtInfo[YX_KJA]=1;
+	     g_gRmtInfo[YX_KJA]=0;
         }
     }
     else
@@ -405,7 +411,7 @@ void ScanDinYX(void)
             g_gExtDinYesTimer[1] = g_gRunPara[YX_delay];
             g_gExtDinStat[1] |= 0x02;
             //ucTemp[1] = 1;
-            g_gRmtInfo[YX_KJB]=1;
+            g_gRmtInfo[YX_KJB]=0;
         }
     }
     else
@@ -430,7 +436,7 @@ void ScanDinYX(void)
             g_gExtDinYesTimer[2] = g_gRunPara[YX_delay];
             g_gExtDinStat[1] |= 1;
             //ucTemp[0] = 1;
-	     g_gRmtInfo[YX_KJC]=1;
+	     g_gRmtInfo[YX_KJC]=0;
         }
     }
     else
@@ -1000,6 +1006,7 @@ void ScanSoftLacth(void)
     				latch_upload_flag=0x55;      	
     				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    				SaveLOG(LOG_LATCH, 1);
     				chongfa=0;	moniguzhang=0;
     				g_gRmtMeas[RM_ACT_NUM] = 0;
 				g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0	
@@ -1013,18 +1020,6 @@ void ScanSoftLacth(void)
 		ptoff_timeout = 500;
 		}
 	}
-	/*
-	if((g_gRmtInfo[YX_PHASEA_OFF] == 0)
-		||(g_gRmtInfo[YX_PHASEB_OFF] == 0)
-		||(g_gRmtInfo[YX_PHASEC_OFF] == 0))
-		{
-		if(soft_latch ==1)
-			{
-			g_gRmtInfo[YX_EFS_LATCH] = 0;   //置闭锁遥信位 
-			soft_latch =0;
-			}
-		}
-	*/
 	unsigned char ka,kb,kc;
 	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
 		{//0=nc
@@ -1055,6 +1050,8 @@ void ScanSoftLacth(void)
     				latch_upload_flag=0x55;      	
     				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    				SaveLOG(LOG_LATCH, 1);
+					SaveLOG(LOG_KM_ERR, 1);
     				chongfa=0;	moniguzhang=0;
     				g_gRmtMeas[RM_ACT_NUM] = 0;
 				g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0	
@@ -1066,6 +1063,7 @@ void ScanSoftLacth(void)
 	else
 		{
 		km_timeout = g_gRunPara[RP_KM_TIME];
+		SaveLOG(LOG_KM_ERR, 0);
 		}
 	}
 
@@ -1086,6 +1084,8 @@ void ScanSoftLacth(void)
     				latch_upload_flag=0x55;      	
     				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    				SaveLOG(LOG_LATCH, 1);
+					SaveLOG(LOG_I0_ERR, 1);
     				chongfa=0;	moniguzhang=0;
     				g_gRmtMeas[RM_ACT_NUM] = 0;
 				g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0	
@@ -1103,6 +1103,7 @@ void ScanSoftLacth(void)
 		i0_timeout = g_gProcCnt[PC_OVERLOAD_T];//(g_gRunPara[RP_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK])/3;
 		if(i0_timeout==0)i0_timeout=1;
 		if(i0_timeout>g_gRunPara[RP_PLUSE_TIME])i0_timeout=1;
+		SaveLOG(LOG_I0_ERR, 0);
 		}
 	}
 }

@@ -320,55 +320,42 @@ void InitDataProc(void)
           temp[FLOAD_CS] = 0;
           CAT_SpiWriteWords(EEPADD_LOADNUM, FLOADINFONUM, temp);
       }
-	//g_gSaveload=0;  
-/*  	
-    temp[0]=g_sRecData.m_gRecANum;//录波总条数1~32
-    temp[1]=g_sRecData.m_gRecCNum;//录波当前位置0~31
-    temp[2]=g_sRecData.m_gRecANum;//录波总条数1~32
-    temp[3]=g_sRecData.m_gRecCNum;//录波当前位置0~31
-    CAT_SpiReadWords(EEPADD_REC_NUM, 8, temp); 
-    if((temp[0]!=temp[2])||(temp[1]!=temp[3])||(temp[0]>MAX_REC_NUM)||(temp[1]>MAX_REC_NUM))
-    {
-      g_sRecData.m_gRecANum=0;
-      g_sRecData.m_gRecCNum=0;
-      g_sRecData.m_gActRecANum=0;
-      g_sRecData.m_gActRecCNum=0;	  
-      //张弢 录波 需要重写文件目录
-    }
-    else
-    {
-      g_sRecData.m_gRecANum=temp[0];//录波总条数1~32
-      g_sRecData.m_gRecCNum=temp[1];//录波当前位置0~31
-      g_sRecData.m_gActRecCNum=temp[4];//录波当前位置0~31  
-      g_sRecData.m_gActRecANum=temp[6];//录波当前位置0~31       
-    }
-//提前擦除下一个使用的扇区  
-    ulAddr = (unsigned long)(0x10+g_sRecData.m_gRecCNum)<<16;//flash地址  
-    Block_Erase(ulAddr);//ERASE 1个BLOCK    
-    delayms(100);
-  ulAddr = (unsigned long)(0x30+g_sRecData.m_gActRecCNum*5)<<16;//flash地址  
-  Block_Erase(ulAddr);//ERASE 1个BLOCK 
-  delayms(100);WatchDog();
-  Block_Erase(ulAddr+0x10000);//ERASE 1个BLOCK 
-  delayms(100);WatchDog();
-  Block_Erase(ulAddr+0x20000);//ERASE 1个BLOCK 
-  delayms(100);WatchDog();
-  Block_Erase(ulAddr+0x30000);//ERASE 1个BLOCK 
-  delayms(100);WatchDog();
-  Block_Erase(ulAddr+0x40000);//ERASE 1个BLOCK  
-  delayms(100);WatchDog();
-    g_sRecData.m_gActRecAdr = (unsigned long)(0x30+g_sRecData.m_gActRecCNum*5)<<16;//flash地址
-*/    
-   /* g_sRecData.m_I0RmtNum = 0;
-    g_sRecData.m_FirstACTFlag = 0;
-    g_sRecData.m_FinishACTFlag = 0;
-   // for(i = 0; i < 20; i++)
-    g_sRecData.m_MaichongNum = 0;*/
-       // g_sRecData.m_CurWritePage = FADDR_REC_START;  //当前录波数据写入的页地址
-       // g_sRecData.m_gRecNum = 0;           //总共发生的录波次数
-    
-    //g_sProtLogic.m_ucActStartFlag = OFF;
-    //g_sProtLogic.m_ucActStartRec = OFF;
+	//g_gSaveload=0;
+//LOG记录初始化
+	  CAT_SpiReadWords(EEPADD_LOGP , FLOGINFONUM, temp);
+	  if((temp[FLOG_CS] != temp[FLOG_TOTALNUM] + temp[FLOG_NEW] + temp[FLOG_OLD])
+	  	|| temp[FLOG_TOTALNUM] > FLASH_LOG_MAXNUM || temp[FLOG_NEW] > 0X9000|| temp[FLOG_OLD] > 0X9000
+	  	|| ((temp[FLOG_OLD]&0x0fff)!=0))//如果FLASH地址不在负荷记录保存区域内
+      	{
+      	CAT_SpiReadWords(EEPADDBK_LOGP , FLOGINFONUM, temp);
+		if((temp[FLOG_CS] != temp[FLOG_TOTALNUM] + temp[FLOG_NEW] + temp[FLOG_OLD])
+	  		|| temp[FLOG_TOTALNUM] > FLASH_LOG_MAXNUM || temp[FLOG_NEW] > 0X9000|| temp[FLOG_OLD] > 0X9000
+	  		|| ((temp[FLOG_OLD]&0x0fff)!=0))//如果FLASH地址不在负荷记录保存区域内
+			{
+			temp[FLOG_TOTALNUM]=0;
+			temp[FLOG_NEW]=0;
+			temp[FLOG_OLD]=0;temp[FLOG_CS]=0;
+			log_recorded.log_Flash_count=temp[FLOG_TOTALNUM];
+			log_recorded.log_FlashNewPtr=temp[FLOG_NEW]+FADDR_LOG_START;
+			log_recorded.log_FlashPtr=temp[FLOG_OLD]+FADDR_LOG_START;		
+    		CAT_SpiWriteWords(EEPADD_LOGP , FLOGINFONUM, temp);		
+			CAT_SpiWriteWords(EEPADDBK_LOGP, FLOGINFONUM,temp);
+			Sector_Erase(log_recorded.log_FlashNewPtr);
+	  		}
+		else
+			{
+			log_recorded.log_Flash_count=temp[FLOG_TOTALNUM];
+			log_recorded.log_FlashNewPtr=temp[FLOG_NEW]+FADDR_LOG_START;
+			log_recorded.log_FlashPtr=temp[FLOG_OLD]+FADDR_LOG_START;		
+    		CAT_SpiWriteWords(EEPADD_LOGP , FLOGINFONUM, temp);				
+			}
+	  	}
+	  else
+	  	{
+	  	log_recorded.log_Flash_count=temp[FLOG_TOTALNUM];
+		log_recorded.log_FlashNewPtr=temp[FLOG_NEW]+FADDR_LOG_START;
+		log_recorded.log_FlashPtr=temp[FLOG_OLD]+FADDR_LOG_START;
+	  	}
 
     for(i = 0; i < AC_AD_CHAN_NUM; i++)     //由于刚开机的时候，交流采集缓冲区的数据没有填满，需要清空该缓冲区，以免均方根累加值不正确
     {
@@ -544,7 +531,7 @@ void CalcuRmtMeas(void)
     unsigned int TempRm = 0;
 
     unsigned long tDft,a,b,c;
-    unsigned int unTemp[3];
+    //unsigned int unTemp[3];
     if(g_unRmCaluFlag == OFF)   //如果遥测运算标志仍然为OFF，则说明1.25ms的AD中断没有进去过，g_gProcMeas没有更新，不需要运算
     {
         return;
@@ -553,7 +540,7 @@ void CalcuRmtMeas(void)
     {
         g_unRmCaluFlag = OFF;
     }
-    ProtLogic();
+    //ProtLogic();
     //ProtStart();	
 	
     for(i = 0; i < 6/*RMT_MEAS_NUM -1*/ ; i++)//添加了UAB,UBC,UCA三线电压，i的上限=PM_UCA
@@ -614,19 +601,38 @@ void CalcuRmtMeas(void)
     {
         g_unFilterIndex = 0;
     }
+}
+
+	//==============================================================================
+	//	函数名称   : ScanPT
+	//	功能描述   : 扫描PT断线遥信
+	//	输入参数   : <无>
+	//	输出参数   : <无>
+	//	返回值	  : <无>
+	//	其他说明   : 100ms执行一次，500ms确认
+	//	作者		 : 张弢
+	//==============================================================================
+void ScanPT(void)
+{ 
+  unsigned int unTemp[3];
+  
     if(g_gRmtMeas[RM_U0] >= g_gProcCntJug[PC_HIGH_Z])  //零序过压
         {
         g_gVErrTimer[0]++;
 	if(g_gVErrTimer[0]>5)
 		{
         	g_gRmtInfo[YX_U0_HIGH]=1;
+			SaveLOG(LOG_UPT_ERR,1);
 		 g_gVErrTimer[0]=5;
 		}
     	  }
     else
     	{    	
 	if(g_gVErrTimer[0]==0)
-      		g_gRmtInfo[YX_U0_HIGH]=0; 
+      		{
+      		g_gRmtInfo[YX_U0_HIGH]=0;
+			SaveLOG(LOG_UPT_ERR,0);
+			}
 	else
 		g_gVErrTimer[0]--;
     	}
@@ -644,13 +650,17 @@ void CalcuRmtMeas(void)
 	if(g_gVErrTimer[2]>5)
 		{
         	g_gRmtInfo[YX_U_HIGH]=1;
+			SaveLOG(LOG_UPT_ERR,1);
 		g_gVErrTimer[2]=5;
 		}
     	}
     else
     	{
     	if(g_gVErrTimer[2]==0)
+        	{
         	g_gRmtInfo[YX_U_HIGH]=0;
+			SaveLOG(LOG_UPT_ERR,0);
+    		}
 	else
 		g_gVErrTimer[2]--;
 	}
@@ -662,13 +672,17 @@ void CalcuRmtMeas(void)
     	if(g_gVErrTimer[3]>5)
     		{
        	 g_gRmtInfo[YX_U_LOW] =1 ;
+		 SaveLOG(LOG_UPT_ERR,1);
 		 g_gVErrTimer[3]=5;
     		}
     	}
     else
     	{
     	if(g_gVErrTimer[3]==0)
+        	{
         	g_gRmtInfo[YX_U_LOW] =0 ;
+			SaveLOG(LOG_UPT_ERR,0);
+    		}
 	else
 		g_gVErrTimer[3]--;
         }
@@ -1844,6 +1858,22 @@ void DelALLSOE(void)
 		untemp[3]=EEPADD_SOESTARTADR;//(unsigned int)(g_unSSoeSaveFlashPtr>>16);		
 		CAT_SpiWriteWords(EEPADD_SOESEND_E2ROMADR,4, untemp);
 }
+void DelALLLOG(void)
+{
+		unsigned int temp[4];
+		temp[FLOG_TOTALNUM]=0;
+		temp[FLOG_NEW]=0;
+		temp[FLOG_OLD]=0;
+		temp[FLOG_CS]=0;
+		log_recorded.log_MemNewPtr=0;
+		log_recorded.log_MemPtr=0;
+		log_recorded.log_Flash_count=temp[FLOG_TOTALNUM];
+		log_recorded.log_FlashNewPtr=temp[FLOG_NEW]+FADDR_LOG_START;
+		log_recorded.log_FlashPtr=temp[FLOG_OLD]+FADDR_LOG_START;		
+    	CAT_SpiWriteWords(EEPADD_LOGP , FLOGINFONUM, temp);		
+		CAT_SpiWriteWords(EEPADDBK_LOGP, FLOGINFONUM,temp);
+		Sector_Erase(log_recorded.log_FlashNewPtr);
+}
 //==============================================================================
 //  函数名称   : CheckRECPara
 //  功能描述   : 从EEPROM中读取录波条数及录波所在当前页
@@ -2570,5 +2600,153 @@ void SaveLoad(void)
     FLoadInfo[FLOAD_CS] = FLoadInfo[FLOAD_NEW] + FLoadInfo[FLOAD_OLD] + FLoadInfo[FLOAD_TOTALNUM];
     //在EEPROM中记录最新一条负荷记录的位置
     CAT_SpiWriteWords(EEPADD_LOADNUM, FLOADINFONUM, FLoadInfo);
+}
+//==============================================================================
+//  函数名称   : SaveLOG
+//  功能描述   : 将LOG数据存入内存中的sLOG_DATA g_sLogData[MAX_LOG_NUM] 存入FLASH
+//  输入参数   : <无>
+//  输出参数   : <无>
+//  返回值     : <无>
+//  其他说明   : 
+//  作者       : ZT
+//==============================================================================
+void SaveLOG(char   logtype,char logvalue )
+{
+	unsigned long temp;
+	if(logtype>31)
+		return;
+	temp=0;
+	temp = (unsigned long)(1<<logtype);
+	if(temp>0xffff)
+		{
+		temp = 0;
+		}
+	if(logvalue==1)
+		log_recorded.log_status |= temp;
+	else if(logvalue==0)
+		log_recorded.log_status &=(~temp);
+
+	if(log_recorded.log_status>0xffff)
+		{
+		temp = 0;
+		}
+	return;
+}
+void ScanLOG()
+{
+	char i,olds,news;
+	unsigned long temp;
+	if(log_recorded.log_Mem_Flag != 0)
+		return;
+	
+	for(i=0;i<32;i++)
+		{
+		olds = (log_recorded.log_status_bk>>i)&0x01;
+		news = (log_recorded.log_status>>i)&0x01;
+		if(olds!=news)
+			SaveMEMLOG(i,news);
+		}
+	temp = (long)(1<<LOG_RESET)|(1<<LOG_101_LINK)|(1<<LOG_PAR_CHAG);
+	temp = ~temp;
+	log_recorded.log_status &= temp;
+	log_recorded.log_status_bk=log_recorded.log_status;
+}
+
+void SaveMEMLOG(char   logtype,char logvalue )
+{
+    char i;	
+	
+	g_sLogData[log_recorded.log_MemNewPtr].m_gLogType=logtype;
+	g_sLogData[log_recorded.log_MemNewPtr].m_gLogValu=logvalue;
+	for(i=0;i<6;i++)
+    	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[i] = g_sRtcManager.m_gRealTimer[i];
+   	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
+	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[6] = LOBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
+	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[7] = HIBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
+	if(((logtype==LOG_8FULS_STA)&&(logvalue==0))||(logtype==LOG_BREAK))
+		{
+		for(i=0;i<8;i++)
+			g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[i]=yc[i];
+		}
+	else
+		{
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[RM_U0] =g_gRmtMeas[RM_U0];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[RM_UA] =g_gRmtMeas[RM_UA];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[RM_UB] =g_gRmtMeas[RM_UB];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[RM_UC] =g_gRmtMeas[RM_UC];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[4] =g_gRmtMeas[RM_UPt];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[5] =g_gRmtMeas[RM_UCAP];
+		g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[6] =g_gRmtMeas[RM_CSQ];
+		}
+	log_recorded.log_MemNewPtr++;
+	if(log_recorded.log_MemNewPtr >= MAX_LOG_NUM)
+		log_recorded.log_MemNewPtr = 0;
+	return;
+}
+
+//==============================================================================
+//  函数名称   : SaveFlashLOG
+//  功能描述   : 将内存中的sLOG_DATA g_sLogData[MAX_LOG_NUM] 存入FLASH
+//  输入参数   : <无>
+//  输出参数   : <无>
+//  返回值     : <无>
+//  其他说明   : 存入地址 FADDR_LOG_DATA      0x720000-0x729000;32字节 1152条；LOG_RECORDER log_recorded
+//  作者       : ZT
+//==============================================================================
+
+void SaveFlashLOG(void)
+{
+    unsigned char saveflag=0;
+	long fLoadAddr;
+    //unsigned char LoadDataPtr=0;
+    //unsigned long FLoadAddr;
+    unsigned int FLogInfo[FLOGINFONUM];      //从EEPROM中读取出来的FLASH中保存负荷记录的相关信息，总条数+即将存储记录的位置+最老一条记录的位置+校验
+	
+	if(log_recorded.log_MemNewPtr==log_recorded.log_MemPtr)
+		{
+		log_recorded.log_Mem_Flag=0;
+		return;
+		}
+	log_recorded.log_Mem_Flag=0x55;
+	do
+	{	
+	fLoadAddr = log_recorded.log_FlashNewPtr;	
+	Sst26vf064b_Page_WriteBytes(fLoadAddr,(unsigned char*)&g_sLogData[log_recorded.log_MemPtr],32);
+	
+	log_recorded.log_FlashNewPtr += 32;	
+	if(log_recorded.log_FlashNewPtr >= FADDR_LOG_END)
+		log_recorded.log_FlashNewPtr = FADDR_LOG_START;	
+	if((log_recorded.log_FlashNewPtr & 0x0fff)==0)		
+		Sector_Erase(log_recorded.log_FlashNewPtr);
+	
+	log_recorded.log_FlashPtr &= 0xfffff000;
+	if(log_recorded.log_FlashNewPtr == log_recorded.log_FlashPtr)
+		log_recorded.log_FlashPtr += 0x1000;
+	if(log_recorded.log_FlashPtr>=FADDR_LOG_END)
+		log_recorded.log_FlashPtr = FADDR_LOG_START;		
+	if(log_recorded.log_FlashNewPtr >= FADDR_LOG_END)		
+		log_recorded.log_FlashNewPtr =FADDR_LOG_START;
+	
+	log_recorded.log_MemPtr++;
+	if(log_recorded.log_MemPtr>=MAX_LOG_NUM)	
+		log_recorded.log_MemPtr=0;
+	log_recorded.log_Flash_count++;
+	if(log_recorded.log_Flash_count>=1152)
+		log_recorded.log_Flash_count=1024;
+	saveflag=0x55;
+	}
+	while(log_recorded.log_MemNewPtr!=log_recorded.log_MemPtr);
+			
+	if(saveflag == 0x55)
+		{
+		FLogInfo[FLOG_TOTALNUM]=log_recorded.log_Flash_count;
+		FLogInfo[FLOG_NEW]=log_recorded.log_FlashNewPtr;
+		FLogInfo[FLOG_OLD]=log_recorded.log_FlashPtr;
+		FLogInfo[FLOG_CS]=FLogInfo[FLOG_TOTALNUM]+FLogInfo[FLOG_NEW]+FLogInfo[FLOG_OLD];
+    	CAT_SpiWriteWords(EEPADD_LOGP , FLOGINFONUM, FLogInfo);		
+		CAT_SpiWriteWords(EEPADDBK_LOGP, FLOGINFONUM,FLogInfo);
+		}
+	log_recorded.log_Mem_Flag=0;
+	return;
 }
 
