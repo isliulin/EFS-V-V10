@@ -1743,7 +1743,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
 	  if(tt[7]&BIT4)datBuff[7]|=0xf0;
 	  if(tt[4]&BIT0)datBuff[9]|=0xf0;
 	  datBuff[11]=0;
-	  datBuff[10]=tt[0]&BIT0+(tt[1]&BIT0)*2+(tt[2]&BIT0)*4;
+	  datBuff[10]=tt[0]&BIT0+(tt[1]&BIT0)*2+(tt[2]&BIT0)*4+(tt[3]&BIT0)*8;
 /*
           unsigned int dka;//,dkd;
 	   dka = MAKEWORD(datBuff[8],datBuff[9]);

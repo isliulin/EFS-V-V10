@@ -1907,7 +1907,7 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
   	m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = Directory_ID >>24;
   	pTxPos1 = &m_SendBuf.pBuf[m_SendBuf.wWritePtr];//后续标志
   	m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =1; //1=有后续标志
-  	m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =(m_SendListNum+1)*2; //文件数量
+  	m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] =2;//(m_SendListNum+1)*2; //文件数量
   	mRecorder_flag.LIST_flag = OFF;
   	CAT_SpiReadWords(EEPADD_LUBONUM, 1, (unsigned int*)&wave_total);
   	if(g_gRunPara[RP_LBSTORAGE_TIME] >0)
@@ -2027,8 +2027,9 @@ void CBJ101S::lubo_directory_confirm(WORD InfoAddr,DWORD Directory_ID,BYTE call_
 			m_SendListNum++;bR_FileNum++;
 			if(m_SendListNum >= (g_sRecData.m_gRecANum+g_sRecData.m_gACTRecANum+g_sRecData.m_gXHRecANum))
 				*pTxPos1 = 0;//0=无后续标志
-	  		SendFrameTail(PRM, dwCode, 0x01,0);
-			mRecorder_flag.LIST_flag = ON; 
+			else
+				mRecorder_flag.LIST_flag = ON;	
+	  		SendFrameTail(PRM, dwCode, 0x01,0);		 
 			
 	  		return;
   	  		}

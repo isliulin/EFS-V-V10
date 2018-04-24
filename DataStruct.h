@@ -710,7 +710,7 @@ extern unsigned int g_test;
         unsigned int g_gExtDinYesTimer[3];	//外部DIN输入确认时间计时
 	unsigned int g_gExtDinNoTimer[3];		//外部DIN输入清除时间计时
 	unsigned char g_gPhasErrTimer[3];	      //开关位置错误确认时间计时
-	unsigned char g_gI0OverTimer;		//I0超时确认时间计时
+	unsigned int g_gI0OverTimer;		//I0超时确认时间计时
 	//unsigned char g_gExtDinNoTimer[3];		//外部DIN输入清除时间计时
         //unsigned int g_gDinRtcLock[2][RTC_NUM];
 	

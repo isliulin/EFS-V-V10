@@ -378,7 +378,7 @@ void InitDataProc(void)
     soe_area = 0;
     //soe_num = 0;
     g_gWeekNum = 0;
-
+	log_recorded.log_status_bk=0;log_recorded.log_status=0;
 }
 //==============================================================================
 //  º¯ÊýÃû³Æ   : ComputeMax
@@ -2616,11 +2616,11 @@ void SaveLOG(char   logtype,char logvalue )
 	if(logtype>31)
 		return;
 	temp=0;
-	temp = (unsigned long)(1<<logtype);
-	if(temp>0xffff)
-		{
-		temp = 0;
-		}
+	if(logtype>=16)
+		temp = (((DWORD)((WORD)(1<<(logtype-16))))<< 16);
+	else
+		temp = ((DWORD)((WORD)(1<<logtype)));
+
 	if(logvalue==1)
 		log_recorded.log_status |= temp;
 	else if(logvalue==0)
@@ -2663,7 +2663,7 @@ void SaveMEMLOG(char   logtype,char logvalue )
    	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
 	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[6] = LOBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
 	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[7] = HIBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
-	if(((logtype==LOG_8FULS_STA)&&(logvalue==0))||(logtype==LOG_BREAK))
+	if(((logtype==LOG_8FULS_STA)&&(logvalue==1))||(logtype==LOG_BREAK))
 		{
 		for(i=0;i<8;i++)
 			g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[i]=yc[i];
