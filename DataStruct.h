@@ -142,6 +142,7 @@ struct sSAMPLE_DATA
     unsigned char g_gKON;//继电器状态
     unsigned char g_gKONBK;//继电器状态
     unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，
+    unsigned int g_gRmtFilMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，
     unsigned char g_gVErrTimer[10];	      //电压超过阈值确认时间计时	       
     unsigned int g_gRmtMeasPJ[3][32];
     unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM*/]; //备份遥测量
@@ -242,6 +243,7 @@ extern unsigned int g_test;
     extern unsigned char g_gKON;//继电器状态
     extern unsigned char g_gKONBK;//继电器状态
     extern unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，保存需要上传到后台的遥测数据  
+    extern unsigned int g_gRmtFilMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，保存需要上传到后台的遥测数据
     extern unsigned int g_gRmtMeasPJ[3][32];
     extern unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM */]; //备份遥测量
     extern unsigned int g_gYCYueXian;//张弢 遥测越限	
@@ -557,7 +559,8 @@ extern unsigned int g_test;
         unsigned char m_bUnitRandom[8];   //终端自身随机数，用于与运维工具通信
         int g_wEncCerWPtr;                 //Cer证书记录位?
         char g_bUnitID[25];//终端ID,24字节第一个字是节长度   
-        unsigned char g_bAppType;//加密报文应用类型        
+        unsigned char g_bAppType;//加密报文应用类型         
+		char g_pDevId[30]="12345678901234567890123456789";
 #else
     extern struct  sTX_BUFF g_sTxBuff[COMM_PORT_NUM];
     extern struct  sRX_BUFF g_sRxBuff[COMM_PORT_NUM];
@@ -647,7 +650,8 @@ extern unsigned int g_test;
         extern unsigned char m_bUnitRandom[8];
         extern int g_wEncCerWPtr;   
         extern char g_bUnitID[25];//终端ID,24字节第一个字是节长度   
-        extern unsigned char g_bAppType;//加密报文应用类型 
+        extern unsigned char g_bAppType;//加密报文应用类型         
+		extern char g_pDevId[30];
 #endif
     
 //=======================DriverTimer.c--定时器驱动模块===============================================

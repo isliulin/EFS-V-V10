@@ -356,9 +356,11 @@ typedef double         FP64;            //双精度浮点数
 #define LOG_UCAP              	7 //电容报警
 #define LOG_PAR_CHAG          	8 //修改参数
 
+#define LOG_8FULS_I             11  //8脉冲电流
+
 #define LOG_UPT_ERR           	16  //相电压告警
 #define LOG_EARTH        		17 //接地告警
-#define LOG_EARTH_TDELAY        18  //接地告警
+#define LOG_EARTH_TDELAY        18  //接地告警确定
 #define LOG_8FULS_STA           19  //8脉冲开始结束
 #define LOG_I0_ERR           	20  //电流过大
 #define LOG_LATCH               21 //闭锁
@@ -366,6 +368,8 @@ typedef double         FP64;            //双精度浮点数
 #define LOG_KM_ERR              23  //开关吸合过长
 #define LOG_BREAK              	24  //接地线断线
 #define LOG_SOFT_LATCH 			25	//软闭锁
+
+
 
 
 //============================  校正参数        =======================================

@@ -250,6 +250,14 @@ void cfg_dat_length(RECORDER_CFG *pgRecorder_cfg,int file_current_num)
       		CAT_SpiWriteBytes(EEPADD_CFG+tt, strlen(CfgEnd),(unsigned char*)CfgEnd);
       		tt +=strlen(CfgEnd);
 		}
+	if(tt <330)
+        {
+        char i;
+       	for(i=0; i< 40; i++)//n < strlen(ch),
+        	{ch[i] = 0x20;}
+		CAT_SpiWriteBytes(EEPADD_CFG+tt,40,(unsigned char*)ch);
+		tt=330;
+        }
       pgRecorder_cfg->CFG_Leng=tt;
       CAT_SpiWriteWord(EEPADD_CFG-2,tt);
       //strtemp = ComtrderCfg1;
@@ -1342,7 +1350,7 @@ unsigned char *LogData(unsigned char *pTxBuf,unsigned char leng,int segment_leng
                 }
 			  
               //if((byLoadDa[0]==13)||(byLoadDa[0]==17))//8脉冲结束或者断线，显示8个电流值
-              if(((byLoadDa[0]==LOG_8FULS_STA)&&(byLoadDa[1]==1))||(byLoadDa[0]==LOG_BREAK))//8脉冲结束或者断线，显示8个电流值
+              if((byLoadDa[0]==LOG_8FULS_I)||(byLoadDa[0]==LOG_BREAK))//8脉冲结束或者断线，显示8个电流值
               	{
               	sprintf((char *)ch," I1=%d I2=%d I3=%d I4=%d I5=%d I6=%d I7=%d I8=%d\r\n",
 					   MAKEWORD(byLoadDa[10], byLoadDa[11]), MAKEWORD(byLoadDa[12], byLoadDa[13]),MAKEWORD(byLoadDa[14], byLoadDa[15]),

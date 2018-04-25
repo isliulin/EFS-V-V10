@@ -560,6 +560,7 @@ void CalcuRmtMeas(void)
            g_gRmAcFilt[RM_UC][g_unFilterIndex] = (unsigned long)table_sqrt(tDft) * COEF_AD_U>> 14;
 	 if(i == CHAN_Upt)//3
            g_gRmAcFilt[RM_UPt][g_unFilterIndex] = (unsigned long)table_sqrt(tDft) * COEF_AD_U>> 14;
+    	}
 	 a=(unsigned long)g_gRmAcFilt[RM_UA][g_unFilterIndex];
          b=(unsigned long)g_gRmAcFilt[RM_UB][g_unFilterIndex];
          c=(unsigned long)g_gRmAcFilt[RM_UC][g_unFilterIndex];
@@ -571,31 +572,20 @@ void CalcuRmtMeas(void)
 
 	  tDft=(a+c)*(a+c)-a*c;
 	 g_gRmAcFilt[RM_UCA][g_unFilterIndex]= table_sqrt(tDft);// * COEF_AD_U>> 14;
-	 //a^2=b^2+c^2-2bcCOSA
-    	}	
+
+	for(i = 0; i < 8;i++)
+    	{
+    	g_gRmtMeas[i] =g_gRmAcFilt[i][g_unFilterIndex];
+    	}
+	 	
     for(i = 0; i < 8/*RMT_MEAS_NUM-1*/ ; i++)//添加了UAB,UBC,UCA三线电压，i的上限=PM_UCA
     {
         TempRm = AverFilter(g_gRmAcFilt[i]);        //对遥测量的交流量进行滤波        
-        g_gRmtMeas[i] = TempRm;
-/*        if((i <= 3)&&(i>=1))
-        {
-            // if(g_gRmtMeas[i]> 25 && g_gRmtMeas[i]< 80)
-            //       g_gRmtMeas[i] -= 20;
-            unsigned long x;
-            if( g_gRmtMeas[i] <2700)
-            	{
-			x=(unsigned long)g_gRmtMeas[i] *1049;
-                        x=x>>10;                        
-			if (x>75)
-                        {
-                          x=x-75;
-			  g_gRmtMeas[i] =(unsigned int)x;//((g_gRmtMeas[i] *1049)>>10)-75;
-                        }
-            	}
-        }     */  
+        g_gRmtFilMeas[i] = TempRm;
     }
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
+        g_gRmtMeas[9] = g_gRmtFilMeas[9];
     g_unFilterIndex++;
     if(g_unFilterIndex == 10)
     {
@@ -1952,7 +1942,7 @@ void SaveRecData(void)
 //张弢 录波 需要写文件目录  
   temp[1]=g_sRecData.m_gRecCNum;
   gRecorder_filecfg.FileName=temp[1];//设为文件名
-  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=330;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.TOTAL_Leng=64;//gRecorder_filecfg.CFG_Leng+6400;//
   gRecorder_filecfg.CFG_Samp=4000;	//采样频率 
 #ifdef SD_101S
@@ -1960,6 +1950,7 @@ void SaveRecData(void)
 #endif
   gRecorder_filecfg.CFG_EndSamp=640;//采样个数 
   gRecorder_filecfg.TOTAL_Leng=gRecorder_filecfg.CFG_EndSamp;//gRecorder_filecfg.CFG_Leng+6400;//  
+  gRecorder_filecfg.DATA_Leng=gRecorder_filecfg.TOTAL_Leng;
   gRecorder_filecfg.comtrade_time[RTC_MICROSEC]=g_sRecData.m_gFaultRecOver[REC_MSL] ;
   gRecorder_filecfg.comtrade_time[RTC_SEC]=g_sRecData.m_gFaultRecOver[REC_MSH];
   gRecorder_filecfg.comtrade_time[RTC_MINUT]=g_sRecData.m_gFaultRecOver[REC_MINU] ;
@@ -2076,7 +2067,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	temp[1]=g_sRecData.m_gACTRecCNum;
 	gRecorder_filecfg.FileName=temp[1]+MAX_REC_NUM+1;//设为文件名
 	}  
-  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=330;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 
 #ifdef SD_101S
   gRecorder_filecfg.CFG_Samp=800;	//采样频率 
@@ -2091,6 +2082,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	}
   gRecorder_filecfg.CFG_EndSamp=(g_sRecData.m_gActRecAdr-ulAddr)/10;//采样个数 
   gRecorder_filecfg.TOTAL_Leng=gRecorder_filecfg.CFG_EndSamp;//gRecorder_filecfg.CFG_Leng+6400;//
+  gRecorder_filecfg.DATA_Leng=gRecorder_filecfg.TOTAL_Leng;
   gRecorder_filecfg.comtrade_time[RTC_MICROSEC]=g_sRecData.m_gFaultRecSOE[REC_MSL] ;
   gRecorder_filecfg.comtrade_time[RTC_SEC]=g_sRecData.m_gFaultRecSOE[REC_MSH];
   gRecorder_filecfg.comtrade_time[RTC_MINUT]=g_sRecData.m_gFaultRecSOE[REC_MINU] ;
@@ -2183,7 +2175,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	temp[1]=g_sRecData.m_gACTRecCNum;
 	gRecorder_filecfg.FileName=temp[1]+MAX_REC_NUM+1;//设为文件名
 	}  
-  gRecorder_filecfg.CFG_Leng=300;//strlen(ComtrderCfg1);//
+  gRecorder_filecfg.CFG_Leng=330;//strlen(ComtrderCfg1);//
   gRecorder_filecfg.CFG_Samp=800;	//采样频率   
   if(g_sRecData.m_LuboType == LuboType_XH)
   	{
@@ -2646,7 +2638,7 @@ void ScanLOG()
 		if(olds!=news)
 			SaveMEMLOG(i,news);
 		}
-	temp = (long)(1<<LOG_RESET)|(1<<LOG_101_LINK)|(1<<LOG_PAR_CHAG);
+	temp = (long)(1<<LOG_RESET)|(1<<LOG_101_LINK)|(1<<LOG_PAR_CHAG)|(1<<LOG_8FULS_I);
 	temp = ~temp;
 	log_recorded.log_status &= temp;
 	log_recorded.log_status_bk=log_recorded.log_status;
@@ -2663,7 +2655,7 @@ void SaveMEMLOG(char   logtype,char logvalue )
    	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
 	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[6] = LOBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
 	g_sLogData[log_recorded.log_MemNewPtr].m_gLogTimer[7] = HIBYTE(g_sRtcManager.m_gRealTimer[RTC_MICROSEC]);
-	if(((logtype==LOG_8FULS_STA)&&(logvalue==1))||(logtype==LOG_BREAK))
+	if((logtype==LOG_8FULS_I)||(logtype==LOG_BREAK))
 		{
 		for(i=0;i<8;i++)
 			g_sLogData[log_recorded.log_MemNewPtr].m_gRmtMeas[i]=yc[i];
