@@ -127,6 +127,7 @@ void ProtStart(void)
       }     
         
     }
+	/*
     if((P3IN&BIT7)==0x00)    //检测到信号源掉电
     {
         g_gYXConformTime[0]++;
@@ -141,7 +142,7 @@ void ProtStart(void)
         if(g_gYXConformTime[0] == 0)
             g_ucPowerOffFlg = 0;
             
-    }
+    }*/
     if(fault_time>0)                           /////////用于故障恢复
     {  
         if((g_gProcCnt[PC_JAG_Z]==0x55)&&(g_gProcCnt[PC_JAG_P]==0))  /////////用于故障恢复zero sequence in effective

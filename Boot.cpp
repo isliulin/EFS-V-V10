@@ -29,7 +29,7 @@
 //#define UPCOUNT         0x45BF0//更新计数地址超过限制不在远程升级
 //0x45BF0内部flash中的数据保存错误更新的计数，每次更新完成，或者jtag连接时的擦除，会对其进行擦除操作
 //#define WTD_TOG (P5OUT ^= BIT3)//看门狗信号
-#define WTD_TOG (P5OUT ^= BIT3);// p7.5 看门狗 
+#define WTD_TOG (P6OUT ^= BIT0);// p6.0 看门狗 
 #define LEDDELAY 20000//led灯闪烁延时
 
 void UPdelay(unsigned int unDelayNum);
@@ -717,8 +717,8 @@ void UPUCB0SPIInit(void)@"UPDATECODE"
 }
 
 
-#define UPSELECT_CHIP      P8OUT &= ~BIT1
-#define UPUNSELECT_CHIP    P8OUT |= BIT1
+#define UPSELECT_CHIP      P8OUT &= ~BIT6
+#define UPUNSELECT_CHIP    P8OUT |= BIT6
 #define UPSST_READ		   (0x03)
 #define UPSST_WRITE		   (0x02)
 #define UPSTATUS_REGISTER            (0x05)
@@ -1014,38 +1014,44 @@ void UpInitClk(void)@"UPDATECODE"
 }
 void UPPortInit(void)@"UPDATECODE"
 {
-    P1SEL = 0x00;
-    P2SEL = 0x00;
-    P3SEL |= 0x3e;        //P3.1-2 SPI0引脚，P3.4-5 串口0引脚
+ P1SEL = 0x00;		// P1.5-7 时钟芯片IIC SCLK/DATA/CE
+    P2SEL = 0x00;		//P2.0 运行灯RUN; P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
+    P3SEL |= 0x3e;        //P3.1-3 SPI0引脚，P3.4-5 串口0引脚
 
     P4SEL = 0x00;        
     P5SEL |= 0xc7;        //P5.0-1 Vref+,-   P5.2 x2clkIN   P5.6-7 串口1
-    P6SEL |= 0xf0;        //AD输入4-7 Ua/Ub/Uc/U0
+    P6SEL |= 0xf0;        //P6.0 WDG_CLR; AD输入4-7 Ua/Ub/Uc/U0
 
     P7SEL |= 0x70;        //  P7.4 P7.5 P7.6AD输入I0
     P8SEL = 0x00;
-    P9SEL |= 0x3e;        //P9.1-3 SPI2  4-5串口2 
+    P9SEL |= 0x3e;        //P9.0 EEPROM_WP; P9.1-3 SPI2  4-5串口2 ;P9.6-7 DIN4-5
 
-    P10SEL |= 0x30;       //P10.4-5 串口3引脚
+    P10SEL |= 0x30;       //P10.0 DIN6; P10.1-3 DIN1-3; P10.4-5 串口3引脚
     P11SEL = 0x00;
     
-    P1DIR = 0x00;         //
-    P2DIR |= 0xf0;        //P2.1=DIN4;P2.2=DIN5;P2.3=DIN6;P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
-    P3DIR |= 0x19;        //P3.4 TXD0,P3.3 SPI0 CLK, P3.0 ESAM CS, P3.7=KJa1=DIN1
-
-    P4DIR |= 0xfc;        // P4.0=KJB1=DIN2;P4.1=KJC1=DIN3;P4.2=Ka0=JA;P4.3=Kb0=JB;
-    					// P4.4=Kc0=JC;P4.5=Ka1;P4.6=Kb1;P4.7=Kc1;
+    P1DIR = 0xe0;         //P1.5-7 时钟芯片IIC SCLK/DATA/CE
+    P1OUT = 0;
+    P2DIR |= 0xe1;        //P2.0 运行灯RUN; P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
+    P3DIR |= 0x1b;        //P3.4-5 TXD0,RXD0; P3.3 SPI0 CLK; P3.1 SIMO; P3.0 ESAM CS; 
+	P30UT = 0x01;
+    P4DIR |= 0x80;        //P4.7 WIFI RESET;     					
     P4OUT = 0;
-    P5DIR |= 0x69;        //P5.0 输出VREF+ P5.2晶振输入 P5.3 WDG_CLR ;P5.4 R1-3输入; P5.5 KMP输出 P5.6 TXD1
-    P6DIR = 0x0f;         //AD输入4-7  P6.0 运行灯RUN P6.1-3 时钟芯片IIC SCLK/DATA/CE
+    P5DIR |= 0x49;        //P5.0 输出VREF+ P5.2晶振输入  ; P5.6 TXD1; P5.7 RXD1
 
-    P7DIR |= 0x0d;        //P7.2 Ka0, P7.3 Kb0
+	P6DIR = 0x01;         //P6.0 WDG_CLR; AD输入4-7 
+    P6OUT = 0;
+
+    P7DIR |= 0x0e;        //P7.2 Ka0, P7.3 Kb0
     P7OUT = 0;
 
-    P8DIR = 0x83;   //P8.0 Kc0  P8.7 EEPROM_WP    P8.1FlashCS0
-    P8OUT = 0;
+    P8DIR = 0xfd;   	//P8.0 Kc0; P8.1 PEin; P8.2 PV; P8.3-5 Ka1Kb1Kc1; P8.6 flash CS0; P8.7 e2prom SCS
+    P8OUT = 0xc0;
         
-    P9DIR |= 0x59;        //P9.0 SCS P9.3 CLK , P9.4 TXD2,P9.6 WIFI RESET
+    P9DIR |= 0x1b;        //P9.0 EEPROM_WP; P9.1-3 MOSI,MISO,CLK , P9.4-5 TXD2,RXD2;P9.6-7 DIN4-5
+    P9OUT = 0x01;
+
+	P10DIR |= 0x10;		//P10.0 DIN6; P10.1-3 DIN1-3; P10.4-5 TXD3,RXD3串口3引脚
+	P10OUT = 0;
   }
 
 

@@ -917,7 +917,8 @@ void SMS_CENTER(unsigned char ucSMSType)
            else
                g_unGPRSTX_Buff[40 + g_unGPRSTX_Buff[10]]=0;
        
-           if((P2IN&BIT4)==0)                 /////////信号源掉电检测	
+           //if((P2IN&BIT4)==0)                 /////////信号源掉电检测	
+           if(g_gRmtInfo[YX_EFS_OFF]==1)
                g_unGPRSTX_Buff[41 + g_unGPRSTX_Buff[10]]=0x55;
            else
        	       g_unGPRSTX_Buff[41 + g_unGPRSTX_Buff[10]]=0;	         	 

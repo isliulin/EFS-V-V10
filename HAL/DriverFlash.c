@@ -23,8 +23,8 @@
 #define EWSR			   (0x50)
 #define WRSR			   (0x01)
 
-#define UNSELECT_CHIP    P8OUT |= BIT1
-#define SELECT_CHIP      P8OUT &= ~BIT1
+#define UNSELECT_CHIP    P8OUT |= BIT6
+#define SELECT_CHIP      P8OUT &= ~BIT6
 
 
 void EraseFlash(INT32U addr)                  //Çå³ýFLASH¶Î(512BYTE)

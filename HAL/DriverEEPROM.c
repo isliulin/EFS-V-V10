@@ -23,11 +23,11 @@
 #endif
 
 
-#define CAT_UNSELECT_CHIP    P9OUT |= BIT0
-#define CAT_SELECT_CHIP      P9OUT &= ~BIT0
+#define CAT_UNSELECT_CHIP    P8OUT |= BIT7
+#define CAT_SELECT_CHIP      P8OUT &= ~BIT7
 
-#define CAT_WP               P8OUT &= ~BIT7
-#define CAT_NOWP             P8OUT |= BIT7
+#define CAT_WP               P9OUT &= ~BIT0
+#define CAT_NOWP             P9OUT |= BIT0
 
 #define  WREN   0x06      //取消写保护
 #define  WRDI   0x04      //使能写保护

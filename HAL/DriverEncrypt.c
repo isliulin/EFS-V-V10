@@ -19,8 +19,8 @@
 #define CAT_SELECT_TESAM     P3OUT &= ~BIT0  //加密芯片片选信号
 #define CAT_UNSELECT_TESAM   P3OUT |= BIT0
 
-#define TESAM_POWER_ON       P1OUT &= ~BIT6  //加密芯片电源开//P6OUT &= ~BIT4  //加密芯片电源开
-#define TESAM_POWER_OFF      P1OUT |= BIT6
+#define TESAM_POWER_ON       P2OUT &= ~BIT7  //加密芯片电源开
+#define TESAM_POWER_OFF      P2OUT |= BIT7
 #define STEP1                1
 #define STEP2                2
 #define STEP3                3

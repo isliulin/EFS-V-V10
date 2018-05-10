@@ -4863,9 +4863,9 @@ WORD CBJ101S::GetDataFromeEncChip(BYTE *pRecData)
     if(DataLen == 0)
     {
         //P6OUT |= BIT4;
-        P1OUT |= BIT6;
+        TESAM_POWER_OFF;
         delayms(500);
-        P1OUT &= ~BIT6;
+        TESAM_POWER_ON;
         //P6OUT &= ~BIT4;
         delayms(500);
     }

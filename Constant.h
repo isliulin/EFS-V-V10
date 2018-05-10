@@ -63,14 +63,14 @@
 #define NBITE                (0xBFFF)
 #define NBITF                (0x7FFF)
 
-#define KJa1                (P3IN&0x80)//a接触器开关位置信号
-#define KJb1                (P4IN&0x01)//
-#define KJc1                (P4IN&0x02)//
-#define KJ4                (P2IN&0x01)//遥信DIN4
-#define KJ5                (P2IN&0x02)//遥信DIN5
-#define KJ6                (P2IN&0x04)//遥信DIN6
+#define KJa1                (P10IN&0x02)//a接触器开关位置信号
+#define KJb1                (P10IN&0x04)//
+#define KJc1                (P10IN&0x08)//
+#define KJ4                (P9IN&0x40)//遥信DIN4 P9.6
+#define KJ5                (P9IN&0x80)//遥信DIN5 P9.7
+#define KJ6                (P10IN&0x01)//遥信DIN6 P10.0
 
-#define KMP_S           (P5IN&0x10)//P5.4接触器短路
+#define KMP_S           (P8IN&0x02)//P8.1接触器短路
 
 //===================数据类型定义============================
 typedef unsigned char  INT8U;       //无符号8位数
@@ -782,33 +782,33 @@ typedef double         FP64;            //双精度浮点数
 #define EEPADD_SOESTARTADR       0x2000 //最大偏移量
 #define EEPADD_SOEENDADR       0x4000
 //============================   GPIO对应LED定义  ===============================
-#define WDG_SET         (P5OUT |= BIT3)         //看门狗置位    同时指示运行灯闪烁
-#define WDG_CLR         (P5OUT &= NBIT3)        //看门狗清零
+#define WDG_SET         (P6OUT |= BIT0)         //看门狗置位    同时指示运行灯闪烁
+#define WDG_CLR         (P6OUT &= NBIT0)        //看门狗清零
 
-#define LED_RUN_ON      (P6OUT |= BIT0)        //LED00 运行灯 P6.0
-#define LED_RUN_OFF     (P6OUT &= NBIT0) 
-#define LED_RUN_TOGG    (P6OUT ^= BIT0)
+#define LED_RUN_ON      (P2OUT |= BIT0)        //LED00 运行灯 P2.0
+#define LED_RUN_OFF     (P2OUT &= NBIT0) 
+#define LED_RUN_TOGG    (P2OUT ^= BIT0)
 //============================   GPIO对应接触器供电  ===============================
-#define KMP_SET         (P5OUT |= BIT5)         //为接触器供电
-#define KMP_CLR         (P5OUT &= NBIT5)        //接触器断电
+#define KMP_SET         (P8OUT |= BIT2)         //为接触器供电
+#define KMP_CLR         (P8OUT &= NBIT2)        //接触器断电
 //============================   GPIO对应WiFi复位  ===============================
-#define WIFIR_SET         (P9OUT |= BIT6)         //
-#define WIFIR_CLR         (P9OUT &= NBIT6)        //WiFi模块复位
+#define WIFIR_SET         (P4OUT |= BIT7)         //
+#define WIFIR_CLR         (P4OUT &= NBIT7)        //WiFi模块复位
 
 //============================   GPIO对应DO定义  ===============================
-#define KA1_OFF     (P4OUT &= NBIT5)                        //异常状态恢复
-#define KA1_ON      (P4OUT |= BIT5)                         //异常状态报警
-#define KB1_OFF     (P4OUT &= NBIT6)                        //信号源掉电恢复
-#define KB1_ON      (P4OUT |= BIT6)                         //信号源掉电报警
-#define KC1_OFF     (P4OUT &= NBIT7)                        //没有有效8脉冲
-#define KC1_ON      (P4OUT |= BIT7)                         //发出有效8脉冲
+#define KA1_OFF     (P8OUT &= NBIT3)                        //异常状态恢复
+#define KA1_ON      (P8OUT |= BIT3)                         //异常状态报警
+#define KB1_OFF     (P8OUT &= NBIT4)                        //信号源掉电恢复
+#define KB1_ON      (P8OUT |= BIT4)                         //信号源掉电报警
+#define KC1_OFF     (P8OUT &= NBIT5)                        //没有有效8脉冲
+#define KC1_ON      (P8OUT |= BIT5)                         //发出有效8脉冲
 
-#define KA0_OFF     (P4OUT &= NBIT2)                        //A相接触器截止
-#define KA0_ON      (P4OUT |= BIT2)                         //A相接触器导通
-#define KB0_OFF     (P4OUT &= NBIT3)                        //B相接触器截止
-#define KB0_ON      (P4OUT |= BIT3)                         //B相接触器导通
-#define KC0_OFF     (P4OUT &= NBIT4)                        //C相接触器截止
-#define KC0_ON      (P4OUT |= BIT4)                         //C相接触器导通
+#define KA0_OFF     (P7OUT &= NBIT2)                        //A相接触器截止
+#define KA0_ON      (P7OUT |= BIT2)                         //A相接触器导通
+#define KB0_OFF     (P7OUT &= NBIT3)                        //B相接触器截止
+#define KB0_ON      (P7OUT |= BIT3)                         //B相接触器导通
+#define KC0_OFF     (P8OUT &= NBIT0)                        //C相接触器截止
+#define KC0_ON      (P8OUT |= BIT0)                         //C相接触器导通
 
 #define   ABN_CHECK           BIT0          //abnormal self checked
 #define   POWER_OFF           BIT1          //power down
@@ -823,11 +823,11 @@ typedef double         FP64;            //双精度浮点数
 #define NUM_10H  0x10
 #define NUM_68H  0x68
 
-#define   FEED_WATCH_DOG()            P5OUT ^= BIT3;
+#define   FEED_WATCH_DOG()            P6OUT ^= BIT0;
 
-#define   LIGHT_RUN_UP()              P6OUT |= BIT0;
-#define   LIGHT_RUN_DOWN()            P6OUT &= NBIT0;
-#define   LIGHT_RUN_FLASH()           P6OUT ^= BIT0;
+#define   LIGHT_RUN_UP()              P2OUT |= BIT0;
+#define   LIGHT_RUN_DOWN()            P2OUT &= NBIT0;
+#define   LIGHT_RUN_FLASH()           P2OUT ^= BIT0;
 
 #pragma location=0xFF00
 const unsigned char ucVerNum[]="Ver02.02";

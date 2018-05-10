@@ -5,13 +5,13 @@
   //#include "ds1302.h"
 #endif
 
-#define DS1302_DIR   P6DIR       //方向
-#define DS1302_IN    P6IN       
-#define DS1302_OUT   P6OUT
+#define DS1302_DIR   P1DIR       //方向
+#define DS1302_IN    P1IN       
+#define DS1302_OUT   P1OUT
 
-#define DS1302_RST   BIT3
-#define DS1302_SCLK  BIT1
-#define DS1302_SDI   BIT2  //定义MSP320的端口
+#define DS1302_RST   BIT7
+#define DS1302_SCLK  BIT5
+#define DS1302_SDI   BIT6  //定义MSP320的端口
 
 #define DS1302_RST_LO   DS1302_OUT &= ~DS1302_RST
 #define DS1302_RST_HI   DS1302_OUT |= DS1302_RST
