@@ -326,11 +326,14 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
           // g_gRunPara[RP_JAG_P] = 0x55;       //相判据标志
           // g_gRunPara[RP_JAG_Z] = 0x55;       //零序判据标志
         }
-	 if((g_gRunPara[RP_T_DELAY]/10-200)<=g_gRunPara[RP_RHSEND_TIME1])
+	 if((g_gRunPara[RP_T_DELAY]/10)<=(g_gRunPara[RP_RHSEND_TIME1]+g_gRunPara[RP_RHPLUSE_TIME2]+200))
 	 	{
 	 	g_gRunPara[RP_RHSEND_TIME1]=100;
 		g_gRunPara[RP_T_DELAY] = 10000;               //故障延时时间
 	 	}
+	 if(g_gRunPara[RP_T_DELAY]<4000)
+	 	g_gRunPara[RP_T_DELAY] = 10000;               //
+
 	if(u_dellubo==1 )
     	{
     	//g_gRunPara[RP_CFG_KEY]=g_gRunPara[RP_CFG_KEY]&(~BIT[RPCFG_DEL_LUBO]);
@@ -654,7 +657,12 @@ void CheckCfgPara(void)
     	}
     if(g_gRunPara[RP_FLOAD_T] !=0)g_gSaveload=g_gRunPara[RP_FLOAD_T]-1;//每隔一段时间存储负荷记录
 	
-    	
+	CAT_SpiReadBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
+	if(g_gDebugP[Debug_CRC]!=AddChar(g_gDebugP,Debug_CRC))
+		{
+		g_gDebugP[Debug_U1BPS]=0;g_gDebugP[Debug_ALLREC]=0;g_gDebugP[Debug_CRC]=0;
+		CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
+		}    	
    /* CAT_SpiReadBytes(EEPADD_IECYKADDR, IEC_YK_NUM + 1, g_ucYKPa);  //读出
     if (g_ucYKPa[IEC_YK_NUM] != AddChar(g_ucYKPa, IEC_YK_NUM))       //CRC校验
     {
@@ -1097,11 +1105,11 @@ void CalcProtCnt(void)
     g_gProcCntJug[PC_LOW_Z] = g_gProcCnt[PC_LOW_Z];          //零序电压低定值
     g_gProcCntJug[PC_NO_V] = g_gProcCnt[PC_NO_V];       //无压门槛值
     g_gProcCntJug[PC_I0_START] = g_gProcCnt[PC_I0_START];//线电压高定值
-    g_gProcCntJug[PC_PULSE_VALID] = g_gProcCnt[PC_PULSE_VALID] /10 / 15;       //8脉冲有效定值
+    g_gProcCntJug[PC_PULSE_VALID] = g_gProcCnt[PC_PULSE_VALID] /20;       //8脉冲有效定值
 	if(g_gProcCnt[PC_T_DELAY] > 2000)
         g_gProcCntJug[PC_T_DELAY] = g_gProcCnt[PC_T_DELAY] /10 - 200;
     else
-        g_gProcCntJug[PC_T_DELAY] = g_gProcCnt[PC_T_DELAY] /10;               //故障延时时间 换算成10毫秒
+        g_gProcCntJug[PC_T_DELAY] = g_gProcCnt[PC_T_DELAY] /10-200;               //故障延时时间 换算成10毫秒
 /*
 #else
     g_gProcCntJug[PC_HIGH_P] = g_gProcCnt[PC_HIGH_P] * 100;                //相电压高定值
@@ -1124,9 +1132,9 @@ void CalcProtCnt(void)
 
    // g_gProcCntJug[PC_GPRS_MODEL] = 0;      //GPRS方式定值
    // g_gProcCntJug[PC_REV_CURRENT] = 20;       //翻转电流定值  
-    g_gProcCntJug_I0[0]  =  (unsigned long)g_gProcCnt[PC_OVERLOAD_I] * g_gProcCnt[PC_OVERLOAD_I] * COEF_I_0_AD2 >> 7;               //  22448=(100/15 * 4096/COEF_AD_I_0)*(100/15 * 4096/COEF_AD_I_0)*128
-    g_gProcCntJug_I0[1]  =  (unsigned long)g_gProcCntJug_I0[0] - (g_gProcCntJug_I0[0] >> 4);
-    g_gProcCntJug_I0[2]  =  (unsigned long)g_gProcCnt[PC_OVERLOAD_T] * 8;
+    //g_gProcCntJug_I0[0]  =  (unsigned long)g_gProcCnt[PC_OVERLOAD_I] * g_gProcCnt[PC_OVERLOAD_I] * COEF_I_0_AD2 >> 7;               //  22448=(100/15 * 4096/COEF_AD_I_0)*(100/15 * 4096/COEF_AD_I_0)*128
+   // g_gProcCntJug_I0[1]  =  (unsigned long)g_gProcCntJug_I0[0] - (g_gProcCntJug_I0[0] >> 4);
+   // g_gProcCntJug_I0[2]  =  (unsigned long)g_gProcCnt[PC_OVERLOAD_T] * 8;
 
 }
 //==============================================================================
@@ -1147,7 +1155,7 @@ void RstRunPara(void)
     //g_gRunPara[RP_STATUSRP_INTERVAL] = 1;  //状态汇报上线间隔（天）
     g_gRunPara[RP_FLOAD_T] = 15;  ////负荷记录存储时间间隔 分钟
     g_gRunPara[RP_COMM_ADDR] = 1;//通信站地址      站地址默认为1
-    g_gRunPara[RP_SYX_INFADDR] = 128;
+    g_gRunPara[RP_SYX_INFADDR] = 1;
 #ifdef  CQ_101S
      g_gRunPara[RP_SYX_INFADDR]=1;//张弢重庆 0x0700+171
      g_gRunPara[RP_SENDYC_T] = 0; 

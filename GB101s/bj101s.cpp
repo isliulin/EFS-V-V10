@@ -1575,7 +1575,7 @@ void CBJ101S::DoCommSendIdle(void)
             
             m_PaWaitCt_lubo =  4;//g_gRunPara[RP_LUBOGPRS_T];
             m_PaWaitflag_lubo = ON;
-           Code_Lubo(gRecorder_flag.pRXBuff,m_SendBuf.pBuf);// SendlbRetry();
+           SendlbRetry();
             m_TxNum_lubo++;gRes_rec.res_timeout = 0x55;
             return;
           }

@@ -51,7 +51,7 @@ void InitSCI(void)
     UCA1CTL1 |= UCSWRST;           // **Put state machine in reset**
     UCA1CTL1 |= UCSSEL_1;          // ACLK
 
-    switch(g_ucPara101[IECP_OBJ_COM0])	
+    switch(g_gDebugP[Debug_U1BPS])	
 		{  	
 		case 0://9600		
 		UCA1BR0 = 0x82;		
@@ -76,8 +76,8 @@ void InitSCI(void)
 		default://9600		
 		UCA1BR0 = 0x82;		
 		UCA1BR1 = 0x06;
-		g_ucPara101[IECP_OBJ_COM0]=0;
-		g_ucParaChang |= BIT1;
+		g_gDebugP[Debug_U1BPS]=0;
+		
 		}
     UCA1CTL1 &= ~UCSWRST;          // **Initializ1 RX 中断+UCTXIE
     UCA1IE |= (UCRXIE + UCTXIE);              // 使能 USCI_A0 RX 中断

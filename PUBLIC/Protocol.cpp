@@ -793,6 +793,14 @@ BOOL CProtocol::RecWriteFile(void)
           g_ucParaChang |= BIT6;
           SendWrPaSuc();
         }	
+	else if(bySec == 3)//调试串口波特率
+		{
+		g_gDebugP[Debug_U1BPS]=pData[0];
+		g_gDebugP[Debug_ALLREC]=pData[1];
+		g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
+		CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
+		SendWrPaSuc();
+		}	
       break;
       case 10://张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
         if(bySec == 0 )
@@ -1032,7 +1040,7 @@ void CProtocol::SendReadRecData(WORD FileName,WORD SecName)
           m_SendBuf.pBuf[ m_SendBuf.wWritePtr++ ] = ucTemp[i];         
         }
         //m_SendBuf.pBuf[wSecLenPtr] = 128;
-        WDG_CLR;
+        FEED_WATCH_DOG();
         if (k <99)
             m_SendBuf.pBuf[4] |= 0x80;//控制域最高位用来表示还有没后续报文
         SendFrameTailForPa();
@@ -1175,7 +1183,13 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
            {
               m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gLBName[i];	  
            }
-        }		
+        }
+	else if(SecName==3)//调试串口波特率
+		{
+		wPaTotalNum = 2;
+		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_U1BPS];
+		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_ALLREC];
+		}	
            break;
     case 10://读ODU参数
           /* if(pOdu1 == null) break;

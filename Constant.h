@@ -86,6 +86,13 @@ typedef double         FP64;            //双精度浮点数
 #define  SETBIT(p,i,v) p[(i>>4)] = (v) ? (p[(i>>4)]|BIT[(i&0x0F)]) : (p[(i>>4)]&~BIT[(i&0x0F)])
 //==============================加密相关参数======================================
 #define MAX_ENC_FRAME_LEN                    384
+//==============================调试相关参数======================================
+#define Debug_U1BPS  		0//调试串口波特率 0=9600;1=19200;2=38400;3=57600;4=115200
+#define Debug_ALLREC  		1//全过程录波          0=禁止;85=全过程录波
+#define Debug_CRC           2//crc校验
+#define Debug_PARA_NUM    	3  //IEC运行的参数个数 
+
+
 //==============================IEC 101相关参数======================================
 #define GPRS_SMS      //       0//1  =GPRS;0=SMS
 
@@ -97,7 +104,7 @@ typedef double         FP64;            //双精度浮点数
 #define IECP_AUT_MODE        5//主动上传模式，0=主站发送初始化后方可主动上传和总召
                               //1=收到主站任何命令后方可主动上传，任何时候都响应总召命令。
                               //2=主动上传不受任何约束
-#define IECP_OBJ_COM0        6 //调试串口波特率，0=9600,1=19200,2=38400,3=57600,4=115200
+#define IECP_OBJ_COM0        6 
 #define IECP_OBJ_COM1        7
 #define IECP_OBJ_COM2        8
 #define IECP_OBJ_COM3        9
@@ -708,6 +715,8 @@ typedef double         FP64;            //双精度浮点数
 #define EEPADD_RP                      0x02c0
 #define EEPADD_LBNAME             0x03c0
 #define EEPADD_LBNAMELEN       0x03e0
+#define EEPADD_DEBUG       0x03f0
+
 //EEPROM中参数的备份区  分配1K字节的空间
 #define EEPADDBK_BIAS_V               0x0400    //偏置电压系数等10字节   占16字节
 #define EEPADDBK_COM                    0x0410    //站名称、站地址等42字节 占48字节
@@ -720,7 +729,7 @@ typedef double         FP64;            //双精度浮点数
 #define EEPADDBK_IECPARA            0x0600
 #define EEPADDBK_IECYCADDR        0x0640
 #define EEPADDBK_IECYKADDR        0x0680
-#define EEPADDBK_RP                      0x06c0
+#define EEPADDBK_RP                      0x0690
 
 #define EEPADD_LOADNUM               0x0720   
 #define EEPADDBK_LOADNUM           0x0730 
