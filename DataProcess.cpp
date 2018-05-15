@@ -585,7 +585,7 @@ void CalcuRmtMeas(void)
     }
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
-        g_gRmtMeas[9] = g_gRmtFilMeas[9];
+        g_gRmtFilMeas[9]=g_gRmtMeas[9];
     g_unFilterIndex++;
     if(g_unFilterIndex == 10)
     {
@@ -606,7 +606,7 @@ void ScanPT(void)
 { 
   unsigned int unTemp[3];
   
-    if(g_gRmtMeas[RM_U0] >= g_gProcCntJug[PC_HIGH_Z])  //零序过压
+    if(g_gRmtFilMeas[RM_U0] >= g_gProcCntJug[PC_HIGH_Z])  //零序过压
         {
         g_gVErrTimer[0]++;
 	if(g_gVErrTimer[0]>5)
@@ -627,13 +627,13 @@ void ScanPT(void)
 		g_gVErrTimer[0]--;
     	}
 
-    unTemp[1] = ComputeMax(g_gRmtMeas[RM_UAB], g_gRmtMeas[RM_UBC], g_gRmtMeas[RM_UCA]);  //求出最大线电压
+    unTemp[1] = ComputeMax(g_gRmtFilMeas[RM_UAB], g_gRmtFilMeas[RM_UBC], g_gRmtFilMeas[RM_UCA]);  //求出最大线电压
     if(unTemp[1] >= g_gProcCntJug[PC_I0_START]) 
         g_gRmtInfo[YX_UAB_HIGH] =1;
     else
         g_gRmtInfo[YX_UAB_HIGH] =0;
 	
-    unTemp[0] = ComputeMax(g_gRmtMeas[RM_UA], g_gRmtMeas[RM_UB], g_gRmtMeas[RM_UC]);      //求出最大相电压
+    unTemp[0] = ComputeMax(g_gRmtFilMeas[RM_UA], g_gRmtFilMeas[RM_UB], g_gRmtFilMeas[RM_UC]);      //求出最大相电压
     if(unTemp[0] >= g_gProcCntJug[PC_HIGH_P]) 
     	{
     	g_gVErrTimer[2]++;
@@ -655,7 +655,7 @@ void ScanPT(void)
 		g_gVErrTimer[2]--;
 	}
 	
-    unTemp[2] = ComputeMin(g_gRmtMeas[RM_UA], g_gRmtMeas[RM_UB], g_gRmtMeas[RM_UC]);
+    unTemp[2] = ComputeMin(g_gRmtFilMeas[RM_UA], g_gRmtFilMeas[RM_UB], g_gRmtFilMeas[RM_UC]);
     if(unTemp[2] <= g_gProcCntJug[PC_LOW_P]) 
     	{
     	g_gVErrTimer[3]++;
@@ -677,7 +677,7 @@ void ScanPT(void)
 		g_gVErrTimer[3]--;
         }
 
-    if(g_gRmtMeas[RM_UA]<= g_gProcCntJug[PC_LOW_P]) 
+    if(g_gRmtFilMeas[RM_UA]<= g_gProcCntJug[PC_LOW_P]) 
     	{
     	g_gVErrTimer[4]++;
 	if(g_gVErrTimer[4]>5)
@@ -694,7 +694,7 @@ void ScanPT(void)
 		g_gVErrTimer[4]--;
     	}
 	
-    if(g_gRmtMeas[RM_UB]<= g_gProcCntJug[PC_LOW_P]) 
+    if(g_gRmtFilMeas[RM_UB]<= g_gProcCntJug[PC_LOW_P]) 
     	{
     	g_gVErrTimer[5]++;
 	if(g_gVErrTimer[5]>5)
@@ -711,7 +711,7 @@ void ScanPT(void)
 		g_gVErrTimer[5]--;
     	}
 	
-    if(g_gRmtMeas[RM_UC]<= g_gProcCntJug[PC_LOW_P]) 
+    if(g_gRmtFilMeas[RM_UC]<= g_gProcCntJug[PC_LOW_P]) 
     	{
     	g_gVErrTimer[6]++;
 	if(g_gVErrTimer[6]>5)
@@ -728,7 +728,7 @@ void ScanPT(void)
 		g_gVErrTimer[6]--;
     	}	
 	
-    if(g_gRmtMeas[RM_UA] > g_gProcCntJug[PC_HIGH_P])
+    if(g_gRmtFilMeas[RM_UA] > g_gProcCntJug[PC_HIGH_P])
     	{
     	g_gVErrTimer[7]++;
 	if(g_gVErrTimer[7]>5)
@@ -745,7 +745,7 @@ void ScanPT(void)
 		g_gVErrTimer[7]--;
     	}
 	
-    if(g_gRmtMeas[RM_UB] > g_gProcCntJug[PC_HIGH_P])
+    if(g_gRmtFilMeas[RM_UB] > g_gProcCntJug[PC_HIGH_P])
     	{
     	g_gVErrTimer[8]++;
 	if(g_gVErrTimer[8]>5)
@@ -762,7 +762,7 @@ void ScanPT(void)
 		g_gVErrTimer[8]--;
     	}
 	
-    if(g_gRmtMeas[RM_UC] > g_gProcCntJug[PC_HIGH_P])
+    if(g_gRmtFilMeas[RM_UC] > g_gProcCntJug[PC_HIGH_P])
     	{
     	g_gVErrTimer[9]++;
 	if(g_gVErrTimer[9]>5)
@@ -800,7 +800,7 @@ unsigned long Templm = 0;
 
     for(i = 0; i < IEC_YC_NUM/*RMT_MEAS_NUM*/; i++)
     { 
-	 uuTemp[i] = g_gRmtMeas[i] ;//云南遥测要1次值
+	 uuTemp[i] = g_gRmtFilMeas[i] ;//云南遥测要1次值
         if(i==7)
         	{        	
         	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CURRENT_PRIMARY])
@@ -822,12 +822,12 @@ unsigned long Templm = 0;
      
     for(i = 0; i < IEC_YC_NUM/*RMT_MEAS_NUM*/; i++)
     { 
-        if(g_gRmtMeasBak[i] != g_gRmtMeas[i] && i != 7)
+        if(g_gRmtMeasBak[i] != g_gRmtFilMeas[i] && i != 7)
         {
-            if(g_gRmtMeas[i] >= g_gRmtMeasBak[i])
-                Templm = g_gRmtMeas[i] - g_gRmtMeasBak[i];
+            if(g_gRmtFilMeas[i] >= g_gRmtMeasBak[i])
+                Templm = g_gRmtFilMeas[i] - g_gRmtMeasBak[i];
             else
-                Templm = g_gRmtMeasBak[i] - g_gRmtMeas[i];
+                Templm = g_gRmtMeasBak[i] - g_gRmtFilMeas[i];
             ulTemp[i] = g_gRmtMeasBak[i];
             if(Templm >= g_gRunPara[RP_YCLIMIT] || (((Templm* 100) > (ulTemp[i] * g_gRunPara[RP_YCCAP])) && (g_gRmtMeasBak[i] >= 1000)))
             {/*
@@ -847,7 +847,7 @@ unsigned long Templm = 0;
           	     	if(g_gChangeYCNum < 9)
                     	  g_gChangeYCNum++;
 			g_gYCchangData[g_gChangeYCNum - 1] = i;				
-			 g_gYCchangData[g_gChangeYCNum + 9] = g_gRmtMeas[i];//昨天云南，遥测要一次值
+			 g_gYCchangData[g_gChangeYCNum + 9] = g_gRmtFilMeas[i];//昨天云南，遥测要一次值
 			 if(i == 7)
 			 	{
 			 	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CURRENT_PRIMARY])
@@ -868,7 +868,7 @@ unsigned long Templm = 0;
      {
      	for(i = 0; i < IEC_YC_NUM/*RMT_MEAS_NUM*/; i++)
         { 
-        g_gRmtMeasBak[i] = g_gRmtMeas[i];	
+        g_gRmtMeasBak[i] = g_gRmtFilMeas[i];	
      	}
         g_gYCYueXian=0;//张弢 遥测越限	
      } 
@@ -1572,7 +1572,7 @@ void SetYcTrans(void)
        {
       if(g_ucYCAddr[i]<255)
       {
-          g_unYcTrans[i] = g_gRmtMeas[g_ucYCAddr[i] - 1];
+          g_unYcTrans[i] = g_gRmtFilMeas[g_ucYCAddr[i] - 1];
       }
       else
         g_unYcTrans[i] = 0;
@@ -1604,6 +1604,7 @@ void RstRMTMeas()
     for(i = 0; i < IEC_YC_NUM/*RMT_MEAS_NUM*/; i++)
     {
       g_gRmtMeas[i] = 0;
+	  g_gRmtFilMeas[i]=0;
     }   
   
 }
@@ -2080,7 +2081,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	{  	
     	ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;//flash地址  g_sRecData.m_gActRecAdr/10
   	}
-  gRecorder_filecfg.CFG_EndSamp=(g_sRecData.m_gActRecAdr-ulAddr)/10;//采样个数 
+  gRecorder_filecfg.CFG_EndSamp=(g_sRecData.m_gActRecAdr-ulAddr)/8;//采样个数 
   gRecorder_filecfg.TOTAL_Leng=gRecorder_filecfg.CFG_EndSamp;//gRecorder_filecfg.CFG_Leng+6400;//
   gRecorder_filecfg.DATA_Leng=gRecorder_filecfg.TOTAL_Leng;
   gRecorder_filecfg.comtrade_time[RTC_MICROSEC]=g_sRecData.m_gFaultRecSOE[REC_MSL] ;
@@ -2155,7 +2156,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
 }
  
 }
-
+/*
 void SaveActRecDataCFG(void)
 {
  unsigned int temp[8];
@@ -2185,7 +2186,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   	{  	
     	ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;//flash地址  g_sRecData.m_gActRecAdr/10
   	}
-  gRecorder_filecfg.CFG_EndSamp=(g_sRecData.m_gActRecAdr-ulAddr)/10;//采样个数 
+  gRecorder_filecfg.CFG_EndSamp=(g_sRecData.m_gActRecAdr-ulAddr)/8;//采样个数 
   gRecorder_filecfg.TOTAL_Leng=gRecorder_filecfg.CFG_EndSamp;//gRecorder_filecfg.CFG_Leng+6400;//
   gRecorder_filecfg.comtrade_time[RTC_MICROSEC]=g_sRecData.m_gFaultRecSOE[REC_MSL] ;
   gRecorder_filecfg.comtrade_time[RTC_SEC]=g_sRecData.m_gFaultRecSOE[REC_MSH];
@@ -2253,6 +2254,7 @@ if((g_sRecData.m_ucActRecStart == OFF))
   g_sRecData.m_ucActRecStart = CLOSE;
 }
 }
+*/
 /*
 void SaveRecData(void)
 {

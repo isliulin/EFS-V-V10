@@ -317,7 +317,8 @@ void InitSys(void)
    g_gRmtInfo[YX_BREAK]=0;//复位后，断线检测遥信也复位	
    g_gRmtInfo[YX_SYSRESET] =1;
    g_gRmtInfo[YX_EFS_ABNORMAL]=0;
-   if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ
+   if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ   
+   WIFIR_SET;
     
 }
 

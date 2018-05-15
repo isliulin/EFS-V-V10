@@ -4862,6 +4862,8 @@ WORD CBJ101S::GetDataFromeEncChip(BYTE *pRecData)
     }
     if(DataLen == 0)
     {
+    #define TESAM_POWER_ON       P2OUT &= ~BIT7  //加密芯片电源开
+	#define TESAM_POWER_OFF      P2OUT |= BIT7
         //P6OUT |= BIT4;
         TESAM_POWER_OFF;
         delayms(500);

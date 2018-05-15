@@ -1008,7 +1008,10 @@ void UpInitClk(void)@"UPDATECODE"
         UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
                                             // Clear XT2,XT1,DCO fault flags
         SFRIFG1 &= ~OFIFG;                      // Clear fault flags
-        for(i=0;i<0xFFFF;i++);                  // Delay for Osc to stabilize
+        for(i=0;i<0x0FFF;i++)                  // Delay for Osc to stabilize
+        	{
+        	i++;
+        	}
     }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
     UCSCTL4 |= SELS_4 + SELM_4+SELA_5;               // SMCLK=MCLK=DCO  ACLK = XT2    
 }
@@ -1033,7 +1036,7 @@ void UPPortInit(void)@"UPDATECODE"
     P1OUT = 0;
     P2DIR |= 0xe1;        //P2.0 运行灯RUN; P2.5 W5500INT;P2.6 W5500RST  P2.7 W5500 CS0
     P3DIR |= 0x1b;        //P3.4-5 TXD0,RXD0; P3.3 SPI0 CLK; P3.1 SIMO; P3.0 ESAM CS; 
-	P30UT = 0x01;
+	P3OUT = 0x01;
     P4DIR |= 0x80;        //P4.7 WIFI RESET;     					
     P4OUT = 0;
     P5DIR |= 0x49;        //P5.0 输出VREF+ P5.2晶振输入  ; P5.6 TXD1; P5.7 RXD1

@@ -144,8 +144,8 @@ void cfg_dat_length(RECORDER_CFG *pgRecorder_cfg,int file_current_num)
 	else //if(gRecorder_filecfg.CFG_Samp==800)  
       	{	//gRecorder_cfg[temp[1]].CFG_EndSamp  
       		//memcpy(&ComtrderCfg1[tt],ACTCfg,5);
-      		CAT_SpiWriteBytes(EEPADD_CFG+tt, 5,(unsigned char*)ACTCfg);
-		tt +=5;
+      		CAT_SpiWriteBytes(EEPADD_CFG+tt, 4,(unsigned char*)ACTCfg);
+		tt +=4;
 		sprintf((char *)ch,"%u\n",pgRecorder_cfg->CFG_EndSamp);
 		//memcpy(&ComtrderCfg1[tt],ch,strlen(ch));
 		CAT_SpiWriteBytes(EEPADD_CFG+tt, strlen(ch), (unsigned char*) ch);
@@ -1784,7 +1784,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
 	  if(tt[7]&BIT4)datBuff[7]|=0xf0;
 	  if(tt[4]&BIT0)datBuff[9]|=0xf0;
 	  datBuff[11]=0;
-	  datBuff[10]=tt[0]&BIT0+(tt[1]&BIT0)*2+(tt[2]&BIT0)*4+(tt[3]&BIT0)*8;
+	  datBuff[10]=(tt[0]&0x01)+(tt[1]&0x01)*2+(tt[2]&0x01)*4+(tt[3]&0x01)*8;
 /*
           unsigned int dka;//,dkd;
 	   dka = MAKEWORD(datBuff[8],datBuff[9]);
