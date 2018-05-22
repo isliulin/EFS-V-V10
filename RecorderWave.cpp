@@ -1818,7 +1818,7 @@ unsigned char *  FileDatadat(unsigned char *pTxBuf,unsigned char leng,WORD wSecL
 		  
           if(g_gRunPara[RP_CFG_KEY]&BIT[RP_COMTRADE_TYPE])
           	{
-          	ch[0]=LOBYTE(wSendDATNum);ch[1]=HIBYTE(wSendDATNum);ch[2]=0;ch[3]=0;
+          	ch[0]=LOBYTE(wSendDATNum+1);ch[1]=HIBYTE(wSendDATNum+1);ch[2]=0;ch[3]=0;
 		 ch[4] = LOBYTE(LOWORD(xtt));
                ch[5] = HIBYTE(LOWORD(xtt));
                ch[6] = LOBYTE(HIWORD(xtt));
