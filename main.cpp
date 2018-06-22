@@ -78,9 +78,10 @@ void app(void)@"APPLICATION"
         }
     	 SaveActRecData();
         CalcuRmtMeas();//有效值计算，并更新对应的遥测值
+    SaveActRecData();
         ScanDin();
-		 SaveActRecData();
 	 YCthCross();//遥测越限判断	
+	 SaveActRecData();
      ProtLogic();   
 	if(newsms_8pluse == ON)
 		{	
@@ -95,13 +96,14 @@ void app(void)@"APPLICATION"
 	 SaveActRecData();
 	FEED_WATCH_DOG();
         //Comm_LED_101(); //液晶通信
-        FEED_WATCH_DOG();
+       // FEED_WATCH_DOG();
         //if(g_ucGPRSState==GPRSState_IDLE)
+        SaveActRecData();
 	 Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS
-      SaveActRecData();   
+        
         if(pDbg != null) pDbg->Run();
         if(pGprs != null) pGprs->Run();
-        
+        SaveActRecData();
         SaveCfgPara();
 		SaveActRecData();
 
@@ -126,11 +128,11 @@ void app(void)@"APPLICATION"
                     	g_sRecData.m_gFaultRecSOE[REC_YEAR] = (g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000);
 		      			}
 		        } 
-	 	
+	SaveActRecData();	
         ClkChange();    //在实际试验过程发现MSP430容易出现由外部晶振自动切换为内部DCO，因此需要及时发现并切回来。
         FEED_WATCH_DOG();
         SaveSoeDataRepeat();
-		SaveActRecData();
+
         RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
         g_gRmtInfo[YX_SYSRESET] =0;
         //ScanDinYX();//张弢 移入主循环，否则栈太大无法中断嵌套	
@@ -139,7 +141,7 @@ void app(void)@"APPLICATION"
         	{
         	g_gSaveload=0;
 		SaveLoad();	
-        	}
+        SaveActRecData();	}
 		SaveFlashLOG();
 		 SaveActRecData();
         if(g_sRecData.m_EraseBlock == ON)
@@ -165,6 +167,7 @@ void app(void)@"APPLICATION"
   		Block_Erase(ulAddr+0x80000);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();   
         	}
+		SaveActRecData();
         if(g_sRecData.m_EraseBlock == YES)
         	{
         	g_sRecData.m_EraseBlock = OFF;
@@ -187,7 +190,6 @@ void app(void)@"APPLICATION"
   		delayms(100);WatchDog(); 
 
         	}
-		 SaveActRecData();
     }//end of while(1)
     
 
@@ -283,15 +285,12 @@ void InitCommObj(void)
 void InitSys(void)
 {
    // unsigned char Data[5];
-   // static unsigned char ucPcData[5] = {1,2,3,4,5};
-#ifndef DEBUG_N    
+   // static unsigned char ucPcData[5] = {1,2,3,4,5}; 
     InitClk();//系统时钟初始化
-#endif
     WDG_SET;
+	FEED_WATCH_DOG();
     InitPort();//IO端口初始化
-  
-    
-
+  	FEED_WATCH_DOG();
     UCB2SPIInit();  //SPI总线初始化
     UCB0SPIInit();  //SPI总线初始化
 

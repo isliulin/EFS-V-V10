@@ -49,10 +49,8 @@ void InitTimer(void)
 
     TA0CCR0 = 500; 			    //输出周期250uS 每周波80点 4000hz    
     TA0CTL = TASSEL_1 + ID_3 + MC_1 + TACLR  ;         //TMA0模式配置 ACLK时钟, 8分频 ,计数清0，增计数  
-#ifndef DEBUG_N 
     TA0CCTL0 |= CCIE; //使用中断 如果使用中断启动AD需呀这句话
     ADC12CTL0 |= ADC12SC;
-#endif
 
     P2SEL |= BIT3;                    // PPS引脚设置
     P2DIR &= ~BIT3;
@@ -408,8 +406,8 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
     latch_upload_flag=0x55;
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位    
+    SaveLOG(LOG_8FULS_STA,0);
     SaveLOG(LOG_LATCH, 1);
-	SaveLOG(LOG_8FULS_STA, 0);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0
     chongfa=0;  moniguzhang=0;	
     g_gRmtMeas[RM_ACT_NUM] = 2;
@@ -568,8 +566,8 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
     	}    	
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位  
+    SaveLOG(LOG_8FULS_STA,0);
     SaveLOG(LOG_LATCH, 1);
-	SaveLOG(LOG_8FULS_STA, 0);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0    
     chongfa=0;moniguzhang=0;	
    g_gRmtMeas[RM_ACT_NUM] = 3;
@@ -705,8 +703,8 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
     	}    	
     uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位  
+    SaveLOG(LOG_8FULS_STA,0);
     SaveLOG(LOG_LATCH, 1);
-	SaveLOG(LOG_8FULS_STA, 0);
     g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0    
     chongfa=0;	moniguzhang=0;
     g_gRmtMeas[RM_ACT_NUM] = 2;
@@ -837,8 +835,8 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
     		}             	  
              uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
              g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+             SaveLOG(LOG_8FULS_STA,0);
              SaveLOG(LOG_LATCH, 1);
-			 SaveLOG(LOG_8FULS_STA, 0);
              g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0             
 	      chongfa=0;moniguzhang=0;
              g_gRmtMeas[RM_ACT_NUM] = 1;
@@ -1083,7 +1081,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KA1_ON;	
+            KB1_ON;	
 		KMP_CLR;
             for(i=0;i<6;i++)
                 g_sSoeData.m_gAbnBuff[i] = g_sRtcManager.m_gRealTimer[i];
@@ -1116,7 +1114,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
             {
                  save_abnormal=0x66;
                  //g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KA1_OFF; 
+             	 KB1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;             
@@ -1152,12 +1150,12 @@ _EINT();//开总中断// 张弢测试中断嵌套
               	
                       	}
        	         }
-                 if(eight_delay_counter>0)
+                 if((eight_delay_counter>0)&&(efslatch_flag==0))
                 {
                     eight_delay_counter--;
 		      if((eight_delay_counter==80)&&(g_sRecData.m_ucActRecStart == CLOSE)&&(g_sRecData.m_ucRecSavingFlag == OFF))	
 		      	{//动作录波要在继电器动作前最少0.5秒开始，现在设定提前0.8s
-		      	if(g_gDebugP[Debug_ALLREC]!=0x55)//����¼��ģʽ
+		      			if(g_gDebugP[Debug_ALLREC]==0)//正常录波模式
 		      		{
 					unsigned long ulAddr =FADDR_RECORDER_ACTDATA+ (unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;//flash地址  
   					g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址 	
@@ -1208,7 +1206,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 				if(KMon==0x55)
           			{
                     NumKON++;
-		      		if(NumKON==12)
+		   	    if(NumKON==13)
 						{//8脉冲继电器闭合130ms后，记录电流值
 						if(Numyc<8)
 							{
@@ -1229,7 +1227,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 		      			g_I0RmtZeroNum++;
 		      			}
 					//if(NumKON>(7+g_gProcCnt[PC_PLUSE_TIME]))
-					if(NumKON>30)
+			    if(NumKON>I0JugTime)
 						KMon=0;
                 	}
 				else //if(g_gKON==OFF)//开关未闭合
@@ -1248,7 +1246,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
             		g_I0RmtNum = 0;	
 					}
 		//if( g_gRmtInfo[YX_EARTH_FAULT] == 0)g_I0RmtZeroNum = 0; 
-		if(g_I0RmtZeroNum>=4*(g_gRunPara[RP_PLUSE_TIME]))
+		if(g_I0RmtZeroNum>=4*I0JugTime)
 			{
 			g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
 			SaveLOG(LOG_BREAK, 1);			
@@ -1268,6 +1266,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     				SaveLOG(LOG_LATCH, 1);
     				chongfa=0;	moniguzhang=0;
     				g_gRmtMeas[RM_ACT_NUM] = 0;				
+					if(g_sRecData.m_ucActRecStart == ON)
   				 	g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
 				}
 			}
@@ -1275,7 +1274,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
                 
                 if(main_reset_flag==0)
     	        {
-    	            WDG_SET;                         //////设置看门狗    watch dog  hardware      
+    	            //WDG_SET;                         //////设置看门狗    watch dog  hardware      
     	        }
                 else if(main_reset_flag == 0x55)
                 {
@@ -1359,7 +1358,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 					  else if(g_sRecData.m_gXHDelay>=(g_gRunPara[RP_RHSEND_TIME1]-60))
 						  {
 					  //g_sRecData.m_gXHDelay=fault_time;
-						  if((g_gDebugP[Debug_ALLREC]!=0x55)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
+		  			if((g_gDebugP[Debug_ALLREC]==0)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
 						  {
 					  //开始录波
 						  g_test=0;
@@ -1399,7 +1398,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 			rh_counter=g_gRunPara[RP_RHT_DELAY];//遥信延时开始
 			rh_send_ok = 0;
 		  }	*/	  
-                if((fault_time>=g_gProcCntJug[PC_T_DELAY]) && fault_save == 0)
+                if((fault_time>=g_gProcCntJug[PC_T_DELAY]) && (fault_save == 0))
                     fault_save=0x55;   	  		
                 else if(fault_time==0)
                 {
@@ -1485,16 +1484,16 @@ _EINT();//开总中断// 张弢测试中断嵌套
 				g_gRmtInfo[YX_LBOK]=0;
                 	}
                 if(g_TQBSCounter==0x55)
-			KB1_ON;//投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁 = 0x55;//投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁
+			KA1_ON;//投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁 = 0x55;//投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁
    		  else if(g_TQBSCounter==0)
-		  	KB1_OFF;
+		  	KA1_OFF;
 		  else if(g_TQBSCounter>0)
 		  	g_TQBSCounter++;
 
 		  if((g_TQBSCounter&0x01)==0)
-		  	KB1_OFF;
+		  	KA1_OFF;
 		  else if((g_TQBSCounter&0x01)==1)
-		  	KB1_ON;
+		  	KA1_ON;
 
 		 /* if(rh_counter>0)
 		  	{
