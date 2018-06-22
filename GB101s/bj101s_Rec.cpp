@@ -1132,7 +1132,7 @@ void CBJ101S::ReadFileDataDat(WORD FileName,RECORDER_CFG *pgRecorder_cfg)
 		unsigned long xtt = (long)mSendDATNum*xt;
 		if(g_gRunPara[RP_CFG_KEY]&BIT[RP_COMTRADE_TYPE])
        		{
-          	ch[0]=LOBYTE(mSendDATNum+1);ch[1]=HIBYTE(mSendDATNum+1);ch[2]=0;ch[3]=0;
+          	ch[0]=LOBYTE(mSendDATNum);ch[1]=HIBYTE(mSendDATNum);ch[2]=0;ch[3]=0;
 		 	ch[4] = LOBYTE(LOWORD(xtt));
            	ch[5] = HIBYTE(LOWORD(xtt));
            	ch[6] = LOBYTE(HIWORD(xtt));
