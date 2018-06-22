@@ -586,8 +586,6 @@ void CalcuRmtMeas(void)
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
         g_gRmtFilMeas[9]=g_gRmtMeas[9];
-		g_gRmtFilMeas[RM_UCAP]=g_gRmtMeas[RM_UCAP];
-		g_gRmtFilMeas[RM_CSQ]=g_gRmtMeas[RM_CSQ];g_gRmtFilMeas[RM_ACT_NUM]=g_gRmtMeas[RM_ACT_NUM];
     g_unFilterIndex++;
     if(g_unFilterIndex == 10)
     {

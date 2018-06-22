@@ -290,7 +290,7 @@ typedef double         FP64;            //双精度浮点数
 #define YX_U_HIGH              8  //相电压过压告警
 
 #define YX_U_LOW               9 //相电压欠压告警
-//#define YX_EFS_ABNORMAL         10//控制器异常告警
+#define YX_EFS_ABNORMAL         10//控制器异常告警
 #define YX_PHASEA_ACT           11 //A相投切
 #define YX_PHASEB_ACT           12  //B相投切
 #define YX_PHASEC_ACT           13 //C相相投切
@@ -325,7 +325,6 @@ typedef double         FP64;            //双精度浮点数
 #define YX_I0_HIGH         45//I0过流	1：过流状态；0：
 #define YX_KJ_TIMEOVER 46//开关闭合超时	1：超时；0：
 #define YX_I0_TIMEOVER 47//I0超时	1：超时；0：
-#define YX_EFS_ABNORMAL         48//控制器异常告警
 #define YX_SYSRESET 63//系统复位
 //#define YX_I0_HIGH         48//I0过流	1：过流状态；0：
 //#define YX_I0_HIGH         49//I0过流	1：过流状态；0：
@@ -341,7 +340,6 @@ typedef double         FP64;            //双精度浮点数
 #define COEF_U_AD2                      677    //2741=1.157*1.157*2048  0.5748*0.5748*2048= 677
 
 #define I01A   5//I0=1A=1000mA,二次电流为50mA，
-#define I0JugTime   40//I0判定时间，发接触器信号后400ms
 //============================  保护电量        =======================================
 #define PROC_MEAS_NUM           8
 

@@ -205,12 +205,12 @@ int CProtocol::RcvData(int* iSocket)
           {
              m_RecBuf.wWritePtr = 0;
           }
-          /*
-            if(*iSocket == 1)
+          #ifdef RF_TEST
+            if(*iSocket == g_CmIdRF)
             {//将RF口收到的数据转发出去
-              CommSendData(m_RecBuf.pBuf,rxlen,1);
+              CommSendData(m_RecBuf.pBuf,rxlen,g_CmIdEX);
             }
-          */
+          #endif
           DoReceive();
        }
       else if(rxlen <= 0)//recv=0 对端发出断开命令
@@ -797,8 +797,6 @@ BOOL CProtocol::RecWriteFile(void)
 		{
 		g_gDebugP[Debug_U1BPS]=pData[0];
 		g_gDebugP[Debug_ALLREC]=pData[1];
-		if(g_gDebugP[Debug_U1BPS]>4)g_gDebugP[Debug_U1BPS]=0;
-		if((g_gDebugP[Debug_ALLREC]!=0)&&(g_gDebugP[Debug_ALLREC]!=0x55))g_gDebugP[Debug_ALLREC]=0;
 		g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
 		CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
 		SendWrPaSuc();
@@ -1603,7 +1601,6 @@ void CProtocol::SendSoeSavedStu()
 }
 void CProtocol::SendTrigAck()
 {
-return;
 }
 
 //组织报文头,固定格式报文

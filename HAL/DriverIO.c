@@ -185,7 +185,7 @@ void ScanDin(void)
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KB1_ON;	             
+            KA1_ON;	             
 
 	     //CreatNewSMS(ABN_CHECK);                      //产生保护开关跳开短信//张弢
             for(i=0;i<6;i++)
@@ -217,7 +217,7 @@ void ScanDin(void)
             {
                  save_abnormal=0x66;
                  g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KB1_OFF; 
+             	 KA1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
@@ -266,7 +266,7 @@ void ScanDin(void)
     }
  //   YX_RMT();   //
     if(abnormal_ctl_flag==0)           ///////异常遥控标志       新电路板
-       KB1_OFF;  
+       KA1_OFF;  
     //if(power_ctl_flag==0)              ///////断电遥控标志//KB1改为投切灯
        //KB1_OFF;  //KB1改为投切灯
     if(eight_ctl_flag==0)              ///////有效8脉冲标志
@@ -380,12 +380,7 @@ void ScanDinYX(void)
 			SaveLOG(LOG_I0T_ERR, 0);
 			}
 		else
-			{
-			if(g_gI0OverTimer>50)
-				g_gI0OverTimer -= 50;
-			else
-				g_gI0OverTimer = 0;
-			}
+			g_gI0OverTimer=g_gI0OverTimer-50;
 		}
 //*******************************************
 
@@ -1109,8 +1104,8 @@ void ScanSoftLacth(void)
     				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
     				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
     				SaveLOG(LOG_LATCH, 1);
+					SaveLOG(LOG_8FULS_STA, 0);
 					SaveLOG(LOG_I0_ERR, 1);
-					SaveLOG(LOG_8FULS_STA,0);
     				chongfa=0;	moniguzhang=0;
     				//g_gRmtMeas[RM_ACT_NUM] = 0;
 					g_gRmtInfo[YX_EFS_ACT] = 0;   //投切状态 遥信置0	
