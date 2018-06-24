@@ -138,7 +138,7 @@ void app(void)@"APPLICATION"
         if((g_gSaveload>=g_gRunPara[RP_FLOAD_T] )&&(g_gRunPara[RP_FLOAD_T] !=0))//每隔一段时间存储负荷记录
         	{
         	g_gSaveload=0;
-		SaveLoad();	
+		//SaveLoad();	
         	}
 		SaveFlashLOG();
 		 SaveActRecData();

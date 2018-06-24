@@ -185,7 +185,7 @@ void ScanDin(void)
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KA1_ON;	             
+            KB1_ON;	             
 
 	     //CreatNewSMS(ABN_CHECK);                      //产生保护开关跳开短信//张弢
             for(i=0;i<6;i++)
@@ -217,7 +217,7 @@ void ScanDin(void)
             {
                  save_abnormal=0x66;
                  g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KA1_OFF; 
+             	 KB1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
@@ -266,7 +266,7 @@ void ScanDin(void)
     }
  //   YX_RMT();   //
     if(abnormal_ctl_flag==0)           ///////异常遥控标志       新电路板
-       KA1_OFF;  
+       KB1_OFF;  
     //if(power_ctl_flag==0)              ///////断电遥控标志//KB1改为投切灯
        //KB1_OFF;  //KB1改为投切灯
     if(eight_ctl_flag==0)              ///////有效8脉冲标志
@@ -379,8 +379,13 @@ void ScanDinYX(void)
 			g_gRmtInfo[YX_I0_TIMEOVER]=0;
 			SaveLOG(LOG_I0T_ERR, 0);
 			}
-		else
-			g_gI0OverTimer=g_gI0OverTimer-50;
+		else			
+			{
+			if(g_gI0OverTimer>50)
+				g_gI0OverTimer -= 50;
+			else
+				g_gI0OverTimer = 0;
+			}
 		}
 //*******************************************
 

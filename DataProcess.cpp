@@ -561,6 +561,7 @@ void CalcuRmtMeas(void)
 	 if(i == CHAN_Upt)//3
            g_gRmAcFilt[RM_UPt][g_unFilterIndex] = (unsigned long)table_sqrt(tDft) * COEF_AD_U>> 14;
     	}
+	/**/
 	 a=(unsigned long)g_gRmAcFilt[RM_UA][g_unFilterIndex];
          b=(unsigned long)g_gRmAcFilt[RM_UB][g_unFilterIndex];
          c=(unsigned long)g_gRmAcFilt[RM_UC][g_unFilterIndex];
@@ -586,6 +587,13 @@ void CalcuRmtMeas(void)
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
         g_gRmtFilMeas[9]=g_gRmtMeas[9];
+
+		g_gRmAcFilt[8][g_unFilterIndex]=g_gRmtMeas[RM_UCAP];
+		TempRm = AverFilter(g_gRmAcFilt[8]);
+		g_gRmtFilMeas[RM_UCAP]= TempRm*2;
+
+		g_gRmtFilMeas[RM_CSQ]=g_gRmtMeas[RM_CSQ];g_gRmtFilMeas[RM_ACT_NUM]=g_gRmtMeas[RM_ACT_NUM];
+		
     g_unFilterIndex++;
     if(g_unFilterIndex == 10)
     {

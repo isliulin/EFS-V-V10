@@ -935,7 +935,7 @@ __interrupt void TIMER0_A0_ISR(void)
 		McSecCount++;	
 		if(McSecCount>=16)//每16 采样1*1.25mS=20ms 则计算存储数据// 张弢测试中断嵌套
     		{	
-		 	g_unRmCaluFlag = ON; 
+		 	g_unRmCaluFlag = ON;//CalcuRmtMeas(); 
 		 	McSecCount = 0;
     		}		
     	}
@@ -1083,7 +1083,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KA1_ON;	
+            KB1_ON;	
 		KMP_CLR;
             for(i=0;i<6;i++)
                 g_sSoeData.m_gAbnBuff[i] = g_sRtcManager.m_gRealTimer[i];
@@ -1116,7 +1116,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
             {
                  save_abnormal=0x66;
                  //g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KA1_OFF; 
+             	 KB1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;             
@@ -1136,7 +1136,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 		ScanSoftLacth();		
 				
                 //if((P3IN&BIT7)== 0)     /////////检测到掉电，报警(新电路板)
-                if(g_gRmtMeas[RM_UPt]<100)
+                if(g_gRmtFilMeas[RM_UPt]<100)
        	         {
        	           if(Powerdown_counter<50)	
                        {Powerdown_counter++;}	
@@ -1145,19 +1145,19 @@ _EINT();//开总中断// 张弢测试中断嵌套
        	         {
        	             if(Powerdown_counter>0)	
                      	{
-             	        if(Powerdown_counter>1)	
+             	        if(Powerdown_counter>5)	
              		    	Powerdown_counter-=5;
                       	else
-              	         	Powerdown_counter--;
+              	         	Powerdown_counter=0;
               	
                       	}
        	         }
-                 if(eight_delay_counter>0)
+                 if((eight_delay_counter>0)&&(efslatch_flag==0))
                 {
                     eight_delay_counter--;
 		      if((eight_delay_counter==80)&&(g_sRecData.m_ucActRecStart == CLOSE)&&(g_sRecData.m_ucRecSavingFlag == OFF))	
 		      	{//动作录波要在继电器动作前最少0.5秒开始，现在设定提前0.8s
-		      	if(g_gDebugP[Debug_ALLREC]!=0x55)//����¼��ģʽ
+		      	if(g_gDebugP[Debug_ALLREC]==0)//����¼��ģʽ
 		      		{
 					unsigned long ulAddr =FADDR_RECORDER_ACTDATA+ (unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;//flash地址  
   					g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址 	
@@ -1208,7 +1208,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 				if(KMon==0x55)
           			{
                     NumKON++;
-		      		if(NumKON==12)
+		      		if(NumKON==13)
 						{//8脉冲继电器闭合130ms后，记录电流值
 						if(Numyc<8)
 							{
@@ -1229,7 +1229,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 		      			g_I0RmtZeroNum++;
 		      			}
 					//if(NumKON>(7+g_gProcCnt[PC_PLUSE_TIME]))
-					if(NumKON>30)
+					if(NumKON>I0JugTime)
 						KMon=0;
                 	}
 				else //if(g_gKON==OFF)//开关未闭合
@@ -1248,7 +1248,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
             		g_I0RmtNum = 0;	
 					}
 		//if( g_gRmtInfo[YX_EARTH_FAULT] == 0)g_I0RmtZeroNum = 0; 
-		if(g_I0RmtZeroNum>=4*(g_gRunPara[RP_PLUSE_TIME]))
+		if(g_I0RmtZeroNum>=4*I0JugTime)
 			{
 			g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
 			SaveLOG(LOG_BREAK, 1);			
@@ -1267,15 +1267,16 @@ _EINT();//开总中断// 张弢测试中断嵌套
     				SaveLOG(LOG_8FULS_STA, 0);
     				SaveLOG(LOG_LATCH, 1);
     				chongfa=0;	moniguzhang=0;
-    				g_gRmtMeas[RM_ACT_NUM] = 0;				
-  				 	g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
+    				g_gRmtMeas[RM_ACT_NUM] = 0;		
+					if(g_sRecData.m_ucActRecStart == ON)
+  				 		g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
 				}
 			}
 
                 
                 if(main_reset_flag==0)
     	        {
-    	            WDG_SET;                         //////设置看门狗    watch dog  hardware      
+    	            //WDG_SET;                         //////设置看门狗    watch dog  hardware      
     	        }
                 else if(main_reset_flag == 0x55)
                 {
@@ -1359,7 +1360,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 					  else if(g_sRecData.m_gXHDelay>=(g_gRunPara[RP_RHSEND_TIME1]-60))
 						  {
 					  //g_sRecData.m_gXHDelay=fault_time;
-						  if((g_gDebugP[Debug_ALLREC]!=0x55)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
+						  if((g_gDebugP[Debug_ALLREC]==0)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
 						  {
 					  //开始录波
 						  g_test=0;
@@ -1673,8 +1674,8 @@ _EINT();//开总中断// 张弢测试中断嵌套
 	             }
 
      //g_gRmtMeas[RM_UCAP] = g_unAdcData[6];
-    if(g_gRmtMeas[RM_UCAP]>2800){g_gRmtInfo[YX_SBP_OFF]=0;SaveLOG(LOG_UCAP, 0);}//5.87
-    if(g_gRmtMeas[RM_UCAP]<2600){g_gRmtInfo[YX_SBP_OFF]=1;SaveLOG(LOG_UCAP, 1);}//5.4v	               
+    if(g_gRmtFilMeas[RM_UCAP]>2800){g_gRmtInfo[YX_SBP_OFF]=0;SaveLOG(LOG_UCAP, 0);}//5.87
+    if(g_gRmtFilMeas[RM_UCAP]<2600){g_gRmtInfo[YX_SBP_OFF]=1;SaveLOG(LOG_UCAP, 1);}//5.4v	               
             }    
             
                        
