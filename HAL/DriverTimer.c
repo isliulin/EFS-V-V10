@@ -846,7 +846,109 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
 	      //g_gKONBK=OFF;
          }
 }
+//==============================================================================
+//  函数名称   : DetecI0
+//  功能描述   : 检测电流
+//  输入参数   : <无>
+//  输出参数   ：<无>
+//  返回值     : <无>
+//  其他说明   : 
+//  作者     ：
+//==============================================================================
+void DetecI0(void)
+{
+    static unsigned char NumKON = 0;     //8脉冲时 每个脉冲的10ms计数
+    static unsigned char Numyc = 0;     //8脉冲遥测值 yc[] 的数组下标
+    static unsigned char KMon=0;
 
+	if(g_gRmtMeas[RM_I0] >=I01A)
+		{
+		g_I0RmtZeroNum=0;
+		}
+/*
+	unsigned char ka,kb,kc;
+	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
+		{//0=nc
+		ka=0x08;kb=0x10;kc=0x20;
+		}
+	else
+		{//0=no
+		ka=0;kb=0;kc=0;
+		}	
+	if((KJa1==ka)||(KJb1==kb)||(KJc1==kc)||(g_gKON==1)||(g_gKON==2)||(g_gKON==3))
+	*/
+	if((g_gKON==1)||(g_gKON==2)||(g_gKON==3))
+		{
+		KMon=0x55;
+		}
+	if(KMon==0x55)
+		{
+		NumKON++;
+		if(NumKON==13)
+			{//8脉冲继电器闭合130ms后，记录电流值
+			if(Numyc<8)
+				{
+				yc[Numyc]=g_gRmtMeas[RM_I0]; 
+          		Numyc++;
+				}
+			}
+   	 	//g_sRecData.m_I0RmtMeas[g_sRecData.m_I0RmtNum] = g_gRmtMeas[4];
+       	if(g_gRmtMeas[RM_I0] >= g_gProcCntJug[PC_PULSE_VALID])
+     		{
+      		g_I0RmtZeroNum=0;
+			   			//g_gRmtInfo[YX_BREAK]=0; 			
+          	if(g_I0RmtNum < 19)
+           		g_I0RmtNum++;
+         	}
+		if(g_gRmtMeas[RM_I0] < I01A)
+			{
+		  	g_I0RmtZeroNum++;
+		 	}
+					//if(NumKON>(7+g_gProcCnt[PC_PLUSE_TIME]))
+		if(NumKON>I0JugTime)
+			KMon=0;
+      	}
+	else //if(g_gKON==OFF)//开关未闭合
+		{
+		NumKON=0;		  		
+		if(Numyc>=8)Numyc=0;
+		if(g_I0RmtNum >= 3) //((g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK])/2))     //检测到有效电流
+     		{
+      		g_I0RmtNum = 0;
+           	if(g_MaichongNum < 8)
+           		g_MaichongNum++;  
+			g_gRmtInfo[YX_BREAK]=0;
+			SaveLOG(LOG_BREAK, 0);
+			g_I0RmtZeroNum =0;
+         	}
+       	g_I0RmtNum = 0;	
+		}
+		//if( g_gRmtInfo[YX_EARTH_FAULT] == 0)g_I0RmtZeroNum = 0; 
+	if(g_I0RmtZeroNum>=4*I0JugTime)
+		{
+		g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
+		SaveLOG(LOG_BREAK, 1);			
+     	g_I0RmtZeroNum = 0;
+		if((g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_BREAK_STOP8PUL])&&(g_gRmtInfo[YX_MANUAL_ACTION]==0))
+			{
+			//停止8脉冲
+			KA0_OFF; KB0_OFF;KC0_OFF; g_gKON=OFF;//g_gKONBK=OFF;
+			eight_pulse_flag=0;
+    		pulse_phase_flag=0; 
+    		efslatch_flag= g_gProcCntJug[PC_LACTH_TIME];		 	         ///////闭锁17分钟
+    		latch_upload_flag=0x55;      	
+    		uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
+    		g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    		g_gRmtInfo[YX_EFS_ACT] = 0;
+    		SaveLOG(LOG_8FULS_STA, 0);
+    		SaveLOG(LOG_LATCH, 1);
+    		chongfa=0;	moniguzhang=0;
+    		g_gRmtMeas[RM_ACT_NUM] = 0;		
+			if(g_sRecData.m_ucActRecStart == ON)
+  			g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
+			}
+		}
+}
 //==============================================================================
 //  函数名称   : ContronlRelay
 //  功能描述   : 接触器控制模块，分为两种控制方式，单相投切与3相投切
@@ -981,9 +1083,7 @@ __interrupt void TIMER1_A1_ISR(void)    //毫秒中断函数
     static unsigned int MicSecCount = 0;  //10毫秒计时
     static unsigned int Mic50SecCount = 0;  //50毫秒计时//张弢 遥测越限	
     static unsigned int SecCount = 0;     //秒计时
-    static unsigned char NumKON = 0;     //8脉冲时 每个脉冲的10ms计数
-    static unsigned char Numyc = 0;     //8脉冲遥测值 yc[] 的数组下标
-    static unsigned char KMon=0;
+
     //static unsigned char Numk=0;     //8脉冲遥测值 yc[] 的数组下标
     switch(TA1IV)
     {
@@ -1133,7 +1233,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
                 if(g_ucDuanxianFlg <= 50)
                     g_ucDuanxianFlg++;
                 
-		ScanSoftLacth();		
+				ScanSoftLacth();		
 				
                 //if((P3IN&BIT7)== 0)     /////////检测到掉电，报警(新电路板)
                 if(g_gRmtFilMeas[RM_UPt]<100)
@@ -1180,98 +1280,10 @@ _EINT();//开总中断// 张弢测试中断嵌套
                         eight_delay_flag=0x55;
                 } 
                 ContronlRelay();       //投切接触器
-                
+                DetecI0();
                 //if(g_sRecData.m_ucRecStart == ON)  //张弢开关已经闭合
                 //if((g_gKON>0)&&(g_gKON<4))//张弢开关已经闭合
-	unsigned char ka,kb,kc;
-	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
-		{//0=nc
-		ka=0x08;kb=0x10;kc=0x20;
-		}
-	else
-		{//0=no
-		ka=0;kb=0;kc=0;
-		}	
-#ifdef CONDIN_3
-                if(g_gRmtMeas[RM_I0] >=I01A)
-                    {
-                     g_I0RmtZeroNum=0;
-			//g_gRmtInfo[YX_BREAK]=0;
-                	}
-	  	  		if((KJa1==ka)||(KJb1==kb)||(KJc1==kc)||(g_gKON==1)||(g_gKON==2)||(g_gKON==3))
-#else	                
-                if(KJb1==kb)
-#endif					
-                 	{
-		  			KMon=0x55;
-		  			}
-				if(KMon==0x55)
-          			{
-                    NumKON++;
-		      		if(NumKON==13)
-						{//8脉冲继电器闭合130ms后，记录电流值
-						if(Numyc<8)
-							{
-			  				yc[Numyc]=g_gRmtMeas[RM_I0]; 
-                            Numyc++;
-							}
-		      			}
-                    //g_sRecData.m_I0RmtMeas[g_sRecData.m_I0RmtNum] = g_gRmtMeas[4];
-                    if(g_gRmtMeas[RM_I0] >= g_gProcCntJug[PC_PULSE_VALID])
-                    	{
-                        g_I0RmtZeroNum=0;
-			   			//g_gRmtInfo[YX_BREAK]=0; 			
-                        if(g_I0RmtNum < 19)
-                            g_I0RmtNum++;
-                    	}
-		      		if(g_gRmtMeas[RM_I0] < I01A)
-		      			{
-		      			g_I0RmtZeroNum++;
-		      			}
-					//if(NumKON>(7+g_gProcCnt[PC_PLUSE_TIME]))
-					if(NumKON>I0JugTime)
-						KMon=0;
-                	}
-				else //if(g_gKON==OFF)//开关未闭合
-					{
-		  			NumKON=0;		  		
-		  			if(Numyc>=8)Numyc=0;
-		  			if(g_I0RmtNum >= 3) //((g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK])/2))     //检测到有效电流
-            			{
-              			g_I0RmtNum = 0;
-               			if(g_MaichongNum < 8)
-                			g_MaichongNum++;  
-						g_gRmtInfo[YX_BREAK]=0;
-						SaveLOG(LOG_BREAK, 0);
-						g_I0RmtZeroNum =0;
-              			}
-            		g_I0RmtNum = 0;	
-					}
-		//if( g_gRmtInfo[YX_EARTH_FAULT] == 0)g_I0RmtZeroNum = 0; 
-		if(g_I0RmtZeroNum>=4*I0JugTime)
-			{
-			g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
-			SaveLOG(LOG_BREAK, 1);			
-            g_I0RmtZeroNum = 0;
-			if((g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_BREAK_STOP8PUL])&&(g_gRmtInfo[YX_MANUAL_ACTION]==0))
-				{
-				//停止8脉冲
-				KA0_OFF; KB0_OFF;KC0_OFF; g_gKON=OFF;//g_gKONBK=OFF;
-				eight_pulse_flag=0;
-    				pulse_phase_flag=0; 
-    				efslatch_flag= g_gProcCntJug[PC_LACTH_TIME];		 	         ///////闭锁17分钟
-    				latch_upload_flag=0x55;      	
-    				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
-    				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
-    				g_gRmtInfo[YX_EFS_ACT] = 0;
-    				SaveLOG(LOG_8FULS_STA, 0);
-    				SaveLOG(LOG_LATCH, 1);
-    				chongfa=0;	moniguzhang=0;
-    				g_gRmtMeas[RM_ACT_NUM] = 0;		
-					if(g_sRecData.m_ucActRecStart == ON)
-  				 		g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
-				}
-			}
+
 
                 
                 if(main_reset_flag==0)
