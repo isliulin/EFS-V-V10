@@ -20,6 +20,15 @@ void app(void)@"APPLICATION"
       //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);
 		
 	SaveLOG(LOG_RESET,1);
+	  /*
+	while(1)
+    { 
+    FEED_WATCH_DOG();
+	CalcuRmtMeas();//有效值计算，并更新对应的遥测值
+	YCthCross();//遥测越限判断	
+	if(pDbg != null) pDbg->Run();
+        if(pGprs != null) pGprs->Run();
+	}*/
     while(1)
     { 
      SaveActRecData();

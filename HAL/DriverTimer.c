@@ -994,7 +994,7 @@ __interrupt void TIMER0_A0_ISR(void)
 {
    // unsigned int i,j;
       static unsigned char M125SecCount = 0;  // 1.25毫秒计时 // 张弢测试中断嵌套
-	static unsigned char pjno=0;
+	//static unsigned char pjno=0;
 	static unsigned char McSecCount=0;
  //#ifdef SD_101S     
       static unsigned char M05SecCount = 0;  // 0.5毫秒计时 // 张弢测试中断嵌套
@@ -1044,7 +1044,7 @@ __interrupt void TIMER0_A0_ISR(void)
 #ifndef SD_101S	
     RecData();
 #endif	
-
+/*
     if((M05SecCount&0x7f)==0)//每32 采样32*56.25uS=625us 则计算存储数据// 张弢测试中断嵌套
     	{	 
 	 	g_gRmtMeasPJ[0][pjno]=g_gRmtMeas[1];
@@ -1053,7 +1053,7 @@ __interrupt void TIMER0_A0_ISR(void)
        	pjno++;
 		if(pjno>31)pjno=0;;	
     	}
-
+*/
         //扫描开关量输入
        /*ScanDin();
 
@@ -1082,6 +1082,7 @@ __interrupt void TIMER1_A1_ISR(void)    //毫秒中断函数
     
     static unsigned int MicSecCount = 0;  //10毫秒计时
     static unsigned int Mic50SecCount = 0;  //50毫秒计时//张弢 遥测越限	
+    static unsigned int Mic100SecCount = 0;  //100毫秒计时
     static unsigned int SecCount = 0;     //秒计时
 
     //static unsigned char Numk=0;     //8脉冲遥测值 yc[] 的数组下标
@@ -1108,7 +1109,8 @@ _EINT();//开总中断// 张弢测试中断嵌套
             ScanDinYX();
 			ScanLOG();
             MicSecCount++;
-	     Mic50SecCount++;		
+	     Mic50SecCount++;
+		 Mic100SecCount++;
             SecCount = g_sRtcManager.m_gRealTimer[RTC_MICROSEC];
             //RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
             //ScanDinYX();//张弢 移入主循环，否则栈太大无法中断嵌套
@@ -1458,9 +1460,14 @@ _EINT();//开总中断// 张弢测试中断嵌套
                Mic50SecCount =0;
 		 //if((g_sRecData.m_ucActRecStart != OFF))	   
 		 //SaveActRecData();		   
-		 ScanPT();
+		 	ScanPT();
+		
              }
-	     		 
+	     	if(Mic100SecCount >= 100) 
+	     		{
+	     		Mic100SecCount =0;
+				g_un100msFilterFlag=0x55;
+	     		}
             if(SecCount >= 1000)   //秒计时
             {
             g_STimeout = ON; 

@@ -144,7 +144,7 @@ struct sSAMPLE_DATA
     unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，
     unsigned int g_gRmtFilMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，
     unsigned char g_gVErrTimer[10];	      //电压超过阈值确认时间计时	       
-    unsigned int g_gRmtMeasPJ[3][32];
+    unsigned int g_gRmtMeasPJ[8][10];
     unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM*/]; //备份遥测量
     unsigned int g_gYCYueXian;//张弢 遥测越限	
     unsigned int g_gYCchangData[20];
@@ -213,7 +213,9 @@ struct sSAMPLE_DATA
 
 	//unsigned int g_gRmtMeas[RMT_MEAS_NUM];//遥测量，保存需要上传到后台的遥测数据 = 开方(g_gProcMeas/16) * 0.6944
   	unsigned int g_gRmAcFilt[RMT_MEAS_NUM][RM_FILTER_NUM];//遥测量中的交流测量数据滤波 添加了3个线电压，但AD通道数不变，所以此处AC_AD_CHAN_NUM + 3
-        unsigned int g_unFilterIndex = 0;   //交流测量数据滤波数据保存的位置
+        unsigned char g_unFilterIndex = 0;   //交流测量数据滤波数据保存的位置
+        unsigned char g_un100msFilterIndex = 0;   //交流测量数据滤波数据保存的位置,100ms一次的滤波
+        unsigned char g_un100msFilterFlag = 0;   //交流测量数据滤波数据保存的位置,100ms一次的滤波
         volatile unsigned int g_unRmCaluFlag;    //遥测运算标志, 在中断中置ON，在大循环中置OFF，在进行遥测运算，如果该标志为ON，说明遥测数据更新了，可以进行遥测量运算
         volatile unsigned int g_unTESTFlag;  
   //unsigned long g_gProcMeas[PROC_MEAS_NUM];//保护用测量量，用于保护逻辑判断的测量量，为采样值的平方*16 最大值为(2048*2048/2*16)
@@ -244,7 +246,7 @@ extern unsigned int g_test;
     extern unsigned char g_gKONBK;//继电器状态
     extern unsigned int g_gRmtMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，保存需要上传到后台的遥测数据  
     extern unsigned int g_gRmtFilMeas[IEC_YC_NUM/*RMT_MEAS_NUM + 4*/];//遥测量，保存需要上传到后台的遥测数据
-    extern unsigned int g_gRmtMeasPJ[3][32];
+    extern unsigned int g_gRmtMeasPJ[8][10];
     extern unsigned int g_gRmtMeasBak[IEC_YC_NUM/*RMT_MEAS_NUM */]; //备份遥测量
     extern unsigned int g_gYCYueXian;//张弢 遥测越限	
     extern unsigned int g_gYCchangData[20];
@@ -309,7 +311,8 @@ extern unsigned int g_test;
 	extern struct sLOG_DATA g_sLogData[MAX_LOG_NUM];//LOG数据
   	//extern unsigned int g_gRmtMeas[RMT_MEAS_NUM];//遥测量，保存需要上传到后台的遥测数据
         extern unsigned int g_gRmAcFilt[RMT_MEAS_NUM][RM_FILTER_NUM];//遥测量中的交流测量数据滤波 添加了3个线电压，但AD通道数不变，所以此处AC_AD_CHAN_NUM + 3
-	//extern unsigned long g_gProcMeas[PROC_MEAS_NUM];//保护用测量量，用于保护逻辑判断的测量量
+		extern unsigned char g_un100msFilterFlag;
+		//extern unsigned long g_gProcMeas[PROC_MEAS_NUM];//保护用测量量，用于保护逻辑判断的测量量
        // extern unsigned int g_gRmtInfo[RMT_INFO_NUM];//遥信量，包括内部遥信量   
        extern volatile unsigned int g_unRmCaluFlag;    //遥测运算标志, 在中断中置ON，在大循环中置OFF，在进行遥测运算，如果该标志为ON，说明遥测数据更新了，可以进行遥测量运算
        extern volatile unsigned int g_unTESTFlag;

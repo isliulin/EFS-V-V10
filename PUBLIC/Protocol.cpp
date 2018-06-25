@@ -623,7 +623,7 @@ BOOL CProtocol::RecWriteFile(void)
     WORD wFile;
     BYTE bySec;//节名
     WORD wSecLen;//段长度
-    WORD i = 0,j = 0,k=0;
+    WORD i = 0,j = 0;//,k=0;
     WORD wPaStartId = 0;
     WORD wInfoAddr = 0;
     unsigned int unTemp = 0;
@@ -814,13 +814,16 @@ BOOL CProtocol::RecWriteFile(void)
            }
 	    for(j = 0; j < 3; j++)
            {  
-		unsigned long xjj;
+		/*unsigned long xjj;
 		xjj=0;
 		for(k=0;k<32;k++)
 		{
 			xjj += g_gRmtMeasPJ[j][k];
 		}
 		xjj = xjj>>5;
+		*/
+		unsigned int xjj;
+		xjj=g_gRmtFilMeas[j+1];
 		if(utempadj[j]>3000)
 			{
             		unTemp = g_gProcCnt[j];
@@ -839,11 +842,11 @@ BOOL CProtocol::RecWriteFile(void)
 			
             }
             unTemp = g_gProcCnt[3];
-            unTemp = (((unsigned long)utempadj[3]*100 * unTemp) /g_gRmtMeas[RM_U0]); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
+            unTemp = (((unsigned long)utempadj[3]*100 * unTemp) /g_gRmtFilMeas[RM_U0]); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
             if(unTemp > 3000 && unTemp < 6000)
                 	g_gProcCnt[3] = unTemp;
             unTemp = g_gProcCnt[4];
-            unTemp = (((unsigned long)utempadj[4]*100 * unTemp) /g_gRmtMeas[RM_I0]); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
+            unTemp = (((unsigned long)utempadj[4]*100 * unTemp) /g_gRmtFilMeas[RM_I0]); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
             if(unTemp > 3000 && unTemp < 6000)
                 	g_gProcCnt[4] = unTemp;
             for(i = 0; i <= 4; i++)
