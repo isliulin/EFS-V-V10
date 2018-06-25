@@ -1108,6 +1108,8 @@ BOOL CBJ101S::SendYCGroup(WORD GroupNo, BYTE Reason ,BYTE bType)
     			FP32 flt;
 			char *pdatachar=null;		
 			flt = (FP32)YCValue;	
+			if((YCNo==(g_ucYCAddr[7] - 1))&&(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CURRENT_PRIMARY]))//I0			
+				flt = (FP32)g_gRmtFilMeas[7]* g_gRunPara[RP_CT_TRANS]/100;//电流为1次值，单位A
 			pdatachar = (char *)&flt;
 			m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = *pdatachar++;//LOBYTE(LOWORD(flt));
 			m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = *pdatachar++;//HIBYTE(LOWORD(flt));

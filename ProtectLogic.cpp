@@ -39,8 +39,8 @@ static unsigned char  phasec_off= 0;
 //==============================================================================
 void ProtStart(void)
 {
+/*
     unsigned int m;
-
     int tempi,tempi2;
     unsigned int tAcTail,tAcTail2,tAcTailN;
     int *pAcData;
@@ -49,7 +49,7 @@ void ProtStart(void)
     tAcTail = g_sSampleData.m_unAcDataTail; //最新的位置
     tAcTail2 = (g_sSampleData.m_unAcDataTail - 8) & 0x1F;   //半个周期前的位置
     tAcTailN = (g_sSampleData.m_unAcDataTail - 16) & 0x1F;  //一个周期前的位置
-  //  for(i = 0; i < 3; i++)  //A相 B相 C相
+*/  //  for(i = 0; i < 3; i++)  //A相 B相 C相
   /*
     if(g_gProcCnt[PC_OVERLOAD_CNT] != 0)   //过流保护投入
     {
@@ -72,6 +72,7 @@ void ProtStart(void)
          g_gOverLoadTimeNum = 0;
          g_gOverLoadFlg = 0; 
     }*/
+    /*
     {
 
         pAcData = g_sSampleData.m_gAcAdcData[4];
@@ -127,6 +128,7 @@ void ProtStart(void)
       }     
         
     }
+    */
 	/*
     if((P3IN&BIT7)==0x00)    //检测到信号源掉电
     {

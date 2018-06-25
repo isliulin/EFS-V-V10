@@ -501,13 +501,18 @@ unsigned long CalcuDft(unsigned char AdcChannel)
     long i = 0;
     unsigned long result=0; 
 
-    for( n = 0 ; n < AC_SAMPLE_DOTS; n++ )
-    {   
+	
 
-        tAdcData = g_sSampleData.m_gAcAdcData[AdcChannel][(g_sSampleData.m_unAcDataTail - n) & 0x1F];
-	 r += ((long)real[2*n]) * tAdcData;
+    for( n = 0 ; n < (AC_SAMPLE_DOTS); n++ )
+    	{   
+		if((g_sSampleData.m_unAcDataTail& 0x1F)<16)
+			
+        	tAdcData = g_sSampleData.m_gAcAdcData[AdcChannel][ n & 0x1F];
+		else
+			tAdcData = g_sSampleData.m_gAcAdcData[AdcChannel][(16 + n) & 0x1F];
+	 	r += ((long)real[2*n]) * tAdcData;
         i += (long)img[2*n] * tAdcData;
-    }
+    	}
     r = r >> 13;
     i = i >> 13;
     result = (r * r + i * i);
