@@ -17,22 +17,12 @@ void app(void)@"APPLICATION"
     InitSys();    
       //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(0,11,null);
 	//WDG_CLR;delayms(3000);   WDG_CLR;     
-      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);
-		
+      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);		
 	SaveLOG(LOG_RESET,1);
-	  /*
-	while(1)
-    { 
-    FEED_WATCH_DOG();
-	CalcuRmtMeas();//有效值计算，并更新对应的遥测值
-	YCthCross();//遥测越限判断	
-	if(pDbg != null) pDbg->Run();
-        if(pGprs != null) pGprs->Run();
-	}*/
     while(1)
     { 
-     SaveActRecData();
-     FEED_WATCH_DOG();
+	SaveActRecData();
+  	FEED_WATCH_DOG();
  	if(g_STimeout == ON)
 		{
 		g_STimeout = OFF;
@@ -61,8 +51,8 @@ void app(void)@"APPLICATION"
        			}
     			}					
 		}
-      SaveActRecData();  
-	 if(g_NolinkWifi>900)
+	SaveActRecData();  
+	if(g_NolinkWifi>900)//900s=15minute
 	 	{
 	 	WIFIR_CLR;
 	 	if(g_NolinkWifi>901)
@@ -70,27 +60,27 @@ void app(void)@"APPLICATION"
 	 		WIFIR_SET;
 	 		g_NolinkWifi=0;
 	 		}
-	 	}
-	 if(g_NolinkReset>1440)
-	 	{
+	 	}	
+	if(g_NolinkReset>1440)//1440minute=24hour
+	 	{	 	
 	 	g_NolinkReset=0;
 	 	InitCommObj();
 	 	}
-        if(g_sRtcManager.m_ucRtcSynFlag == YES) //每4分钟从时钟芯片读取一次时间，该标志在定时器中断中计数设标志
+	if(g_sRtcManager.m_ucRtcSynFlag == YES) //每4分钟从时钟芯片读取一次时间，该标志在定时器中断中计数设标志
         {
-            ReadRealTime();//从RTC芯片中读取系统时钟，并更新SysTime中的时间
-            g_sRtcManager.m_ucRtcSynFlag = NO;
+       	ReadRealTime();//从RTC芯片中读取系统时钟，并更新SysTime中的时间
+       	g_sRtcManager.m_ucRtcSynFlag = NO;
 #ifndef YN_101S
-	    if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ	
+		if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(84,11,null);//读CSQ	
 #endif	
 		CheckCfgERR();
         }
-    	 SaveActRecData();
-        CalcuRmtMeas();//有效值计算，并更新对应的遥测值
-        ScanDin();
-		 SaveActRecData();
-	 YCthCross();//遥测越限判断	
-     ProtLogic();   
+  	SaveActRecData();
+	CalcuRmtMeas();//有效值计算，并更新对应的遥测值
+  	ScanDin();
+	SaveActRecData();
+	YCthCross();//遥测越限判断	
+  	ProtLogic();   
 	if(newsms_8pluse == ON)
 		{	
 		newsms_8pluse = OFF;
@@ -101,20 +91,19 @@ void app(void)@"APPLICATION"
 		newsms_abn = OFF;
  		CreatNewSMS(ABN_CHECK);
 		} 
-	 SaveActRecData();
+	SaveActRecData();
 	FEED_WATCH_DOG();
-        //Comm_LED_101(); //液晶通信
-        FEED_WATCH_DOG();
+        //Comm_LED_101(); //液晶通信       
         //if(g_ucGPRSState==GPRSState_IDLE)
-	 Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS
-      SaveActRecData();   
-        if(pDbg != null) pDbg->Run();
-        if(pGprs != null) pGprs->Run();
+	Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS
+	SaveActRecData();   
+ 	if(pDbg != null) pDbg->Run();
+   	if(pGprs != null) pGprs->Run();
         
-        SaveCfgPara();
-		SaveActRecData();
+   	SaveCfgPara();
+	SaveActRecData();
 
-            if(g_sRecData.m_ucRecSavingFlag == YES)//如果有新的录波数据则分批次保存到FLASH中
+			if(g_sRecData.m_ucRecSavingFlag == YES)//如果有新的录波数据则分批次保存到FLASH中
             	{
                 SaveRecData();//按照COMTRADE格式整理录波数据，并分批次保存到Flash中
                 g_sRecData.m_ucRecSavingFlag = OFF;
@@ -136,24 +125,24 @@ void app(void)@"APPLICATION"
 		      			}
 		        } 
 	 	
-        ClkChange();    //在实际试验过程发现MSP430容易出现由外部晶振自动切换为内部DCO，因此需要及时发现并切回来。
-        FEED_WATCH_DOG();
-        SaveSoeDataRepeat();
-		SaveActRecData();
-        RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
-        g_gRmtInfo[YX_SYSRESET] =0;
+	ClkChange();    //在实际试验过程发现MSP430容易出现由外部晶振自动切换为内部DCO，因此需要及时发现并切回来。
+	FEED_WATCH_DOG();
+ 	SaveSoeDataRepeat();
+	SaveActRecData();
+ 	RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
+	g_gRmtInfo[YX_SYSRESET] =0;
         //ScanDinYX();//张弢 移入主循环，否则栈太大无法中断嵌套	
         //ScanSoftLacth();//pt断线软闭锁
-        if((g_gSaveload>=g_gRunPara[RP_FLOAD_T] )&&(g_gRunPara[RP_FLOAD_T] !=0))//每隔一段时间存储负荷记录
-        	{
-        	g_gSaveload=0;
+	if((g_gSaveload>=g_gRunPara[RP_FLOAD_T] )&&(g_gRunPara[RP_FLOAD_T] !=0))//每隔一段时间存储负荷记录
+    	{
+     	g_gSaveload=0;
 		//SaveLoad();	
-        	}
-		SaveFlashLOG();
-		 SaveActRecData();
-        if(g_sRecData.m_EraseBlock == ON)
-        	{
-        	g_sRecData.m_EraseBlock = OFF;
+      	}
+	SaveFlashLOG();
+	SaveActRecData();
+  	if(g_sRecData.m_EraseBlock == ON)
+   		{
+      	g_sRecData.m_EraseBlock = OFF;
 		long ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;    
   		Block_Erase(ulAddr);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();
@@ -173,10 +162,10 @@ void app(void)@"APPLICATION"
   		delayms(100);WatchDog(); 
   		Block_Erase(ulAddr+0x80000);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();   
-        	}
-        if(g_sRecData.m_EraseBlock == YES)
-        	{
-        	g_sRecData.m_EraseBlock = OFF;
+       	}
+  	if(g_sRecData.m_EraseBlock == YES)
+      	{
+       	g_sRecData.m_EraseBlock = OFF;
 		long ulAddr = FADDR_RECORDER_XHDATA+(unsigned long)(g_sRecData.m_gXHRecCNum)*0x8000;    
   		Sector_Erase(ulAddr);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();
@@ -194,9 +183,8 @@ void app(void)@"APPLICATION"
  		 delayms(100);WatchDog();
   		Sector_Erase(ulAddr+0x7000);//ERASE 1个BLOCK 
   		delayms(100);WatchDog(); 
-
-        	}
-		 SaveActRecData();
+		}
+	SaveActRecData();
     }//end of while(1)
     
 

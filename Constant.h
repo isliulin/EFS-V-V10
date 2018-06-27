@@ -89,8 +89,11 @@ typedef double         FP64;            //双精度浮点数
 //==============================调试相关参数======================================
 #define Debug_U1BPS  		0//调试串口波特率 0=9600;1=19200;2=38400;3=57600;4=115200
 #define Debug_ALLREC  		1//全过程录波          0=禁止;85=全过程录波
-#define Debug_CRC           2//crc校验
-#define Debug_PARA_NUM    	3  //IEC运行的参数个数 
+#define Debug_1  		2//
+#define Debug_2  		3//
+#define Debug_3  		4//
+#define Debug_CRC           5//crc校验
+#define Debug_PARA_NUM    	6  //IEC运行的参数个数 
 
 
 //==============================IEC 101相关参数======================================

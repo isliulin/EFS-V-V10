@@ -1857,6 +1857,7 @@ BOOL CBJ101S::SendresetAck(void)
     SendFrameTail(PRM, dwCode, Num,0);
     if(m_QRP==1)
     {
+    SaveERRData(1);
       delayms(100);
       _DINT();
       while(1); 

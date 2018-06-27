@@ -797,6 +797,9 @@ BOOL CProtocol::RecWriteFile(void)
 		{
 		g_gDebugP[Debug_U1BPS]=pData[0];
 		g_gDebugP[Debug_ALLREC]=pData[1];
+		g_gDebugP[Debug_1]=pData[2];
+		g_gDebugP[Debug_2]=pData[3];
+		g_gDebugP[Debug_3]=pData[4];
 		g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
 		CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
 		SendWrPaSuc();
@@ -1113,7 +1116,8 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
           *///张弢 遥测起始地址修改运行参数
         break;
      case 5://读IEC参数
-       wPaTotalNum = IEC_PARA_NUM-1;
+       wPaTotalNum = IEC_PARA_NUM-1;	   
+	   //SaveERRNum(g_NolinkReset);
        for(i = 0;i < IEC_PARA_NUM-1;i++,wPaSendNum++)
         {
           m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_ucPara101[i];
@@ -1189,9 +1193,12 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
         }
 	else if(SecName==3)//调试串口波特率
 		{
-		wPaTotalNum = 2;
+		wPaTotalNum = Debug_CRC;
 		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_U1BPS];
 		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_ALLREC];
+		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_1];
+		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_2];
+		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_gDebugP[Debug_3];
 		}	
            break;
     case 10://读ODU参数

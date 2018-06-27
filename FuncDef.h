@@ -56,7 +56,8 @@ extern "C"
         void RECParaPro(void);
 	void DelALLSOE(void);
 	void DelALLLOG(void);
-	
+	void SaveERRData(unsigned char ErrData);
+	void SaveERRNum(unsigned int ErrNum);
         void SaveRecData(void);
 	 void SaveActRecData(void);	
 	 void SaveActRecDataCFG(void);		 
@@ -93,7 +94,8 @@ extern "C"
         extern void RECParaPro(void);
 	 extern void DelALLSOE(void);
 	 extern void DelALLLOG(void);
-
+	 extern void SaveERRData(unsigned char ErrData);
+	 extern void SaveERRNum(unsigned int ErrNum);
         extern void SaveRecData(void);
 	 extern void SaveActRecData(void);	
 	 extern void SaveActRecDataCFG(void);		 

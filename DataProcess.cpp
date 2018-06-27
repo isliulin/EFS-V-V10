@@ -1066,7 +1066,7 @@ void RecData(void)
 	 if((g_gKON>0)&&(g_gKON<4))g_sRecData.m_gRecAc[g_sRecData.m_unRecAcTail][3]|=BIT0;
 	
         g_sRecData.m_unRecAcTail++;
-        if(g_sRecData.m_unRecAcTail == REC_AC_LEN)
+        if(g_sRecData.m_unRecAcTail >= REC_AC_LEN)
             g_sRecData.m_unRecAcTail = 0;    
     
 
@@ -1230,7 +1230,7 @@ g_test++;
     	if((g_sRecData.m_unRecAcTail == 360))
     		g_sRecData.m_ucActRecSavingFlag = YES; //开始存储前320个点	  
         g_sRecData.m_unRecAcTail++;
-        if(g_sRecData.m_unRecAcTail == REC_AC_LEN)
+        if(g_sRecData.m_unRecAcTail >= REC_AC_LEN)
         {
            g_sRecData.m_unRecAcTail = 0;  
 	    g_sRecData.m_ucActRecSavingFlag = ON; //开始存储后320个点	 	   
@@ -1904,7 +1904,30 @@ void RECParaPro(void)
 {
 
 }
+//==============================================================================
+//  函数名称   : SaveERRData
+//  功能描述   : 记录故障信息
+//  输入参数   : <无>
+//  输出参数   : <无>
+//  返回值     : <无>
+//  其他说明   :
+//  作者       : 张弢
+//==============================================================================
+void SaveERRData(unsigned char ErrData)
+{
+	g_gDebugP[Debug_1]=ErrData;
+	g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
+	CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
+}
 
+void SaveERRNum(unsigned int ErrNum)
+{
+	g_gDebugP[Debug_2]=LOBYTE(ErrNum);
+	g_gDebugP[Debug_3]=HIBYTE(ErrNum);
+	g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
+	CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
+
+}
 
 //==============================================================================
 //  函数名称   : SaveRecData

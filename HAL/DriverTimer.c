@@ -1293,7 +1293,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     	            //WDG_SET;                         //////设置看门狗    watch dog  hardware      
     	        }
                 else if(main_reset_flag == 0x55)
-                {
+                {SaveERRData(2);
                     //重启系统
                     WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
                     _DINT();       //关闭全局中断

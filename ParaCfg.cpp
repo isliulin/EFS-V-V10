@@ -166,6 +166,7 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
     //电压bais
     if(g_gChangFlag[CHNG_ADJ] == ON)    //定值发生修改
     {
+    	SaveERRData(3);
         g_gChangFlag[CHNG_ADJ] = OFF;
         g_gAdjPara[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjPara, ADJ_CRC);      //计算CRC
         CAT_SpiWriteWords(EEPADD_BIAS_V, ADJ_PARA_NUM, (unsigned int *)g_gAdjPara);     //保存到EEPROM中
@@ -233,7 +234,7 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
              CAT_SpiWriteWords(EEPADD_ADJOBJ, ADJ_PARA_NUM, g_gAdjObj);//保存到EEPROM中               
              CAT_SpiWriteWords(EEPADDBK_ADJOBJ , ADJ_PARA_NUM, g_gAdjObj);   //保存到EEPROM的备份区中
              //张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A
-             
+            SaveERRData(4); 
              //重启系统
            WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
            _DINT();       //关闭全局中断
