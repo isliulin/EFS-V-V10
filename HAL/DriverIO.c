@@ -96,6 +96,8 @@ void ClkChange(void)
 {
     if(SFRIFG1&OFIFG)
     {
+    SaveERRNum(0x55);
+	delayms(100);
         do
         {
             UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
@@ -104,7 +106,8 @@ void ClkChange(void)
           
         } while (SFRIFG1&OFIFG);  
         UCSCTL4 |= SELS_4 + SELM_4 + SELA_5; // SMCLK=MCLK=DCO   经过试验发现如果出现切换DCO后，只要把异常标志清除应该就可以切换回来了                                                      //而UCSCTL4应该是没有变化的，因此这句话可能意义不是很大
-    } 
+	SaveERRNum(0x5555);
+	} 
 }
 
 

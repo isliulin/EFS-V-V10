@@ -663,21 +663,14 @@ BOOL CProtocol::RecWriteFile(void)
         if(bySec == 0 )//写运行参数
         {
           for(i = wPaStartId,j = 0; j < wSecLen/2 && i < RUN_PARA_NUM-1;i++,j++)
-          {//b
-             
-                  //参数赋值
-                  g_gRunPara[i] = MAKEWORD(pData[0],pData[1]);
-                  pData += 2;
-
-        }//b
-        /*//张弢 遥测起始地址修改运行参数
-        pData += 10;//张弢 0329  主动上传间隔时间
-	 g_ucPara_stime =*pData;   //张弢 0329  主动上传间隔时间
-	*/	//张弢 遥测起始地址修改运行参数
+          	{//参数赋值
+          	g_gRunPara[i] = MAKEWORD(pData[0],pData[1]);
+          	pData += 2;
+        	}
         if(g_gRunPara[RP_COMM_ADDR] == 0)//作为复位点表的方式，如果子站地址设置成0，则复位
-        {
+        	{
             RstRunPara();  //运行参数表复位
-        } 
+        	} 
         g_ucParaChang |= BIT0;
         SetEqpInfo();
       }
@@ -705,7 +698,7 @@ BOOL CProtocol::RecWriteFile(void)
             g_ucYXAddr[i] = MAKEWORD(pData[0],pData[1]);
             pData += 2;
           }
-	   g_ucYXAddr[i] = 0;	  
+	   	  g_ucYXAddr[i] = 0;	  
           if(g_ucYXAddr[0] == 0)//作为复位点表的方式，如果第一个就设置为0，则利用这种方式复位点表
           {
              RstIEC101YxAddr();  //遥信地址表复位
@@ -735,16 +728,19 @@ BOOL CProtocol::RecWriteFile(void)
         }
       break;
       case 8:
-        if(bySec == 0 )//写遥控点表
+        if(bySec == 0 )//写校准系数
         {
-        /*  for(i = wPaStartId,j = 0; j < wSecLen && i < IEC_YK_NUM;i++,j++)
+          for(i = wPaStartId,j = 0; j < wSecLen/2 && i < Modfi_PARA_NUM;i++,j++)
           {
-            g_ucYKPa[i] = *pData++;
+            g_gModfiPara[i] = MAKEWORD(pData[0],pData[1]);
+            pData += 2;
           }
-          if(g_ucYKPa[0] == 255)//作为复位点表的方式，如果第一个就设置为255，则利用这种方式复位点表
+          if(g_gModfiPara[0] == 255)//作为复位点表的方式，如果第一个就设置为255，则利用这种方式复位点表
           {
-              RstIEC101YkAddr();  //遥控地址表复位
-          } */
+              RstModfiPARA();  //遥控地址表复位
+          } 
+		  for(i = 0; i <= 4; i++)
+          	g_gProcCnt[i] = g_gModfiPara[i];
           g_ucParaChang |= BIT4;
         }
       break;
@@ -806,44 +802,35 @@ BOOL CProtocol::RecWriteFile(void)
 		}	
       break;
       case 10://张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
-        if(bySec == 0 )
-        {
+       	if(bySec == 0 )
+        	{
            //wPaTotalNum = ADJ_PARA_NUM;
-           unsigned int utempadj[ADJ_PARA_NUM];
-           for(i = 0;i < ADJ_PARA_NUM;i++)
-           {
- 		utempadj[i] =  MAKEWORD(pData[0],pData[1]);
-		pData += 2;	     	  
-           }
-	    for(j = 0; j < 3; j++)
-           {  
-		/*unsigned long xjj;
-		xjj=0;
-		for(k=0;k<32;k++)
-		{
-			xjj += g_gRmtMeasPJ[j][k];
-		}
-		xjj = xjj>>5;
-		*/
-		unsigned int xjj;
-		xjj=g_gRmtFilMeas[j+1];
-		if(utempadj[j]>3000)
-			{
+           	unsigned int utempadj[ADJ_PARA_NUM];
+           	for(i = 0;i < ADJ_PARA_NUM;i++)
+           		{
+ 				utempadj[i] =  MAKEWORD(pData[0],pData[1]);
+				pData += 2;	     	  
+           		}
+	    	for(j = 0; j < 3; j++)
+           		{  
+				unsigned int xjj;
+				xjj=g_gRmtFilMeas[j+1];
+				if(utempadj[j]>3000)
+					{
             		unTemp = g_gProcCnt[j];
             		unTemp = (((unsigned long)utempadj[j]* unTemp) /xjj); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
 		
-			if(unTemp > 3000 && unTemp < 6000)
+					if(unTemp > 3000 && unTemp < 6000)
                 		g_gProcCnt[j] = unTemp;
-			}
-		else
-			{
-			if((xjj>utempadj[j])&&(xjj<3000))
-				g_gAdjObj[j]=((unsigned long)(xjj-utempadj[j])*4096)/(3000-xjj);
-			else
-				g_gAdjObj[j]=0;
-			}
-			
-            }
+					}
+				else
+					{
+					if((xjj>utempadj[j])&&(xjj<3000))
+						g_gModfiPara[MOD_UAL_ADJ+j]=((unsigned long)(xjj-utempadj[j])*4096)/(3000-xjj);
+					else
+						g_gModfiPara[MOD_UAL_ADJ+j]=0;
+					}			
+            	}
             unTemp = g_gProcCnt[3];
             unTemp = (((unsigned long)utempadj[3]*100 * unTemp) /g_gRmtFilMeas[RM_U0]); //张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
             if(unTemp > 3000 && unTemp < 6000)
@@ -853,17 +840,18 @@ BOOL CProtocol::RecWriteFile(void)
             if(unTemp > 3000 && unTemp < 6000)
                 	g_gProcCnt[4] = unTemp;
             for(i = 0; i <= 4; i++)
-            		g_gRunPara[i + RP_UA_ADJ] = g_gProcCnt[i];   
-            g_gChangFlag[CHNG_MUBIAO] = ON;   
+            		g_gModfiPara[i] = g_gProcCnt[i];   
+            //g_gChangFlag[CHNG_MUBIAO] = ON; 
+            g_ucParaChang |= BIT4;
          }	   
 	  if(bySec == 1 )//低电压校准参数
         {
             for(i = 0;i < 3;i++)
            {
- 		g_gAdjObj[i] =  MAKEWORD(pData[0],pData[1]);
-		pData += 2;	     	  
+ 		//g_gAdjObj[i] =  MAKEWORD(pData[0],pData[1]);
+		//pData += 2;	     	  
            }
-	    g_gChangFlag[CHNG_MUBIAO] = ON; 		
+	    //g_gChangFlag[CHNG_MUBIAO] = ON; 		
 	  }
 	    SendWrPaSuc();	   
         
@@ -1139,30 +1127,13 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
         } 
         break;
       
-      case 8://读遥控点表
-       /*  wPaTotalNum = IEC_YK_NUM;
-         for(i = 0;i < IEC_YK_NUM;i++,wPaSendNum++)
+      case 8://读校准系数
+         wPaTotalNum = Modfi_CRC;
+         for(i = 0;i < Modfi_CRC;i++,wPaSendNum++)
          {
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_ucYKPa[i];
-         }*/
-         unsigned int uutempp;
-            wPaTotalNum = 10;
-	   uutempp=(unsigned int)g_unSSoeSaveFlashHead;
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = g_sRecData.m_gRecCNum;
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = 0;	
-	   uutempp=(unsigned int)(g_unSSoeSaveFlashHead>>16);
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(uutempp);
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(uutempp);	
-	   uutempp=g_unSSoeSaveE2ROMPtr;
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(uutempp);
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(uutempp);	
-	   uutempp=g_unSSoeSaveE2ROMPtr;
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(uutempp);
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(uutempp);	
-	   uutempp=soe_num;
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(uutempp);
-          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(uutempp);	
-
+          m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(g_gModfiPara[i]);
+		  m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(g_gModfiPara[i]);
+         }
          break;
       case 9://读ODU参数//张弢 读汉字站名
          /* if(pOdu == null) break;
@@ -1209,14 +1180,18 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
               m_SendBuf.pBuf[m_SendBuf.wWritePtr++] =(((CPrtcOdu *)pOdu1)->pReceiveFrame)->Frame67.Data[7+i];
            }
            *///张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
-           if(SecName==1)
+           if(SecName==0)
            	{
-           		wPaTotalNum = ADJ_PARA_NUM;
-           		for(i = 0;i < wPaTotalNum;i++,wPaSendNum++)
-           		{
-              		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(g_gAdjObj[i]);
-				m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(g_gAdjObj[i]);	  
-           		}
+           		//wPaTotalNum = 5;
+           		for(i = 0;i < 3;i++)
+           			{
+              		m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(6000);
+					m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(6000);	  
+           			}
+				m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(60);
+				m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(60);
+				m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = LOBYTE(2);
+				m_SendBuf.pBuf[m_SendBuf.wWritePtr++] = HIBYTE(2);
            	}
 	    else if(SecName==2)
 		{
@@ -1228,15 +1203,16 @@ void CProtocol::SendReadPa(WORD FileName,BYTE SecName)
             			{
                			Temp += g_sSampleData.m_gAcAdcData[j][i];
             			}
-            			Temp = Temp>>5;
+            			Temp = Temp>>5;						
 
-            			g_gAdjPara[j] = Temp + g_gAdjPara[j] ;
+            			g_gModfiPara[MOD_UA_OBJ+j] = Temp + g_gModfiPara[MOD_UA_OBJ+j] ;
 
-            			if( g_gAdjPara[j] <= 1500 ||g_gAdjPara[j] >= 2500)
-                			g_gAdjPara[j] = g_gAdjPara[j] - Temp;
+            			if( g_gModfiPara[MOD_UA_OBJ+j] <= 1500 ||g_gModfiPara[MOD_UA_OBJ+j] >= 2500)
+                			g_gModfiPara[MOD_UA_OBJ+j] = g_gModfiPara[MOD_UA_OBJ+j] - Temp;
             			Temp = 0;
         		}
-        		g_gChangFlag[CHNG_ADJ] = ON;  //置校正系数修改标志，校正后需重启
+        		//g_gChangFlag[CHNG_ADJ] = ON;  //置校正系数修改标志，校正后需重启
+        		g_ucParaChang |= BIT4;
 		}
 	     else if(SecName==4)
 		{		

@@ -56,6 +56,7 @@ extern "C"
         void RECParaPro(void);
 	void DelALLSOE(void);
 	void DelALLLOG(void);
+	void DelALLLB(void);
 	void SaveERRData(unsigned char ErrData);
 	void SaveERRNum(unsigned int ErrNum);
         void SaveRecData(void);
@@ -94,6 +95,7 @@ extern "C"
         extern void RECParaPro(void);
 	 extern void DelALLSOE(void);
 	 extern void DelALLLOG(void);
+	 extern void DelALLLB(void);
 	 extern void SaveERRData(unsigned char ErrData);
 	 extern void SaveERRNum(unsigned int ErrNum);
         extern void SaveRecData(void);
@@ -161,6 +163,7 @@ extern "C"
         void RstIEC101YxAddr(void);
         void RstIEC101YcAddr(void);
         void RstIEC101YkAddr(void);
+		void RstModfiPARA(void);
         void RstIEC101YcSiqu(void);
 		void RstSmsPhoneInfo(void);
 		void RstCnName(void);
@@ -194,6 +197,7 @@ extern "C"
         extern void RstIEC101YxAddr(void);
         extern void RstIEC101YcAddr(void);
         extern void RstIEC101YkAddr(void);
+		extern void RstModfiPARA(void);
         extern void RstIEC101YcSiqu(void);
 		extern void RstSmsPhoneInfo(void);
 		extern void RstCnName(void);

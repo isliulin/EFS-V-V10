@@ -135,7 +135,7 @@ struct sSAMPLE_DATA
     unsigned char g_SendZJDingshi = 0; 
     unsigned char 	g_YXLBOKCounter;
     unsigned char g_TQBSCounter = 0; //投切、闭锁指示灯计数器  =0 是灭 =0x55 闭锁常亮  >=1投切闪烁	
-    unsigned char FlashReading;	// 1=正在读flash，不能录波，不能写soe
+    //unsigned char FlashReading;	// 1=正在读flash，不能录波，不能写soe
     unsigned int g_unAdcData[7]; //ADCMEM的数据存放到该数组中
     unsigned int g_test;
     //unsigned char g_gFaF[256];//
@@ -239,7 +239,7 @@ extern unsigned int g_test;
     extern unsigned int g_gRmtLockLB;//录波标志位遥信闭锁时间计数	
     extern unsigned char g_SendZJDingshi; 
     extern unsigned char g_TQBSCounter; 
-    extern unsigned char FlashReading;		
+    //extern unsigned char FlashReading;		
     extern struct sREC_DATA g_sRecData;
     extern unsigned int g_unAdcData[7]; //ADCMEM的数据存放到该数组中
     extern unsigned char g_gKON;//继电器状态
@@ -372,6 +372,7 @@ extern unsigned int g_test;
     	};
         
         unsigned int g_gRunPara[RUN_PARA_NUM];//运行参数，保存装置的一些配置信息，包括通信参数等
+        unsigned int g_gModfiPara[Modfi_PARA_NUM];//校正系数
         BYTE g_gIPPort[13];//  2个IP及端口，
         BYTE g_gAPN[20];
         BYTE g_gSMSR;//GPRS模块接收短信  0=不接收 1=接收         
@@ -384,7 +385,7 @@ extern unsigned int g_test;
         unsigned int g_gAdjObj[ADJ_PARA_NUM];//张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A    
         unsigned char g_gModfk[24];
 	unsigned char kat,kbt,kct,Numk;	
-  	int g_gAdjPara[ADJ_PARA_NUM];//校正参数，保存各个通道的校正参数   
+  	//int g_gAdjPara[ADJ_PARA_NUM];//校正参数，保存各个通道的校正参数   
   	unsigned int g_gAdjAD[ADJ_PARA_NUM];//根据校正参数，计算出的AD值的偏移量
   	//unsigned int g_gRunInfo[RUN_INFO_NUM];//运行信息，保存装置运行的部分信息，比如合分闸次数  	
   	unsigned char g_gChangFlag[PARA_NUM];	//参数变化标志，如果发生参数更改，则置位，把参数保存到eeprom中
@@ -423,7 +424,7 @@ extern unsigned int g_test;
         extern const unsigned int BIT[16];
         
         extern unsigned int g_gRunPara[RUN_PARA_NUM];//运行参数，保存装置的一些配置信息，包括通信参数等
-        
+        extern unsigned int g_gModfiPara[Modfi_PARA_NUM];//校正系数
 		//extern unsigned char g_open_oducall;
 		//extern unsigned int Before4HourSdYcTm;
 		//extern unsigned char g_LineFlag[12];
@@ -436,7 +437,7 @@ extern unsigned int g_test;
         extern BYTE g_gIPPort[13];//  2个IP及端口
         extern BYTE g_gAPN[20];
         extern BYTE g_gSMSR;//GPRS模块接收短信  0=不接收 1=接收         
-	extern int g_gAdjPara[ADJ_PARA_NUM];//校正参数，保存各个通道的校正参数
+	//extern int g_gAdjPara[ADJ_PARA_NUM];//校正参数，保存各个通道的校正参数
 	extern unsigned int g_gAdjAD[ADJ_PARA_NUM];//根据校正参数，计算出的AD值的偏移量
 	extern unsigned int g_gAdjObj[ADJ_PARA_NUM];//张弢 目标校准，上位机下载参数 初始值为电压60V,电流2A
 	extern unsigned char g_gModfk[24];

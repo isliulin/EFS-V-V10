@@ -17,7 +17,8 @@ void app(void)@"APPLICATION"
     InitSys();    
       //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(0,11,null);
 	//WDG_CLR;delayms(3000);   WDG_CLR;     
-      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);		
+      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);	
+    SaveERRNum(SYSRSTIV);
 	SaveLOG(LOG_RESET,1);
     while(1)
     { 
@@ -380,7 +381,8 @@ bool TimeOut(int flag)
            pDbg->initpara();
        if(pGprs != null)
           pGprs->initpara();
-          
+       InitCommObj();
+	   /*
        //若是端口重新分配，则需要重判断类对象的启动或停止
         BYTE bChange= 0;
        for(int i = 0;i < 4;i++)
@@ -393,7 +395,7 @@ bool TimeOut(int flag)
        }
        if(bChange == 1)
           InitCommObj();
-       
+       */
     }
     
     return;
@@ -443,4 +445,115 @@ BOOL CheckHaveDataToSd()
   return 0;
 }
 
+#pragma vector=UNMI_VECTOR
+__interrupt void unmi_isr(void)
+{ 
+	switch(__even_in_range(SYSUNIV, 0x08))
+		{
+		case 0x00: 
+			SaveERRData(7);  
+			delayms(100);
+			break;
+		case 0x02: 
+			SaveERRData(3); 
+			delayms(100);
+            //WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
+            //_DINT();       //关闭全局中断
+            //while(1);
+			break; // NMIIFG
+		case 0x04: 
+			SaveERRData(4); 
+			delayms(100);
+			break; // OFIFG
+		case 0x06: 
+			SaveERRData(5);  
+			delayms(100);            
+			break; // ACCVIFG
+		/*
+		case 0x08: // BUSIFG
+		// If needed, obtain the flash error location here.
+		ErrorLocation = MidGetErrAdr();
+		switch(__even_in_range(SYSBERRIV, 0x08))
+			{ 
+			case 0x00: break; // no bus error
+			case 0x02: break; // USB bus error
+			case 0x04: break; // reserved
+			case 0x06: // MID error
+			//<place your MID error handler code here>
+			break;
+			case 0x08: break;
+			default: break;
+			}
+		break;
+		*/
+		default: 
+			SaveERRData(6);  
+			delayms(100);
+			break;
+        }
+}
+
+#pragma vector=SYSNMI_VECTOR
+__interrupt void sysnmi_isr(void)
+{
+	switch(__even_in_range(SYSSNIV, 0x08))
+		{
+		case 0x00: break;
+		case 0x02: 
+			break;
+		case 0x04: 
+			break;
+		case 0x06: 
+			break;
+		case 0x08: 
+			break;
+		case 0x0a: 
+			break;
+		case 0x0c: 
+			break;
+		case 0x0e: 
+			break;
+		case 0x10: 
+			break;
+		case 0x12: 
+			break;
+		default: 
+			break;
+		}
+	SaveERRData(9);  
+	delayms(100);            
+}
+/*
+#pragma vector=RESET_VECTOR
+__interrupt void sysreset_isr(void)
+{
+	switch(__even_in_range(SYSRSTIV, 0x08))
+		{
+		case 0x00: break;
+		case 0x02: 
+			break;
+		case 0x04: 
+			break;
+		case 0x06: 
+			break;
+		case 0x08: 
+			break;
+		case 0x0a: 
+			break;
+		case 0x0c: 
+			break;
+		case 0x0e: 
+			break;
+		case 0x10: 
+			break;
+		case 0x12: 
+			break;
+		default: 
+			break;
+		}
+	SaveERRData(10); 
+	SaveERRNum(SYSRSTIV);        
+	delayms(100);        
+}
+*/
 #endif
