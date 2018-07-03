@@ -96,8 +96,6 @@ void ClkChange(void)
 {
     if(SFRIFG1&OFIFG)
     {
-    SaveERRNum(0x55);
-	delayms(100);
         do
         {
             UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
@@ -106,8 +104,7 @@ void ClkChange(void)
           
         } while (SFRIFG1&OFIFG);  
         UCSCTL4 |= SELS_4 + SELM_4 + SELA_5; // SMCLK=MCLK=DCO   经过试验发现如果出现切换DCO后，只要把异常标志清除应该就可以切换回来了                                                      //而UCSCTL4应该是没有变化的，因此这句话可能意义不是很大
-	SaveERRNum(0x5555);
-	} 
+    } 
 }
 
 
@@ -188,7 +185,7 @@ void ScanDin(void)
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KB1_ON;	             
+            KA1_ON;	             
 
 	     //CreatNewSMS(ABN_CHECK);                      //产生保护开关跳开短信//张弢
             for(i=0;i<6;i++)
@@ -220,7 +217,7 @@ void ScanDin(void)
             {
                  save_abnormal=0x66;
                  g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KB1_OFF; 
+             	 KA1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;
@@ -269,7 +266,7 @@ void ScanDin(void)
     }
  //   YX_RMT();   //
     if(abnormal_ctl_flag==0)           ///////异常遥控标志       新电路板
-       KB1_OFF;  
+       KA1_OFF;  
     //if(power_ctl_flag==0)              ///////断电遥控标志//KB1改为投切灯
        //KB1_OFF;  //KB1改为投切灯
     if(eight_ctl_flag==0)              ///////有效8脉冲标志
@@ -382,6 +379,7 @@ void ScanDinYX(void)
 			g_gRmtInfo[YX_I0_TIMEOVER]=0;
 			SaveLOG(LOG_I0T_ERR, 0);
 			}
+<<<<<<< HEAD
 		else			
 			{
 			if(g_gI0OverTimer>50)
@@ -389,6 +387,10 @@ void ScanDinYX(void)
 			else
 				g_gI0OverTimer = 0;
 			}
+=======
+		else
+			g_gI0OverTimer=g_gI0OverTimer-50;
+>>>>>>> parent of 5143f80... test1
 		}
 //*******************************************
 

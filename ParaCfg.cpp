@@ -37,12 +37,15 @@ void InitcfgPara(void)
     InitTsYxInfo();
     InitTsYcInfo();
     FEED_WATCH_DOG();
-	CheckAdjPara(); //读取各通道校正参数，如果参数错误，置对应的遥信位，并按照默认参数校正
-    CheckProtCnt(); //读取保护定值，如果定值错误置对应的遥信位    
+    CheckProtCnt(); //读取保护定值，如果定值错误置对应的遥信位
+
+    CheckAdjPara(); //读取各通道校正参数，如果参数错误，置对应的遥信位，并按照默认参数校正
     FEED_WATCH_DOG();
-    CheckRunInfo(); //读取运行信息，如果信息错误，则把运行信息清0   
+    CheckRunInfo(); //读取运行信息，如果信息错误，则把运行信息清0
+   
     CheckTELNUMPara(); //读取电话号码
      FEED_WATCH_DOG();
+
    // g_gChangFlag[CHNG_INFO] = ON;
     FEED_WATCH_DOG();
    // CheckParaData();    //检查参数数据的有效性
@@ -146,9 +149,9 @@ void TELNUMTOggSmsPhone(void)
 void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存到对应的存储器中
 {
     unsigned int i;      //tPCSele[2],
-    //unsigned int temp[8];
-    //unsigned long ulAddr;
-	//unsigned char u_dellubo;
+    unsigned int temp[8];
+    unsigned long ulAddr;
+	unsigned char u_dellubo;
     //unsigned int ucTemp[2];
     if(g_gChangFlag[CHNG_INFO] == ON)       //定值发生修改
     {
@@ -159,7 +162,7 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
         CAT_SpiWriteWords(EEPADDBK_COM, RUN_INFO_NUM, g_gRunInfo);    //保存到EEPROM的备份区中
            
     }
-    /*
+
     //电压bais
     if(g_gChangFlag[CHNG_ADJ] == ON)    //定值发生修改
     {
@@ -173,10 +176,10 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
            _DINT();       //关闭全局中断
            while(1);
  
-    }*/	
-    /*
+    }
+
     //保护定值
-    if(g_gChangFlag[CHNG_PC] == ON || g_gChangFlag[CHNG_MUBIAO] == ON) //定值发生修改    
+    if(g_gChangFlag[CHNG_PC] == ON || g_gChangFlag[CHNG_MUBIAO] == ON) //定值发生修改
     {
         
         g_gChangFlag[CHNG_PC] = OFF;
@@ -205,18 +208,25 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
             //g_gProcCnt[PC_JAG_Z] = 0x55;       //零序判据标志
         }
 
-        for(i = 5; i <= PROC_CNT_NUM; i++)
+        for(i = 0; i <= PROC_CNT_NUM; i++)
            g_gRunPara[i + RP_UA_ADJ] = g_gProcCnt[i];
         g_gRunPara[RP_CRC] = CrcCount((unsigned int *)g_gRunPara, RP_CRC);      //计算CRC
         CAT_SpiWriteWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
-        CAT_SpiWriteWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中          
+        CAT_SpiWriteWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中        
+        /*
+        //张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A g_gAdjObj[ADJ_PARA_NUM]	 
+	      g_gAdjObj[ADJ_CRC] = CrcCount((unsigned int *)g_gAdjObj, ADJ_CRC);      //计算CRC
+             CAT_SpiWriteWords(EEPADD_ADJOBJ , ADJ_PARA_NUM, (unsigned int *)g_gAdjObj);     //保存到EEPROM中
+             CAT_SpiWriteWords(EEPADDBK_ADJOBJ , ADJ_PARA_NUM, (unsigned int *)g_gAdjObj);   //保存到EEPROM的备份区中
+             //张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A
+        */
         //根据实际程序中判断需要，把定值依据系数换算成内部程序的定值数据
         CalcProtCnt();
         
        // g_gProcCnt[PC_CRC] = CrcCount((unsigned int *)g_gProcCnt, PC_CRC);      //计算CRC
        // CAT_SpiWriteWords(EEPADD_CAL_PRAR, PROC_CNT_NUM, g_gProcCnt);     //保存到EEPROM中
       //  CAT_SpiWriteWords(EEPADDBK_CAL_PRAR, PROC_CNT_NUM, g_gProcCnt);    //保存到EEPROM的备份区中 
-       if(g_gChangFlag[CHNG_MUBIAO] == ON)
+        if(g_gChangFlag[CHNG_MUBIAO] == ON)
         {
              g_gChangFlag[CHNG_MUBIAO] = OFF;		
 		//张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A g_gAdjObj[ADJ_PARA_NUM]	 
@@ -229,49 +239,63 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
            WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
            _DINT();       //关闭全局中断
            while(1);
-        }        
-    }*/
-    /*
+        }
+    }
     if(g_gChangFlag[CHNG_TEL] == ON)       //电话号码发生修改
     {
-        g_gChangFlag[CHNG_TEL] = OFF;  
+        g_gChangFlag[CHNG_PC] = OFF;  
 
   	TELNUMTOggSmsPhone();//张弢 0328
          g_gSmsPhone[PHONE_CS] = AddChar(g_gSmsPhone, PHONE_CS);      //计算CS//张弢 0328
         CAT_SpiWriteBytes(EEPADD_PHONE , PHONE_PA_NUM, g_gSmsPhone);     //保存到EEPROM中//张弢 0328
-    }*/
+    }
     RefreshPara();
  
     //运行参数
     if((g_ucParaChang & BIT0) == BIT0)
     {
-    	g_gRmtInfo[YX_EFS_ABNORMAL] = 0;       
+    	g_gRmtInfo[YX_EFS_ABNORMAL] = 0;
+       u_dellubo =0;
         if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_DEL_LUBO])
     	{
-    	DelALLSOE();
-		DelALLLOG();
-    	DelALLLB();
+    	u_dellubo = 1;
     	g_gRunPara[RP_CFG_KEY]=g_gRunPara[RP_CFG_KEY]&(~BIT[RPCFG_DEL_LUBO]);
     	}
-
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_A])
-    	{
-        g_gModfiPara[MOD_PLUSE_A]= 0;
-    	}	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_B])
-    	{
-        g_gModfiPara[MOD_PLUSE_B]= 0;
-    	}	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_C])
-    	{
-        g_gModfiPara[MOD_PLUSE_C]= 0;
-    	}		
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_MODFK])
+    {
+        g_gRunPara[RP_PLUSE_MODFK]= 0;
+    }
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_AMODFK])
+    {
+        g_gRunPara[RP_PLUSE_AMODFK]= 0;
+    }	
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_BMODFK])
+    {
+        g_gRunPara[RP_PLUSE_BMODFK]= 0;
+    }	
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_CMODFK])
+    {
+        g_gRunPara[RP_PLUSE_CMODFK]= 0;
+    }		
     if((g_gRunPara[RP_PLUSE_NUM]<6)||(g_gRunPara[RP_PLUSE_NUM]>8))
-    	{
+    {
         g_gRunPara[RP_PLUSE_NUM]= 8;
-    	}	
+    }	
+        g_ucParaChang &= NBIT0;
+        g_gRunPara[RP_CRC] = CrcCount((unsigned int *)g_gRunPara, RP_CRC);      //计算CRC
+        CAT_SpiWriteWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
+        CAT_SpiWriteWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中           
+
+	 /*			
+        ucTemp[1] = g_ucPara_stime;ucTemp[0] = g_ucPara_stime; //张弢 0329  主动上传间隔时间
+        CAT_SpiWriteWords(EEPADD_STIME_PRAR, 2,ucTemp) ;   //张弢 0329  主动上传间隔时间
         
-	if(g_gRunPara[RP_SENDYC_T] > 0)   //定时上传遥信
+        g_ucPara_stime = g_gRunPara[RP_SENDSMS_T];//张弢 遥测起始地址修改运行参数
+        
+	 if((g_ucPara_stime <2)||(g_ucPara_stime>48))  ////预置成24小时发送一次
+            g_ucPara_stime = 24; 
+        */
+        if(g_gRunPara[RP_SENDYC_T] > 0)   //定时上传遥信
 #ifdef YN_101S
             g_gsendYCTimeNum = ((unsigned long)g_gRunPara[RP_SENDYC_T]*10);
 #else
@@ -279,19 +303,19 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
 #endif
         else
             g_gsendYCTimeNum = 0;
-	if(g_gRunPara[RP_SENDYX_T] > 0)   //定时上传遥信
+        if(g_gRunPara[RP_SENDYX_T] > 0)   //定时上传遥信
             g_gsendYXTimeNum = ((unsigned long)g_gRunPara[RP_SENDYX_T]);
         else
             g_gsendYXTimeNum = 0;
-  	if(g_gRunPara[RP_BEAT_T] > 0)   //定时心跳
+        if(g_gRunPara[RP_BEAT_T] > 0)   //定时心跳
             g_gBeatNum = ((unsigned long)g_gRunPara[RP_BEAT_T]);
         else
             g_gBeatNum = 0;
-	if(g_gRunPara[RP_SENDZJ_T] > 0)   //定时上传自检
+	 if(g_gRunPara[RP_SENDZJ_T] > 0)   //定时上传自检
             g_gsendZJTimeNum = ((unsigned long)g_gRunPara[RP_SENDZJ_T])*10;
         else
             g_gsendZJTimeNum = 0;	
-   	if(g_gRunPara[RP_CNL_MODEL] == 0)
+        if(g_gRunPara[RP_CNL_MODEL] == 0)
         {
            g_gRmtInfo[YX_FUN_ON] = 0;
            g_gRunPara[RP_JAG_P] = 0;       //相判据标志
@@ -303,23 +327,81 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
           // g_gRunPara[RP_JAG_P] = 0x55;       //相判据标志
           // g_gRunPara[RP_JAG_Z] = 0x55;       //零序判据标志
         }
-	if((g_gRunPara[RP_T_DELAY]/10)<=(g_gRunPara[RP_RHSEND_TIME1]+g_gRunPara[RP_RHPLUSE_TIME2]+200))
+	 if((g_gRunPara[RP_T_DELAY]/10)<=(g_gRunPara[RP_RHSEND_TIME1]+g_gRunPara[RP_RHPLUSE_TIME2]+200))
 	 	{
 	 	g_gRunPara[RP_RHSEND_TIME1]=100;
 		g_gRunPara[RP_T_DELAY] = 10000;               //故障延时时间
 	 	}
-	if(g_gRunPara[RP_T_DELAY]<4000)
+	 if(g_gRunPara[RP_T_DELAY]<4000)
 	 	g_gRunPara[RP_T_DELAY] = 10000;               //
-	if(g_gRunPara[RP_RHSEND_TIME1]<65)
+
+	if(u_dellubo==1 )
+    	{
+    	//g_gRunPara[RP_CFG_KEY]=g_gRunPara[RP_CFG_KEY]&(~BIT[RPCFG_DEL_LUBO]);
+    	u_dellubo  = 0;
+		DelALLSOE();
+		DelALLLOG();
+    		temp[0]=0;temp[1]=0;temp[2]=0;temp[3]=0;temp[4]=0;temp[5]=0;    	
+       	CAT_SpiWriteWords(EEPADD_LUBONUM, 6, temp); 
+        	g_sRecData.m_gRecANum=temp[0];//录波总条数1~32
+      		g_sRecData.m_gRecCNum=temp[1];//录波当前位置0~31
+      		g_sRecData.m_gACTRecANum=temp[2];//录波总条数1~32
+      		g_sRecData.m_gACTRecCNum=temp[3];//录波当前位置0~31      
+      		g_sRecData.m_gXHRecANum=temp[4];//录波总条数1~32
+      		g_sRecData.m_gXHRecCNum=temp[5];//录波当前位置0~31
+
+		  ulAddr = FADDR_RECORDER_DATA+(unsigned long)(g_sRecData.m_gRecCNum)*0x2000;//flash地址  
+  Sector_Erase(ulAddr);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x1000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  
+  ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;  
+  g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址  
+  Block_Erase(ulAddr);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x10000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x20000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x30000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog(); 
+  Block_Erase(ulAddr+0x40000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x50000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x60000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Block_Erase(ulAddr+0x70000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog(); 
+  Block_Erase(ulAddr+0x80000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();  
+
+  ulAddr = FADDR_RECORDER_XHDATA+(unsigned long)(g_sRecData.m_gXHRecCNum)*0x8000;//flash地址
+  //g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址  
+  Sector_Erase(ulAddr);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x1000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x2000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x3000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x4000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x5000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x6000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();
+  Sector_Erase(ulAddr+0x7000);//ERASE 1个BLOCK 
+  delayms(100);WatchDog();  
+  FlashReading = 0;	
+  
+        }
+	 if(g_gRunPara[RP_RHSEND_TIME1]<65)
 	 	g_gRunPara[RP_RHSEND_TIME1]=100;
-	if(g_gRunPara[RP_CT_TRANS]==0)
-		g_gRunPara[RP_CT_TRANS]=20;
-	
-	g_ucParaChang &= NBIT0;
-  	g_gRunPara[RP_CRC] = CrcCount((unsigned int *)g_gRunPara, RP_CRC);      //计算CRC
- 	CAT_SpiWriteWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
-  	CAT_SpiWriteWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中 
-  	CalcProtCnt();
+	 if(g_gRunPara[RP_CT_TRANS]==0)g_gRunPara[RP_CT_TRANS]=20;
+         CalcProtCnt();
 	SaveLOG(LOG_PAR_CHAG,1);
     }
     
@@ -423,14 +505,6 @@ void SaveCfgPara(void)  //在运行过程中，如果某各配置参数发生变化，把配置参数保存
     {
         g_ucParaChang &= NBIT7;
     }	
-    if((g_ucParaChang & BIT4) == BIT4)
-    {
-        g_ucParaChang &= NBIT4;
-		SaveLOG(LOG_PAR_CHAG,1);
-		g_gModfiPara[Modfi_CRC] = CrcCount((unsigned int *)g_gModfiPara, Modfi_CRC);//CRC校验
-    	CAT_SpiWriteWords(EEPADD_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara); 
-		CAT_SpiWriteWords(EEPADDBK_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);
-    }	
 }
 //==============================================================================
 //  函数名称   : CheckCfgPara
@@ -453,29 +527,36 @@ void CheckCfgPara(void)
     {
     	CAT_SpiReadWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara);  //读出当前保护定值
     	if (g_gRunPara[RP_CRC] != CrcCount((unsigned int *)g_gRunPara, RP_CRC)) //CRC校验错误
-      		{
+      {
       		RstRunPara();
       		CalcProtCnt();
-      		CAT_SpiWriteWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
-      		CAT_SpiWriteWords(EEPADDBK_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
-    		}
+      		g_ucParaChang |= BIT0;   //调用保存函数
+    	}
 	else
-		{
+	{
 		 CAT_SpiWriteWords(EEPADD_RP, RUN_PARA_NUM, g_gRunPara); //保存到EEPROM中
-		}
+	}
     }
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_A])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_MODFK])
     {
-        g_gModfiPara[MOD_PLUSE_A]= 0;
+        g_gRunPara[RP_PLUSE_MODFK]= 0;
     }	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_B])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_AMODFK])
     {
-        g_gModfiPara[MOD_PLUSE_B]= 0;
+        g_gRunPara[RP_PLUSE_AMODFK]= 0;
     }	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_C])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_BMODFK])
     {
-        g_gModfiPara[MOD_PLUSE_C]= 0;
+        g_gRunPara[RP_PLUSE_BMODFK]= 0;
+    }	
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_CMODFK])
+    {
+        g_gRunPara[RP_PLUSE_CMODFK]= 0;
     }		
+    if(g_gRunPara[RP_RHPLUSE_TIME2]<=g_gRunPara[RP_PLUSEXH_MODFK])
+    {
+        g_gRunPara[RP_PLUSEXH_MODFK]= 0;
+    }
     if((g_gRunPara[RP_PLUSE_NUM]<6)||(g_gRunPara[RP_PLUSE_NUM]>8))
     {
         g_gRunPara[RP_PLUSE_NUM]= 8;
@@ -533,6 +614,11 @@ void CheckCfgPara(void)
             g_ucParaChang |= BIT2;   //调用保存函数
         }
     }
+  /*  if (g_ucYXAddr[IEC_YX_NUM] != AddChar((unsigned char *)g_ucYXAddr, IEC_YX_NUM*2))       //CRC校验
+    {
+       RstIEC101YxAddr();  //遥信点表初始化
+       g_ucParaChang |= BIT2;   //调用保存函数
+    }*/
     
     //101的遥测点表
     CAT_SpiReadBytes(EEPADD_IECYCADDR, IEC_YC_NUM + 1, g_ucYCAddr);  //读出
@@ -578,7 +664,38 @@ void CheckCfgPara(void)
 		g_gDebugP[Debug_U1BPS]=0;g_gDebugP[Debug_ALLREC]=0;g_gDebugP[Debug_CRC]=0;
 		CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
 		}    	
-
+   /* CAT_SpiReadBytes(EEPADD_IECYKADDR, IEC_YK_NUM + 1, g_ucYKPa);  //读出
+    if (g_ucYKPa[IEC_YK_NUM] != AddChar(g_ucYKPa, IEC_YK_NUM))       //CRC校验
+    {
+        CAT_SpiReadBytes(EEPADDBK_IECYKADDR, IEC_YK_NUM + 1, g_ucYKPa);    //读出
+        if (g_ucYKPa[IEC_YK_NUM] == AddChar(g_ucYKPa, IEC_YK_NUM))       //CRC校验
+        {
+            CAT_SpiWriteBytes(EEPADD_IECYKADDR, IEC_YK_NUM + 1, g_ucYKPa); //备份区覆盖过去
+        }
+        else
+        {
+            RstIEC101YkAddr();  //遥控点表初始化
+            g_ucParaChang |= BIT4;   //调用保存函数
+        }
+    }
+    
+    //电话号码表
+    CAT_SpiReadBytes(EEPADD_PHONE, PHONE_PA_NUM, g_gSmsPhone);  //读出
+    
+    if (g_gSmsPhone[PHONE_CS] != AddChar(g_gSmsPhone, PHONE_CS))       //CRC校验
+    {
+        CAT_SpiReadBytes(EEPADDBK_PHONE, PHONE_PA_NUM, g_gSmsPhone);    //读出
+        if (g_gSmsPhone[PHONE_CS] == AddChar(g_gSmsPhone, PHONE_CS))       //CRC校验
+        {
+            CAT_SpiWriteBytes(EEPADD_PHONE, PHONE_PA_NUM, g_gSmsPhone); //备份区覆盖过去
+        }
+        else
+        {
+            RstSmsPhoneInfo();  //电话号码表初始化
+            g_ucParaChang |= BIT5;   //调用保存函数
+        }
+    }
+    */
 }
 void CheckCfgERR(void)
 {    
@@ -592,18 +709,26 @@ void CheckCfgERR(void)
     		}
 		g_ucParaChang |= BIT0;   //调用保存函数
     }
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_A])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_MODFK])
     {
-        g_gModfiPara[MOD_PLUSE_A]= 0;
+        g_gRunPara[RP_PLUSE_MODFK]= 0;
     }	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_B])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_AMODFK])
     {
-        g_gModfiPara[MOD_PLUSE_B]= 0;
+        g_gRunPara[RP_PLUSE_AMODFK]= 0;
     }	
-    if(g_gRunPara[RP_PLUSE_TIME]<=g_gModfiPara[MOD_PLUSE_C])
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_BMODFK])
     {
-        g_gModfiPara[MOD_PLUSE_C]= 0;
+        g_gRunPara[RP_PLUSE_BMODFK]= 0;
+    }	
+    if(g_gRunPara[RP_PLUSE_TIME]<=g_gRunPara[RP_PLUSE_CMODFK])
+    {
+        g_gRunPara[RP_PLUSE_CMODFK]= 0;
     }		
+    if(g_gRunPara[RP_RHPLUSE_TIME2]<=g_gRunPara[RP_PLUSEXH_MODFK])
+    {
+        g_gRunPara[RP_PLUSEXH_MODFK]= 0;
+    }
     if((g_gRunPara[RP_PLUSE_NUM]<6)||(g_gRunPara[RP_PLUSE_NUM]>8))
     {
         g_gRunPara[RP_PLUSE_NUM]= 8;
@@ -727,38 +852,13 @@ void CheckProtCnt(void)
 //  功能描述   : 从EEPROM中读取校正参数，并做校验判断数据的有效性，数据错误则报校正参数错误遥信，并把校正参数置为默认值
 //  输入参数   : <无>
 //  输出参数   ：<无>
-//  返回值     : <无>g_gModfiPara[Modfi_CRC] = CrcCount((unsigned int *)g_gModfiPara, Modfi_CRC);//CRC校验
-//    CAT_SpiWriteWords(EEPADD_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara); 
+//  返回值     : <无>
 //  其他说明   : 
 //  作者       ：林中一
 //==============================================================================
 void CheckAdjPara(void)
-{    
-	CAT_SpiReadWords(EEPADD_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);  //读出
-    if (g_gModfiPara[Modfi_CRC] == CrcCount((unsigned int *)g_gModfiPara, Modfi_CRC))       //CRC校验
-    	{       
-    	}
-	else
-		{
-		CAT_SpiReadWords(EEPADDBK_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);
-		if (g_gModfiPara[Modfi_CRC] == CrcCount((unsigned int *)g_gModfiPara, Modfi_CRC))
-			{
-			CAT_SpiWriteWords(EEPADD_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);
-			}
-		else
-			{
-			RstModfiPARA();
-			}
-		}
-	char i;
-	for(i = 0; i <= 4; i++)
-          	g_gProcCnt[i] = g_gModfiPara[i];
-	for(i = 0; i < ADJ_CRC; i++) 
-		{
-		g_gAdjAD[i]=g_gModfiPara[MOD_UA_OBJ+i];
-		}
-	/*
-	unsigned int i;
+{
+    unsigned int i;
     CAT_SpiReadWords(EEPADD_BIAS_V, ADJ_PARA_NUM, (unsigned int*)g_gAdjPara);  //读出
     if (g_gAdjPara[ADJ_CRC] == CrcCount((unsigned int *)g_gAdjPara, ADJ_CRC))       //CRC校验
     {
@@ -807,7 +907,7 @@ void CheckAdjPara(void)
 		}
       }      
 	  //张弢 目标校准，上位机下载参数10字节 初始值为电压60V,电流2A
-    */
+    
 }
 
 //==============================================================================
@@ -997,9 +1097,8 @@ void CheckRECPara(void)
 void CalcProtCnt(void)
 {
     unsigned char i;
-    for(i = 5; i <= PROC_CNT_NUM; i++)
-        //g_gProcCnt[i] = g_gRunPara[i + RP_UA_ADJ];
-        g_gProcCnt[i] = g_gRunPara[i + RP_I0_START];
+    for(i = 0; i <= PROC_CNT_NUM; i++)
+        g_gProcCnt[i] = g_gRunPara[i + RP_UA_ADJ];
 //#ifdef YN_101S
     g_gProcCntJug[PC_HIGH_P] = g_gProcCnt[PC_HIGH_P] ;                //相电压高定值
     g_gProcCntJug[PC_LOW_P] = g_gProcCnt[PC_LOW_P];                //相电压低定值
@@ -1067,9 +1166,11 @@ void RstRunPara(void)
     g_gRunPara[RP_YCLIMIT] = 1000;//遥测阈值 绝对
     g_gRunPara[RP_YCCAP] = 50;//遥测阈值 相对
     
-    g_gModfiPara[MOD_PLUSE_A]=3;
-    g_gModfiPara[MOD_PLUSE_B]=3;
-    g_gModfiPara[MOD_PLUSE_C]=3;	
+    g_gRunPara[RP_PLUSE_MODFK]=3;
+    g_gRunPara[RP_PLUSE_AMODFK]=3;
+    g_gRunPara[RP_PLUSE_BMODFK]=3;
+    g_gRunPara[RP_PLUSE_CMODFK]=3;	
+    g_gRunPara[RP_PLUSEXH_MODFK] = 5; 
     
     g_gRunPara[RP_YXRSD_T] = 600;//10分钟 
     
@@ -1222,24 +1323,9 @@ void RstIEC101YcSiqu(void)  //遥测死区的初始化
 
 void RstIEC101YkAddr(void)  //遥控点表的初始化
 {
-
+   
+    
 }
-void RstModfiPARA(void)  //遥控点表的初始化
-{
-	unsigned char i;
-    for(i = 0; i < 6; i++)
-    {
-        g_gModfiPara[i] = 4096;
-    }
-	g_gModfiPara[MOD_UAL_ADJ]=0;g_gModfiPara[MOD_UBL_ADJ]=0;g_gModfiPara[MOD_UCL_ADJ]=0;
-	g_gModfiPara[MOD_PLUSE_A]=3;g_gModfiPara[MOD_PLUSE_B]=3;g_gModfiPara[MOD_PLUSE_C]=3;
-    g_gModfiPara[MOD_UA_OBJ]=2048;g_gModfiPara[MOD_UB_OBJ]=2048;g_gModfiPara[MOD_UC_OBJ]=2048;
-    g_gModfiPara[MOD_U0_OBJ]=2048;g_gModfiPara[MOD_I0_OBJ]=2048;g_gModfiPara[MOD_UPT_OBJ]=2048;   
-	g_gModfiPara[Modfi_CRC] = CrcCount((unsigned int *)g_gModfiPara, Modfi_CRC);//CRC校验
-    CAT_SpiWriteWords(EEPADD_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);  
-	CAT_SpiWriteWords(EEPADDBK_ADJOBJ, Modfi_PARA_NUM, (unsigned int*)g_gModfiPara);
-}
-
 
 void RstSmsPhoneInfo(void)  //电话号码表的初始化
 {

@@ -116,9 +116,9 @@ void GetAcSamData(void)
             if(i == CHAN_U0 && g_gProcCnt[PC_U0_CAL] == 0)  //
                 g_sSampleData.m_gAcAdcData[i][AcSamTail] = g_sSampleData.m_gAcAdcData[i - 1][AcSamTail] + g_sSampleData.m_gAcAdcData[i - 2][AcSamTail] + g_sSampleData.m_gAcAdcData[i - 3][AcSamTail]; 
             else
-                g_sSampleData.m_gAcAdcData[i][AcSamTail] = (int)(((long)Polarity - g_gModfiPara[MOD_UA_OBJ+i]) * g_gProcCnt[PC_UA_ADJ + i] >> 12);    //* g_gAdjPara[ADJ_DEST_CHNIA + i] >> 10启动一次交流电压电流采集，把交流电压电流采集数据保存到g_sSampleData.m_gAcAdcData
+                g_sSampleData.m_gAcAdcData[i][AcSamTail] = (int)(((long)Polarity - g_gAdjPara[i]) * g_gProcCnt[PC_UA_ADJ + i] >> 12);    //* g_gAdjPara[ADJ_DEST_CHNIA + i] >> 10启动一次交流电压电流采集，把交流电压电流采集数据保存到g_sSampleData.m_gAcAdcData
            if(i==CHAN_Upt)//upt to uo//Uo to Upt
-		  		g_sSampleData.m_gAcAdcData[i][AcSamTail] = (int)(((long)Polarity - g_gModfiPara[MOD_UA_OBJ+i]) * g_gProcCnt[PC_UA_ADJ + i] >> 12);    //* g_gAdjPara[ADJ_DEST_CHNIA + i] >> 10启动一次交流电压电流采集，把交流电压电流采集数据保存到g_sSampleData.m_gAcAdcData
+		  g_sSampleData.m_gAcAdcData[i][AcSamTail] = (int)(((long)Polarity - g_gAdjPara[3]) * g_gProcCnt[PC_UA_ADJ + 3] >> 12);    //* g_gAdjPara[ADJ_DEST_CHNIA + i] >> 10启动一次交流电压电流采集，把交流电压电流采集数据保存到g_sSampleData.m_gAcAdcData
 		  
             Value1 = g_sSampleData.m_gAcAdcData[i][AcSamTail];
             Value2 = g_sSampleData.m_gAcAdcData[i][LastSamTail];
@@ -298,7 +298,7 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
       }
       if((eight_pulse_flag%2)==0)  ///////高脉冲
       {
-        //eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
         //g_sRecData.m_ucRecStart = ON;
         if(pulse_phase_flag==1)    ///////A相
         {g_gKONBK=1;
@@ -307,7 +307,7 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
           KA0_ON;
           g_sRecData.m_ucRecStart = ON;
 	   g_gKON=1;	 
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_A];
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_AMODFK];
         }
         else if(pulse_phase_flag==2)  ///////B相
         {	g_gKONBK=2;
@@ -315,7 +315,7 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
           KA0_OFF;
           KB0_ON;
 	   g_gKON=2; 
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_B];
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_BMODFK];
         }
         else if(pulse_phase_flag==3)  //////C相
         {g_gKONBK=3;
@@ -324,7 +324,7 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
           KC0_ON;
 	   g_gKON=3;		  
           g_sRecData.m_ucRecStart = ON;
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_C];	  
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_CMODFK];	  
         }
         if(pulse_phase_flag != 2 ) //B相不录播
         {
@@ -332,48 +332,48 @@ void JAGACT1(void)//动作2次 超前相动作，滞后相动作
       }	
       else if((eight_pulse_flag%4)==3)  ///////低脉冲 1S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;
           g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];	  
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;
           g_gKON=OFF;	
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];	  
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF; 
           g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
         }
       }	
       else if((eight_pulse_flag%4)==1)  ///////低脉冲 1.25S      2014.8.5修改为1.5S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;
           g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];	  
           //g_gRmtInfo[0] &= ~YX_A_ACTION;
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;          
           g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];	  
           // g_gRmtInfo[0] &= ~YX_B_ACTION;
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF; 
           g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
           // g_gRmtInfo[0] &= ~YX_C_ACTION;
         }  
       }		    	
@@ -431,7 +431,7 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
       }
       if((eight_pulse_flag%2)==0)  ///////高脉冲
       {
-        //eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
         //g_sRecData.m_ucRecStart = ON;
         if(pulse_phase_flag==1)    ///////A相
         {g_gKONBK=1;
@@ -440,7 +440,7 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
           KA0_ON;
           g_gKON=1;		  
           g_sRecData.m_ucRecStart = ON;
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_A];	  
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_AMODFK];	  
         }
         else if(pulse_phase_flag==2)  ///////B相
         {	g_gKONBK=2;
@@ -448,7 +448,7 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
           KA0_OFF;
           KB0_ON;
           g_gKON=2;	 
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_B];	  
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_BMODFK];	  
         }
         else if(pulse_phase_flag==3)  //////C相
         {g_gKONBK=3;
@@ -457,7 +457,7 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
           KC0_ON;
           g_gKON=3;		  
           g_sRecData.m_ucRecStart = ON;
-	  eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_C];	  
+	  eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_CMODFK];	  
         }
         if(pulse_phase_flag != 2 ) //B相不录播
         {/*
@@ -474,42 +474,42 @@ void JAGACT2(void)//动作3次 超前相动作，滞后相动作，故障相动作
        }	
       else if((eight_pulse_flag%4)==3)  ///////低脉冲 1S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;  g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;  g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF;  g_gKON=OFF; 
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
         }
       }	
       else if((eight_pulse_flag%4)==1)  ///////低脉冲 1.25S      2014.8.5修改为1.5S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;  g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];	  
           //g_gRmtInfo[0] &= ~YX_A_ACTION;
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;  g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];	  
           // g_gRmtInfo[0] &= ~YX_B_ACTION;
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF;   g_gKON=OFF;
-	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	   eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
           // g_gRmtInfo[0] &= ~YX_C_ACTION;
         }  
       }		    	
@@ -591,7 +591,7 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
       }
       if((eight_pulse_flag%2)==0)  ///////高脉冲
       {
-        //eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
         //g_sRecData.m_ucRecStart = ON;
         if(pulse_phase_flag==1)    ///////A相
         {g_gKONBK=1;
@@ -599,14 +599,14 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
           KC0_OFF;
           KA0_ON;  g_gKON=1;
           g_sRecData.m_ucRecStart = ON;
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_A];	  
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_AMODFK];	  
         }
         else if(pulse_phase_flag==2)  ///////B相
         {g_gKONBK=2;
           KC0_OFF;
           KA0_OFF;
           KB0_ON;  g_gKON=2;
-	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_B];	  
+	   eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_BMODFK];	  
         }
         else if(pulse_phase_flag==3)  //////C相
         {g_gKONBK=3;
@@ -614,7 +614,7 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
           KB0_OFF;
           KC0_ON;  g_gKON=3;
           g_sRecData.m_ucRecStart = ON;
-	  eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_C];	  
+	  eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_CMODFK];	  
         }
         if(pulse_phase_flag != 2 ) //B相不录播
         {/*
@@ -631,42 +631,42 @@ void JAGACT3(void)//动作2次 只有AC相有接触器，超前相动作，另一相动作
        }	
       else if((eight_pulse_flag%4)==3)  ///////低脉冲 1S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;  g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];	  
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;  g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];	  
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF;   g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
         }
       }	
       else if((eight_pulse_flag%4)==1)  ///////低脉冲 1.25S      2014.8.5修改为1.5S
       {
-        //eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+        eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
         if(pulse_phase_flag==1)    ///////A相
         {
           KA0_OFF;  g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];	  
           //g_gRmtInfo[0] &= ~YX_A_ACTION;
         }
         else if(pulse_phase_flag==2)  ///////B相
         {
           KB0_OFF;  g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];	  
           // g_gRmtInfo[0] &= ~YX_B_ACTION;
         }
         else if(pulse_phase_flag==3)  //////C相
         {
           KC0_OFF;   g_gKON=OFF;
-	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];	  
+	eight_pulse_counter= g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];	  
           // g_gRmtInfo[0] &= ~YX_C_ACTION;
         }  
       }			
@@ -730,7 +730,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
 
                  if((eight_pulse_flag%2)==0)  ///////高脉冲
                  {
-                     //eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
+                     eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK];
                     // g_sRecData.m_ucRecStart = ON;
                      if(pulse_phase_flag==1)    ///////A相
                     {g_gKONBK=1;
@@ -738,7 +738,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
                         KC0_OFF;
                         KA0_ON;  g_gKON=1;
                         g_sRecData.m_ucRecStart = ON;
-			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_A];			
+			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_AMODFK];			
                   //      g_gRmtInfo[0] |= YX_A_ACTION;
                     }
                     else if(pulse_phase_flag==2)  ///////B相
@@ -746,7 +746,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
                         KC0_OFF;
                         KA0_OFF;
                         KB0_ON;  g_gKON=2;
-			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_B];			
+			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_BMODFK];			
                    //     g_gRmtInfo[0] |= YX_B_ACTION;
                     }
                     else if(pulse_phase_flag==3)  //////C相
@@ -755,7 +755,7 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
                         KB0_OFF;
                         KC0_ON;  g_gKON=3;
                         g_sRecData.m_ucRecStart = ON;
-			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gModfiPara[MOD_PLUSE_C];			
+			eight_pulse_counter= g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_CMODFK];			
                     //    g_gRmtInfo[0] |= YX_C_ACTION;
                     }
                     if(pulse_phase_flag != 2 ) //B相不录播
@@ -773,45 +773,45 @@ void JAGACT4(void)//动作1次 只有AC相有接触器，超前相动作
                  }	
                  else if((eight_pulse_flag%4)==3)  ///////低脉冲 1S
                  {
-                     //eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+                     eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
                      if(pulse_phase_flag==1)    ///////A相
                     {
                           KA0_OFF;  g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];			  
                      //     g_gRmtInfo[0] &= ~YX_A_ACTION;
                     }
                     else if(pulse_phase_flag==2)  ///////B相
                     {
                           KB0_OFF;  g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];			  
                        //   g_gRmtInfo[0] &= ~YX_B_ACTION;
                     }
                     else if(pulse_phase_flag==3)  //////C相
                     {
                           KC0_OFF;   g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME1] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];			  
                        //   g_gRmtInfo[0] &= ~YX_C_ACTION;
                     }   
                  }
                  else if((eight_pulse_flag%4)==1)  ///////低脉冲 1.25S
                  {
-                     //eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
+                     eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_MODFK];
                      if(pulse_phase_flag==1)    ///////A相
                     {
                           KA0_OFF;  g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_A];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_AMODFK];			  
                      //     g_gRmtInfo[0] &= ~YX_A_ACTION;
                     }
                     else if(pulse_phase_flag==2)  ///////B相
                     {
                           KB0_OFF;  g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_B];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_BMODFK];			  
                         //  g_gRmtInfo[0] &= ~YX_B_ACTION;
                     }
                     else if(pulse_phase_flag==3)  //////C相
                     {
                           KC0_OFF;   g_gKON=OFF;
-			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gModfiPara[MOD_PLUSE_C];			  
+			eight_pulse_counter=g_gProcCnt[PC_SEND_TIME2] - g_gProcCnt[PC_PLUSE_TIME]+g_gRunPara[RP_PLUSE_CMODFK];			  
                        //   g_gRmtInfo[0] &= ~YX_C_ACTION;
                     }   
                  }
@@ -1185,7 +1185,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
     	    abnormal_ctl_flag=5;              ///////状态异常遥控标志
     	    save_abnormal=0x55;
             g_gRmtInfo[YX_EFS_ABNORMAL] = 1;
-            KB1_ON;	
+            KA1_ON;	
 		KMP_CLR;
             for(i=0;i<6;i++)
                 g_sSoeData.m_gAbnBuff[i] = g_sRtcManager.m_gRealTimer[i];
@@ -1218,7 +1218,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
             {
                  save_abnormal=0x66;
                  //g_gRmtInfo[YX_EFS_ABNORMAL] =0;
-             	 KB1_OFF; 
+             	 KA1_OFF; 
                  for(i=0;i<6;i++)
                      g_sSoeData.m_gAbnOFFBuff[i] = g_sRtcManager.m_gRealTimer[i]; 
                  g_sSoeData.m_gAbnOFFBuff[0] = g_sRtcManager.m_gRealTimer[RTC_YEAR] - 2000;             
@@ -1254,12 +1254,16 @@ _EINT();//开总中断// 张弢测试中断嵌套
               	
                       	}
        	         }
-                 if((eight_delay_counter>0)&&(efslatch_flag==0))
+                 if(eight_delay_counter>0)
                 {
                     eight_delay_counter--;
 		      if((eight_delay_counter==80)&&(g_sRecData.m_ucActRecStart == CLOSE)&&(g_sRecData.m_ucRecSavingFlag == OFF))	
 		      	{//动作录波要在继电器动作前最少0.5秒开始，现在设定提前0.8s
+<<<<<<< HEAD
 		      	if(g_gDebugP[Debug_ALLREC]==0)//����¼��ģʽ
+=======
+		      	if(g_gDebugP[Debug_ALLREC]!=0x55)//����¼��ģʽ
+>>>>>>> parent of 5143f80... test1
 		      		{
 					unsigned long ulAddr =FADDR_RECORDER_ACTDATA+ (unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;//flash地址  
   					g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址 	
@@ -1285,16 +1289,106 @@ _EINT();//开总中断// 张弢测试中断嵌套
                 DetecI0();
                 //if(g_sRecData.m_ucRecStart == ON)  //张弢开关已经闭合
                 //if((g_gKON>0)&&(g_gKON<4))//张弢开关已经闭合
+<<<<<<< HEAD
 
+=======
+	unsigned char ka,kb,kc;
+	if(g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_CON_NC])
+		{//0=nc
+		ka=0x08;kb=0x10;kc=0x20;
+		}
+	else
+		{//0=no
+		ka=0;kb=0;kc=0;
+		}	
+#ifdef CONDIN_3
+                if(g_gRmtMeas[RM_I0] >=I01A)
+                    {
+                     g_I0RmtZeroNum=0;
+			//g_gRmtInfo[YX_BREAK]=0;
+                	}
+	  	  		if((KJa1==ka)||(KJb1==kb)||(KJc1==kc)||(g_gKON==1)||(g_gKON==2)||(g_gKON==3))
+#else	                
+                if(KJb1==kb)
+#endif					
+                 	{
+		  			KMon=0x55;
+		  			}
+				if(KMon==0x55)
+          			{
+                    NumKON++;
+		      		if(NumKON==12)
+						{//8脉冲继电器闭合130ms后，记录电流值
+						if(Numyc<8)
+							{
+			  				yc[Numyc]=g_gRmtMeas[RM_I0]; 
+                            Numyc++;
+							}
+		      			}
+                    //g_sRecData.m_I0RmtMeas[g_sRecData.m_I0RmtNum] = g_gRmtMeas[4];
+                    if(g_gRmtMeas[RM_I0] >= g_gProcCntJug[PC_PULSE_VALID])
+                    	{
+                        g_I0RmtZeroNum=0;
+			   			//g_gRmtInfo[YX_BREAK]=0; 			
+                        if(g_I0RmtNum < 19)
+                            g_I0RmtNum++;
+                    	}
+		      		if(g_gRmtMeas[RM_I0] < I01A)
+		      			{
+		      			g_I0RmtZeroNum++;
+		      			}
+					//if(NumKON>(7+g_gProcCnt[PC_PLUSE_TIME]))
+					if(NumKON>30)
+						KMon=0;
+                	}
+				else //if(g_gKON==OFF)//开关未闭合
+					{
+		  			NumKON=0;		  		
+		  			if(Numyc>=8)Numyc=0;
+		  			if(g_I0RmtNum >= 3) //((g_gProcCnt[PC_PLUSE_TIME]-g_gRunPara[RP_PLUSE_MODFK])/2))     //检测到有效电流
+            			{
+              			g_I0RmtNum = 0;
+               			if(g_MaichongNum < 8)
+                			g_MaichongNum++;  
+						g_gRmtInfo[YX_BREAK]=0;
+						SaveLOG(LOG_BREAK, 0);
+						g_I0RmtZeroNum =0;
+              			}
+            		g_I0RmtNum = 0;	
+					}
+		//if( g_gRmtInfo[YX_EARTH_FAULT] == 0)g_I0RmtZeroNum = 0; 
+		if(g_I0RmtZeroNum>=4*(g_gRunPara[RP_PLUSE_TIME]))
+			{
+			g_gRmtInfo[YX_BREAK]=1; newsms_abn= ON;
+			SaveLOG(LOG_BREAK, 1);			
+            g_I0RmtZeroNum = 0;
+			if((g_gRunPara[RP_CFG_KEY]&BIT[RPCFG_BREAK_STOP8PUL])&&(g_gRmtInfo[YX_MANUAL_ACTION]==0))
+				{
+				//停止8脉冲
+				KA0_OFF; KB0_OFF;KC0_OFF; g_gKON=OFF;//g_gKONBK=OFF;
+				eight_pulse_flag=0;
+    				pulse_phase_flag=0; 
+    				efslatch_flag= g_gProcCntJug[PC_LACTH_TIME];		 	         ///////闭锁17分钟
+    				latch_upload_flag=0x55;      	
+    				uart0_event_flag=0;         ///////在这里置0，是为了让状态量最早显示
+    				g_gRmtInfo[YX_EFS_LATCH] = 1;   //置闭锁遥信位 
+    				g_gRmtInfo[YX_EFS_ACT] = 0;
+    				SaveLOG(LOG_8FULS_STA, 0);
+    				SaveLOG(LOG_LATCH, 1);
+    				chongfa=0;	moniguzhang=0;
+    				g_gRmtMeas[RM_ACT_NUM] = 0;				
+  				 	g_sRecData.m_gACTDelay = 200;//录波 动作录波再录200ms	
+				}
+			}
+>>>>>>> parent of 5143f80... test1
 
                 
                 if(main_reset_flag==0)
     	        {
-    	            //WDG_SET;                         //////设置看门狗    watch dog  hardware      
+    	            WDG_SET;                         //////设置看门狗    watch dog  hardware      
     	        }
                 else if(main_reset_flag == 0x55)
                 {SaveERRData(2);
-				delayms(100);
                     //重启系统
                     WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
                     _DINT();       //关闭全局中断
@@ -1342,7 +1436,7 @@ _EINT();//开总中断// 张弢测试中断嵌套
 				  if((g_gRunPara[RP_RHSEND_TIME1]>0)&&(g_gRunPara[RP_RHPLUSE_TIME2]>0))//RP_RHSEND_TIME1==0 或者RP_RHPLUSE_TIME2==0，关闭燃弧功能
 					  {
 					  if(g_sRecData.m_gXHDelay >0)g_sRecData.m_gXHDelay++;
-					  if(g_sRecData.m_gXHDelay>=(g_gRunPara[RP_RHSEND_TIME1]+g_gRunPara[RP_RHPLUSE_TIME2]))
+					  if(g_sRecData.m_gXHDelay>=(g_gRunPara[RP_RHSEND_TIME1]+g_gRunPara[RP_RHPLUSE_TIME2]-g_gRunPara[RP_PLUSEXH_MODFK]))
 						  {//关故障相继电器
 						  g_gRmtInfo[YX_RH_ACT]=0; //装置熄弧动作 遥信
 						  KA0_OFF;
@@ -1375,7 +1469,11 @@ _EINT();//开总中断// 张弢测试中断嵌套
 					  else if(g_sRecData.m_gXHDelay>=(g_gRunPara[RP_RHSEND_TIME1]-60))
 						  {
 					  //g_sRecData.m_gXHDelay=fault_time;
+<<<<<<< HEAD
 						  if((g_gDebugP[Debug_ALLREC]==0)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
+=======
+						  if((g_gDebugP[Debug_ALLREC]!=0x55)&&(g_sRecData.m_ucActRecStart == CLOSE))//正常录波模式
+>>>>>>> parent of 5143f80... test1
 						  {
 					  //开始录波
 						  g_test=0;

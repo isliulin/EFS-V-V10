@@ -293,7 +293,7 @@ typedef double         FP64;            //双精度浮点数
 #define YX_U_HIGH              8  //相电压过压告警
 
 #define YX_U_LOW               9 //相电压欠压告警
-//#define YX_EFS_ABNORMAL         10//控制器异常告警
+#define YX_EFS_ABNORMAL         10//控制器异常告警
 #define YX_PHASEA_ACT           11 //A相投切
 #define YX_PHASEB_ACT           12  //B相投切
 #define YX_PHASEC_ACT           13 //C相相投切
@@ -328,7 +328,6 @@ typedef double         FP64;            //双精度浮点数
 #define YX_I0_HIGH         45//I0过流	1：过流状态；0：
 #define YX_KJ_TIMEOVER 46//开关闭合超时	1：超时；0：
 #define YX_I0_TIMEOVER 47//I0超时	1：超时；0：
-#define YX_EFS_ABNORMAL         48//控制器异常告警
 #define YX_SYSRESET 63//系统复位
 //#define YX_I0_HIGH         48//I0过流	1：过流状态；0：
 //#define YX_I0_HIGH         49//I0过流	1：过流状态；0：
@@ -344,7 +343,10 @@ typedef double         FP64;            //双精度浮点数
 #define COEF_U_AD2                      677    //2741=1.157*1.157*2048  0.5748*0.5748*2048= 677
 
 #define I01A   5//I0=1A=1000mA,二次电流为50mA，
+<<<<<<< HEAD
 #define I0JugTime   40//
+=======
+>>>>>>> parent of 5143f80... test1
 //============================  保护电量        =======================================
 #define PROC_MEAS_NUM           8
 
@@ -413,8 +415,8 @@ typedef double         FP64;            //双精度浮点数
 #define RP_DYX_INFADDR     	7    //双点遥信起始信息体?
 #define RP_YCLIMIT              	 8   //遥测绝对越限值
 #define RP_YCCAP                	 9   //遥测相对越限值 相对指百分比
-//#define RP_PLUSE_MODFK	   	10  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 默认0
-//#define RP_PLUSEXH_MODFK	11  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 
+#define RP_PLUSE_MODFK	   	10  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 默认0
+#define RP_PLUSEXH_MODFK	11  //脉冲宽度修正，实际脉冲宽度为10ms为 RP_PLUSE_TIME -RP_PLUSE_MODFK 单位10ms 
 //#define RP_DEVICE_TYPE		11     //设备类型 0 = 一遥； 1 = 二遥 ；2=信号源
 #define RP_YXRSD_T               12   //遥信重发间隔步长
 #define YX_delay                 13   //防抖时间间隔
@@ -516,27 +518,6 @@ typedef double         FP64;            //双精度浮点数
 #define RPCFG_BREAK_STOP8PUL     13     //0=断线后不停止8脉冲，1=断线后停止8脉冲 
 #define RPCFG_CURRENT_PRIMARY   14     //0=电流为2次值，1=电流为1次值，2次值*CT变比
 #define RPCFG_ENCRYPT			  15// 1=加密
-
-#define MOD_UA_ADJ				0
-#define MOD_UB_ADJ				1
-#define MOD_UC_ADJ				2
-#define MOD_U0_ADJ				3
-#define MOD_I0_ADJ				4
-#define MOD_UPT_ADJ				5
-#define MOD_UAL_ADJ				6
-#define MOD_UBL_ADJ				7
-#define MOD_UCL_ADJ				8
-#define MOD_PLUSE_A				9
-#define MOD_PLUSE_B				10
-#define MOD_PLUSE_C				11
-#define MOD_UA_OBJ				12
-#define MOD_UB_OBJ				13
-#define MOD_UC_OBJ				14
-#define MOD_U0_OBJ				15
-#define MOD_I0_OBJ				16
-#define MOD_UPT_OBJ				17
-#define Modfi_CRC                   23 
-#define Modfi_PARA_NUM             24//
 //================================  定时器变量  ==========================
 
 #define TIMER_NUM            19  //定时器个数 1s为单位

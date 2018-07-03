@@ -308,7 +308,7 @@ void InitDataProc(void)
   Sector_Erase(ulAddr+0x7000);//ERASE 1个BLOCK 
   delayms(100);WatchDog();
   
-  //FlashReading = 0;
+  FlashReading = 0;
   
 //负荷记录初始化
       CAT_SpiReadWords(EEPADD_LOADNUM, FLOADINFONUM, temp);
@@ -593,6 +593,7 @@ void CalcuRmtMeas(void)
         TempRm = AverFilter(g_gRmAcFilt[9]);        //对UPt遥测量的交流量进行滤波        
         g_gRmtMeas[9] = TempRm/25;	//Uo to Upt
         g_gRmtFilMeas[9]=g_gRmtMeas[9];
+<<<<<<< HEAD
 
 		g_gRmAcFilt[8][g_unFilterIndex]=g_gRmtMeas[RM_UCAP];
 		TempRm = AverFilter(g_gRmAcFilt[8]);
@@ -600,6 +601,8 @@ void CalcuRmtMeas(void)
 
 		g_gRmtFilMeas[RM_CSQ]=g_gRmtMeas[RM_CSQ];g_gRmtFilMeas[RM_ACT_NUM]=g_gRmtMeas[RM_ACT_NUM];
 		
+=======
+>>>>>>> parent of 5143f80... test1
     g_unFilterIndex++;
     if(g_unFilterIndex >= 10)
     {
@@ -1891,69 +1894,6 @@ void DelALLLOG(void)
 		CAT_SpiWriteWords(EEPADDBK_LOGP, FLOGINFONUM,temp);
 		Sector_Erase(log_recorded.log_FlashNewPtr);
 }
-void DelALLLB(void)
-{
-	unsigned int temp[8];
-	unsigned long ulAddr;
-	
-	temp[0]=0;temp[1]=0;temp[2]=0;temp[3]=0;temp[4]=0;temp[5]=0;		  
-	CAT_SpiWriteWords(EEPADD_LUBONUM, 6, temp); 
-			  g_sRecData.m_gRecANum=temp[0];//录波总条数1~32
-			  g_sRecData.m_gRecCNum=temp[1];//录波当前位置0~31
-			  g_sRecData.m_gACTRecANum=temp[2];//录波总条数1~32
-			  g_sRecData.m_gACTRecCNum=temp[3];//录波当前位置0~31 	 
-			  g_sRecData.m_gXHRecANum=temp[4];//录波总条数1~32
-			  g_sRecData.m_gXHRecCNum=temp[5];//录波当前位置0~31
-	
-	ulAddr = FADDR_RECORDER_DATA+(unsigned long)(g_sRecData.m_gRecCNum)*0x2000;//flash地址  
-	Sector_Erase(ulAddr);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x1000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	
-	ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;	
-	g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址  
-	Block_Erase(ulAddr);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x10000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x20000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x30000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog(); 
-	Block_Erase(ulAddr+0x40000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x50000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x60000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Block_Erase(ulAddr+0x70000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog(); 
-	Block_Erase(ulAddr+0x80000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();  
-	
-	ulAddr = FADDR_RECORDER_XHDATA+(unsigned long)(g_sRecData.m_gXHRecCNum)*0x8000;//flash地址
-	//g_sRecData.m_gActRecAdr = ulAddr;//更新flash地址	
-	Sector_Erase(ulAddr);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x1000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x2000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x3000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x4000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x5000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x6000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();
-	Sector_Erase(ulAddr+0x7000);//ERASE 1个BLOCK 
-	delayms(100);WatchDog();  
-	//FlashReading = 0;   
-
-}
-
 //==============================================================================
 //  函数名称   : CheckRECPara
 //  功能描述   : 从EEPROM中读取录波条数及录波所在当前页
@@ -1987,7 +1927,6 @@ void SaveERRNum(unsigned int ErrNum)
 {
 	g_gDebugP[Debug_2]=LOBYTE(ErrNum);
 	g_gDebugP[Debug_3]=HIBYTE(ErrNum);
-	//g_gDebugP[Debug_3]=ErrNum;
 	g_gDebugP[Debug_CRC]=AddChar(g_gDebugP,Debug_CRC);				
 	CAT_SpiWriteBytes(EEPADD_DEBUG,Debug_PARA_NUM, g_gDebugP);
 

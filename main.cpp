@@ -17,8 +17,7 @@ void app(void)@"APPLICATION"
     InitSys();    
       //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(0,11,null);
 	//WDG_CLR;delayms(3000);   WDG_CLR;     
-      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);	
-    SaveERRNum(SYSRSTIV);
+      //if(pGprs!= null) ((CPrtcSms*)pGprs)->SendRCmdToIHD(5,11,null);		
 	SaveLOG(LOG_RESET,1);
     while(1)
     { 
@@ -76,12 +75,21 @@ void app(void)@"APPLICATION"
 #endif	
 		CheckCfgERR();
         }
+<<<<<<< HEAD
   	SaveActRecData();
 	CalcuRmtMeas();//有效值计算，并更新对应的遥测值
   	ScanDin();
 	SaveActRecData();
 	YCthCross();//遥测越限判断	
   	ProtLogic();   
+=======
+    	 SaveActRecData();
+        CalcuRmtMeas();//有效值计算，并更新对应的遥测值
+        ScanDin();
+		 SaveActRecData();
+	 YCthCross();//遥测越限判断	
+     ProtLogic();   
+>>>>>>> parent of 5143f80... test1
 	if(newsms_8pluse == ON)
 		{	
 		newsms_8pluse = OFF;
@@ -94,6 +102,7 @@ void app(void)@"APPLICATION"
 		} 
 	SaveActRecData();
 	FEED_WATCH_DOG();
+<<<<<<< HEAD
         //Comm_LED_101(); //液晶通信       
         //if(g_ucGPRSState==GPRSState_IDLE)
 	Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS
@@ -103,6 +112,18 @@ void app(void)@"APPLICATION"
         
    	SaveCfgPara();
 	SaveActRecData();
+=======
+        //Comm_LED_101(); //液晶通信
+        FEED_WATCH_DOG();
+        //if(g_ucGPRSState==GPRSState_IDLE)
+	 Comm_GPRS_SMS();////张弢0330 如串口在空闲状态，则可以发送SMS
+      SaveActRecData();   
+        if(pDbg != null) pDbg->Run();
+        if(pGprs != null) pGprs->Run();
+        
+        SaveCfgPara();
+		SaveActRecData();
+>>>>>>> parent of 5143f80... test1
 
 			if(g_sRecData.m_ucRecSavingFlag == YES)//如果有新的录波数据则分批次保存到FLASH中
             	{
@@ -126,6 +147,7 @@ void app(void)@"APPLICATION"
 		      			}
 		        } 
 	 	
+<<<<<<< HEAD
 	ClkChange();    //在实际试验过程发现MSP430容易出现由外部晶振自动切换为内部DCO，因此需要及时发现并切回来。
 	FEED_WATCH_DOG();
  	SaveSoeDataRepeat();
@@ -144,6 +166,26 @@ void app(void)@"APPLICATION"
   	if(g_sRecData.m_EraseBlock == ON)
    		{
       	g_sRecData.m_EraseBlock = OFF;
+=======
+        ClkChange();    //在实际试验过程发现MSP430容易出现由外部晶振自动切换为内部DCO，因此需要及时发现并切回来。
+        FEED_WATCH_DOG();
+        SaveSoeDataRepeat();
+		SaveActRecData();
+        RmInfoChk();//张弢 移入主循环，否则栈太大无法中断嵌套
+        g_gRmtInfo[YX_SYSRESET] =0;
+        //ScanDinYX();//张弢 移入主循环，否则栈太大无法中断嵌套	
+        //ScanSoftLacth();//pt断线软闭锁
+        if((g_gSaveload>=g_gRunPara[RP_FLOAD_T] )&&(g_gRunPara[RP_FLOAD_T] !=0))//每隔一段时间存储负荷记录
+        	{
+        	g_gSaveload=0;
+		SaveLoad();	
+        	}
+		SaveFlashLOG();
+		 SaveActRecData();
+        if(g_sRecData.m_EraseBlock == ON)
+        	{
+        	g_sRecData.m_EraseBlock = OFF;
+>>>>>>> parent of 5143f80... test1
 		long ulAddr = FADDR_RECORDER_ACTDATA+(unsigned long)(g_sRecData.m_gACTRecCNum)*0x90000;    
   		Block_Erase(ulAddr);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();
@@ -163,10 +205,17 @@ void app(void)@"APPLICATION"
   		delayms(100);WatchDog(); 
   		Block_Erase(ulAddr+0x80000);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();   
+<<<<<<< HEAD
        	}
   	if(g_sRecData.m_EraseBlock == YES)
       	{
        	g_sRecData.m_EraseBlock = OFF;
+=======
+        	}
+        if(g_sRecData.m_EraseBlock == YES)
+        	{
+        	g_sRecData.m_EraseBlock = OFF;
+>>>>>>> parent of 5143f80... test1
 		long ulAddr = FADDR_RECORDER_XHDATA+(unsigned long)(g_sRecData.m_gXHRecCNum)*0x8000;    
   		Sector_Erase(ulAddr);//ERASE 1个BLOCK 
   		delayms(100);WatchDog();
@@ -184,8 +233,14 @@ void app(void)@"APPLICATION"
  		 delayms(100);WatchDog();
   		Sector_Erase(ulAddr+0x7000);//ERASE 1个BLOCK 
   		delayms(100);WatchDog(); 
+<<<<<<< HEAD
 		}
 	SaveActRecData();
+=======
+
+        	}
+		 SaveActRecData();
+>>>>>>> parent of 5143f80... test1
     }//end of while(1)
     
 
@@ -381,8 +436,7 @@ bool TimeOut(int flag)
            pDbg->initpara();
        if(pGprs != null)
           pGprs->initpara();
-       InitCommObj();
-	   /*
+          
        //若是端口重新分配，则需要重判断类对象的启动或停止
         BYTE bChange= 0;
        for(int i = 0;i < 4;i++)
@@ -395,7 +449,7 @@ bool TimeOut(int flag)
        }
        if(bChange == 1)
           InitCommObj();
-       */
+       
     }
     
     return;
@@ -445,115 +499,4 @@ BOOL CheckHaveDataToSd()
   return 0;
 }
 
-#pragma vector=UNMI_VECTOR
-__interrupt void unmi_isr(void)
-{ 
-	switch(__even_in_range(SYSUNIV, 0x08))
-		{
-		case 0x00: 
-			SaveERRData(7);  
-			delayms(100);
-			break;
-		case 0x02: 
-			SaveERRData(3); 
-			delayms(100);
-            //WDTCTL = WDTPW+WDTIS1+WDTIS0 + WDTIS2;//修改看门狗的周期，从而能够更快重启
-            //_DINT();       //关闭全局中断
-            //while(1);
-			break; // NMIIFG
-		case 0x04: 
-			SaveERRData(4); 
-			delayms(100);
-			break; // OFIFG
-		case 0x06: 
-			SaveERRData(5);  
-			delayms(100);            
-			break; // ACCVIFG
-		/*
-		case 0x08: // BUSIFG
-		// If needed, obtain the flash error location here.
-		ErrorLocation = MidGetErrAdr();
-		switch(__even_in_range(SYSBERRIV, 0x08))
-			{ 
-			case 0x00: break; // no bus error
-			case 0x02: break; // USB bus error
-			case 0x04: break; // reserved
-			case 0x06: // MID error
-			//<place your MID error handler code here>
-			break;
-			case 0x08: break;
-			default: break;
-			}
-		break;
-		*/
-		default: 
-			SaveERRData(6);  
-			delayms(100);
-			break;
-        }
-}
-
-#pragma vector=SYSNMI_VECTOR
-__interrupt void sysnmi_isr(void)
-{
-	switch(__even_in_range(SYSSNIV, 0x08))
-		{
-		case 0x00: break;
-		case 0x02: 
-			break;
-		case 0x04: 
-			break;
-		case 0x06: 
-			break;
-		case 0x08: 
-			break;
-		case 0x0a: 
-			break;
-		case 0x0c: 
-			break;
-		case 0x0e: 
-			break;
-		case 0x10: 
-			break;
-		case 0x12: 
-			break;
-		default: 
-			break;
-		}
-	SaveERRData(9);  
-	delayms(100);            
-}
-/*
-#pragma vector=RESET_VECTOR
-__interrupt void sysreset_isr(void)
-{
-	switch(__even_in_range(SYSRSTIV, 0x08))
-		{
-		case 0x00: break;
-		case 0x02: 
-			break;
-		case 0x04: 
-			break;
-		case 0x06: 
-			break;
-		case 0x08: 
-			break;
-		case 0x0a: 
-			break;
-		case 0x0c: 
-			break;
-		case 0x0e: 
-			break;
-		case 0x10: 
-			break;
-		case 0x12: 
-			break;
-		default: 
-			break;
-		}
-	SaveERRData(10); 
-	SaveERRNum(SYSRSTIV);        
-	delayms(100);        
-}
-*/
 #endif
